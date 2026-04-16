@@ -183,3 +183,26 @@ body {
 .markdown-content hr {
   @apply border-zinc-700 my-4;
 }
+
+/* Prose contrast overrides — ensure WCAG AA on dark backgrounds */
+.prose-invert :where(strong):not(:where([class~="not-prose"] *, [class~="not-prose"])) {
+  color: rgb(255 255 255);
+  font-weight: 700;
+}
+.prose-invert :where(em):not(:where([class~="not-prose"] *, [class~="not-prose"])) {
+  color: rgb(244 244 245);
+}
+.prose-invert :where(h1, h2, h3, h4):not(:where([class~="not-prose"] *, [class~="not-prose"])) {
+  color: rgb(255 255 255);
+}
+.prose-invert :where(code):not(:where([class~="not-prose"] *, [class~="not-prose"])) {
+  color: rgb(244 244 245);
+  background-color: rgb(39 39 42);
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+.prose-invert :where(code):not(:where([class~="not-prose"] *, [class~="not-prose"]))::before,
+.prose-invert :where(code):not(:where([class~="not-prose"] *, [class~="not-prose"]))::after {
+  content: none;
+}
