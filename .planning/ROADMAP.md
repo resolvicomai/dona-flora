@@ -13,7 +13,7 @@ Dona Flora is built in four phases that follow a strict dependency chain: infras
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Data Layer** - Docker deployment, Markdown schema, LibraryService, Next.js skeleton (completed 2026-04-16)
-- [ ] **Phase 2: Catalog Core** - Add/edit/delete books, status workflow, ratings, notes, manual edit sync
+- [x] **Phase 2: Catalog Core** - Add/edit/delete books, status workflow, ratings, notes, manual edit sync (completed 2026-04-16)
 - [ ] **Phase 3: Browse & UI** - Responsive catalog view, filters, search, book detail page
 - [ ] **Phase 4: AI Librarian** - Chat interface, full library context, recommendations, reading trails
 
@@ -42,14 +42,14 @@ Plans:
   2. User can change a book's status (quero-ler, lendo, lido, quero-reler, abandonado), rate it 1-5 stars, and write personal notes -- all persisted to the Markdown file
   3. User can edit metadata and delete a book from the catalog
   4. A Markdown file edited manually outside the app (e.g., in Obsidian) shows updated data when the interface is refreshed
-**Plans:** 3/6 plans executed
+**Plans:** 6/6 plans complete
 Plans:
 - [x] 02-01-PLAN.md -- LibraryService CRUD (writeBook, updateBook, deleteBook) + slug generation + unit tests
 - [x] 02-02-PLAN.md -- Google Books + Open Library API clients + Markdown rendering pipeline + tests
 - [x] 02-03-PLAN.md -- shadcn/ui init + next.config image patterns + shared components (StarRating, StatusBadge, BookCover)
 - [x] 02-04-PLAN.md -- API routes: POST/PUT/DELETE /api/books, POST /api/books/search
 - [x] 02-05-PLAN.md -- Home page redesign with book grid + AddBookDialog (search + manual add)
-- [ ] 02-06-PLAN.md -- Book detail page /books/[slug] + edit form + delete button + human verification
+- [x] 02-06-PLAN.md -- Book detail page /books/[slug] + edit form + delete button + human verification
 **UI hint**: yes
 
 ### Phase 3: Browse & UI
@@ -85,6 +85,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Layer | 2/2 | Complete    | 2026-04-16 |
-| 2. Catalog Core | 3/6 | In Progress|  |
+| 2. Catalog Core | 6/6 | Complete   | 2026-04-16 |
 | 3. Browse & UI | 0/TBD | Not started | - |
 | 4. AI Librarian | 0/TBD | Not started | - |
