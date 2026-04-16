@@ -72,7 +72,31 @@ describe('searchGoogleBooks', () => {
     expect(results[0].isbn).toBe('9788576570509')
   })
 
-  it('includes langRestrict=pt in request URL', async () => {
+  it('prefixes bare ISBN queries with isbn: so Google Books returns a match', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    await searchGoogleBooks('9786527411819')
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toContain('q=isbn%3A9786527411819')
+  })
+
+  it('strips hyphens and spaces from ISBN before prefixing', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    await searchGoogleBooks('978-65-274-1181-9')
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toContain('q=isbn%3A9786527411819')
+  })
+
+  it('keeps non-ISBN queries untouched', async () => {
     const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => ({ items: [] }),
@@ -81,7 +105,8 @@ describe('searchGoogleBooks', () => {
     await searchGoogleBooks('Fundacao')
 
     const calledUrl = String(fetchSpy.mock.calls[0][0])
-    expect(calledUrl).toContain('langRestrict=pt')
+    expect(calledUrl).toContain('q=Fundacao')
+    expect(calledUrl).not.toContain('isbn%3A')
   })
 
   it('throws on non-OK response', async () => {
