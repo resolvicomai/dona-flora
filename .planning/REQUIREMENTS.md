@@ -10,7 +10,7 @@
 
 ### CATALOG — Catálogo de Livros
 
-- [ ] **CATALOG-01**: Usuário pode adicionar livro digitando título ou ISBN — sistema busca dados automaticamente (Google Books → Open Library como fallback)
+- [x] **CATALOG-01**: Usuário pode adicionar livro digitando título ou ISBN — sistema busca dados automaticamente (Google Books → Open Library como fallback)
 - [x] **CATALOG-02**: Cada livro cadastrado gera um arquivo Markdown em `/data/books/` com frontmatter YAML (título, autor, ISBN, sinopse, capa, gênero, ano, status, nota, notas pessoais)
 - [x] **CATALOG-03**: Usuário pode definir status do livro: `quero-ler` / `lendo` / `lido` / `quero-reler` / `abandonado`
 - [x] **CATALOG-04**: Usuário pode atribuir nota de 1 a 5 estrelas a qualquer livro
@@ -71,7 +71,7 @@
 | INFRA-01 | Phase 1: Foundation & Data Layer | Complete |
 | INFRA-02 | Phase 1: Foundation & Data Layer | Complete |
 | INFRA-03 | Phase 1: Foundation & Data Layer | Complete |
-| CATALOG-01 | Phase 2: Catalog Core | Pending |
+| CATALOG-01 | Phase 2: Catalog Core | Complete |
 | CATALOG-02 | Phase 2: Catalog Core | Complete |
 | CATALOG-03 | Phase 2: Catalog Core | Complete |
 | CATALOG-04 | Phase 2: Catalog Core | Complete |

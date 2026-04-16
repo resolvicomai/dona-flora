@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-04-16T15:54:52.811Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-16T16:29:30.517Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 3
-  percent: 38
+  completed_plans: 4
+  percent: 50
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-15)
 ## Current Position
 
 Phase: 02 (catalog-core) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-04-16
 
@@ -55,6 +55,7 @@ Progress: [..........] 0%
 | Phase 01 P01 | 24min | 2 tasks | 19 files |
 | Phase 01 P02 | 35min | 2 tasks | 6 files |
 | Phase 02-catalog-core P01 | 12 | 2 tasks | 6 files |
+| Phase 02-catalog-core P02 | 25 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Recent decisions affecting current work:
 - [Phase 02-catalog-core]: slugify strict:true strips path traversal chars by design — no explicit sanitization needed
 - [Phase 02-catalog-core]: Slug collision counter starts at 1, appends -2, -3 (not -1) per D-10 decision
 - [Phase 02-catalog-core]: deleteBook lets fs.unlink throw on ENOENT — explicit error propagation, no silent swallowing
+- [Phase 02-catalog-core]: babel-jest required alongside ts-jest to transpile ESM-only unified ecosystem packages in Jest/CJS mode
+- [Phase 02-catalog-core]: GOOGLE_BOOKS_API_KEY read from server env only (no NEXT_PUBLIC_ prefix) — API key never exposed to client
+- [Phase 02-catalog-core]: rehype-sanitize chosen over remark-html (maintenance mode) for XSS-safe Markdown rendering
 
 ### Pending Todos
 
@@ -95,6 +99,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-16T15:54:52.809Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-04-16T16:29:30.515Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
