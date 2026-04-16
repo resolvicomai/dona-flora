@@ -10,14 +10,21 @@ export interface BookSearchResult {
   year?: number
 }
 
+function isIsbnQuery(q: string): boolean {
+  const digits = q.replace(/[-\s]/g, '')
+  return /^\d{10}$/.test(digits) || /^\d{13}$/.test(digits)
+}
+
 export async function searchGoogleBooks(
   query: string,
   maxResults = 5
 ): Promise<BookSearchResult[]> {
+  const q = isIsbnQuery(query)
+    ? `isbn:${query.replace(/[-\s]/g, '')}`
+    : query
   const params = new URLSearchParams({
-    q: query,
+    q,
     maxResults: String(maxResults),
-    langRestrict: 'pt',
   })
 
   const apiKey = process.env.GOOGLE_BOOKS_API_KEY
