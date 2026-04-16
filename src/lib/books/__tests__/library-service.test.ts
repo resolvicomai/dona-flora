@@ -1,5 +1,7 @@
+import fs from 'fs/promises'
 import path from 'path'
-import { listBooks, getBook, SAFE_MATTER_OPTIONS } from '../library-service'
+import os from 'os'
+import { listBooks, getBook, SAFE_MATTER_OPTIONS, writeBook, updateBook, deleteBook } from '../library-service'
 import { BookSchema } from '../schema'
 import matter from 'gray-matter'
 
@@ -121,5 +123,137 @@ describe('BookSchema', () => {
       rating: 6,
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('writeBook', () => {
+  let tmpDir: string
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dona-flora-test-'))
+    process.env.LIBRARY_DIR = tmpDir
+  })
+
+  afterEach(async () => {
+    await fs.rm(tmpDir, { recursive: true })
+    delete process.env.LIBRARY_DIR
+  })
+
+  it('creates a .md file with frontmatter containing required fields', async () => {
+    const result = await writeBook({
+      title: 'Test Book',
+      author: 'Test Author',
+      status: 'quero-ler',
+    })
+    expect(result.slug).toBe('test-book')
+    const content = await fs.readFile(path.join(tmpDir, 'test-book.md'), 'utf-8')
+    const { data } = matter(content)
+    expect(data.title).toBe('Test Book')
+    expect(data.author).toBe('Test Author')
+    expect(data.status).toBe('quero-ler')
+    expect(data.added_at).toBeDefined()
+  })
+
+  it('puts notes text below the frontmatter delimiter', async () => {
+    await writeBook({
+      title: 'Notes Book',
+      author: 'Author',
+      status: 'lido',
+      notes: 'My personal notes here.',
+    })
+    const content = await fs.readFile(path.join(tmpDir, 'notes-book.md'), 'utf-8')
+    const { content: body } = matter(content)
+    expect(body.trim()).toBe('My personal notes here.')
+  })
+
+  it('returns { slug } matching the generated filename', async () => {
+    const result = await writeBook({
+      title: 'O Alquimista',
+      author: 'Paulo Coelho',
+      status: 'lido',
+    })
+    expect(result.slug).toBe('o-alquimista')
+    const exists = await fs.access(path.join(tmpDir, 'o-alquimista.md')).then(() => true).catch(() => false)
+    expect(exists).toBe(true)
+  })
+
+  it('returns slug with -2 suffix when colliding title is added twice', async () => {
+    await writeBook({ title: 'Collision', author: 'A', status: 'quero-ler' })
+    const result2 = await writeBook({ title: 'Collision', author: 'B', status: 'quero-ler' })
+    expect(result2.slug).toBe('collision-2')
+    const exists = await fs.access(path.join(tmpDir, 'collision-2.md')).then(() => true).catch(() => false)
+    expect(exists).toBe(true)
+  })
+})
+
+describe('updateBook', () => {
+  let tmpDir: string
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dona-flora-test-'))
+    process.env.LIBRARY_DIR = tmpDir
+  })
+
+  afterEach(async () => {
+    await fs.rm(tmpDir, { recursive: true })
+    delete process.env.LIBRARY_DIR
+  })
+
+  it('modifies only the specified field, preserving all others', async () => {
+    const { slug } = await writeBook({
+      title: 'Update Test',
+      author: 'Original Author',
+      status: 'quero-ler',
+    })
+    await updateBook(slug, { rating: 4 })
+    const content = await fs.readFile(path.join(tmpDir, `${slug}.md`), 'utf-8')
+    const { data } = matter(content)
+    expect(data.rating).toBe(4)
+    expect(data.title).toBe('Update Test')
+    expect(data.author).toBe('Original Author')
+    expect(data.status).toBe('quero-ler')
+  })
+
+  it('replaces notes body while preserving frontmatter', async () => {
+    const { slug } = await writeBook({
+      title: 'Notes Update',
+      author: 'Author',
+      status: 'lido',
+      notes: 'Old notes.',
+    })
+    await updateBook(slug, { notes: 'New notes.' })
+    const content = await fs.readFile(path.join(tmpDir, `${slug}.md`), 'utf-8')
+    const { data, content: body } = matter(content)
+    expect(body.trim()).toBe('New notes.')
+    expect(data.title).toBe('Notes Update')
+  })
+})
+
+describe('deleteBook', () => {
+  let tmpDir: string
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dona-flora-test-'))
+    process.env.LIBRARY_DIR = tmpDir
+  })
+
+  afterEach(async () => {
+    await fs.rm(tmpDir, { recursive: true })
+    delete process.env.LIBRARY_DIR
+  })
+
+  it('removes the .md file from disk', async () => {
+    const { slug } = await writeBook({
+      title: 'Delete Me',
+      author: 'Author',
+      status: 'quero-ler',
+    })
+    await deleteBook(slug)
+    const exists = await fs.access(path.join(tmpDir, `${slug}.md`)).then(() => true).catch(() => false)
+    expect(exists).toBe(false)
+  })
+
+  it('throws an error when the book does not exist', async () => {
+    await expect(deleteBook('nonexistent-slug')).rejects.toThrow()
   })
 })
