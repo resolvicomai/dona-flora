@@ -206,7 +206,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
 
             {/* Results */}
             {results.length > 0 && (
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 max-h-[50vh] overflow-y-auto pr-1 -mr-1">
                 {results.map((book, i) => (
                   <button
                     key={i}

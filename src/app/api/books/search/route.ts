@@ -30,10 +30,11 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  const limit = 20
   let results: BookSearchResult[] = []
   let googleError: unknown = null
   try {
-    results = await searchGoogleBooks(result.data.query)
+    results = await searchGoogleBooks(result.data.query, limit)
   } catch (err) {
     googleError = err
     console.warn(
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   if (results.length === 0) {
     try {
-      results = await searchOpenLibrary(result.data.query)
+      results = await searchOpenLibrary(result.data.query, limit)
     } catch (err) {
       console.error(
         '[API] Both providers failed. Google error:',
