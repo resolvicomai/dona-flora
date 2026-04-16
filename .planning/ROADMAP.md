@@ -12,7 +12,7 @@ Dona Flora is built in four phases that follow a strict dependency chain: infras
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Data Layer** - Docker deployment, Markdown schema, LibraryService, Next.js skeleton
+- [x] **Phase 1: Foundation & Data Layer** - Docker deployment, Markdown schema, LibraryService, Next.js skeleton (completed 2026-04-16)
 - [ ] **Phase 2: Catalog Core** - Add/edit/delete books, status workflow, ratings, notes, manual edit sync
 - [ ] **Phase 3: Browse & UI** - Responsive catalog view, filters, search, book detail page
 - [ ] **Phase 4: AI Librarian** - Chat interface, full library context, recommendations, reading trails
@@ -28,10 +28,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. The application reads Markdown files from a configurable directory mounted as a Docker volume
   3. A sample book Markdown file with YAML frontmatter is parsed and its data is accessible via LibraryService
   4. The Next.js skeleton renders a page that confirms the data layer is connected (e.g., displays count of books found)
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 01-01-PLAN.md -- Next.js scaffold, Zod book schema, LibraryService, unit tests
-- [ ] 01-02-PLAN.md -- Docker infrastructure (Dockerfile, docker-compose.yml) and smoke test
+- [x] 01-02-PLAN.md -- Docker infrastructure (Dockerfile, docker-compose.yml) and smoke test
 
 ### Phase 2: Catalog Core
 **Goal**: User can build and manage their personal book catalog entirely through the web interface
@@ -77,7 +77,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Data Layer | 0/2 | Planning complete | - |
+| 1. Foundation & Data Layer | 2/2 | Complete   | 2026-04-16 |
 | 2. Catalog Core | 0/TBD | Not started | - |
 | 3. Browse & UI | 0/TBD | Not started | - |
 | 4. AI Librarian | 0/TBD | Not started | - |

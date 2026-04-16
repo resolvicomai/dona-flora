@@ -4,8 +4,8 @@
 
 ### INFRA — Infraestrutura
 
-- [ ] **INFRA-01**: Sistema roda via Docker (docker-compose up) com volume montado para os arquivos Markdown
-- [ ] **INFRA-02**: Sistema roda em VPS com Next.js standalone + volume persistente para os arquivos Markdown
+- [x] **INFRA-01**: Sistema roda via Docker (docker-compose up) com volume montado para os arquivos Markdown
+- [x] **INFRA-02**: Sistema roda em VPS com Next.js standalone + volume persistente para os arquivos Markdown
 - [x] **INFRA-03**: Arquivos Markdown ficam em `/data/books/` (configurável via env var), montado como volume externo
 
 ### CATALOG — Catálogo de Livros
@@ -68,8 +68,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1: Foundation & Data Layer | Pending |
-| INFRA-02 | Phase 1: Foundation & Data Layer | Pending |
+| INFRA-01 | Phase 1: Foundation & Data Layer | Complete |
+| INFRA-02 | Phase 1: Foundation & Data Layer | Complete |
 | INFRA-03 | Phase 1: Foundation & Data Layer | Complete |
 | CATALOG-01 | Phase 2: Catalog Core | Pending |
 | CATALOG-02 | Phase 2: Catalog Core | Pending |
