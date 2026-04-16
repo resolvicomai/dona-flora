@@ -14,14 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { BookStatus } from '@/lib/books/schema'
-
-const STATUS_OPTIONS: { value: BookStatus; label: string }[] = [
-  { value: 'quero-ler', label: 'Quero ler' },
-  { value: 'lendo', label: 'Lendo' },
-  { value: 'lido', label: 'Lido' },
-  { value: 'quero-reler', label: 'Quero reler' },
-  { value: 'abandonado', label: 'Abandonado' },
-]
+import { STATUS_OPTIONS, getStatusLabel } from '@/lib/books/status-labels'
 
 interface BookEditFormProps {
   slug: string
@@ -97,7 +90,7 @@ export function BookEditForm({
           }}
         >
           <SelectTrigger className="w-48 bg-zinc-800 border-zinc-700">
-            <SelectValue />
+            <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((opt) => (
