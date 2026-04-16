@@ -28,6 +28,12 @@ import { STATUS_OPTIONS, getStatusLabel } from '@/lib/books/status-labels'
 
 type Step = 'search' | 'results' | 'preview' | 'manual' | 'saving'
 
+function formatAuthors(authors: string[]): string {
+  if (authors.length === 0) return 'Autor desconhecido'
+  if (authors.length <= 2) return authors.join(', ')
+  return `${authors[0]}, ${authors[1]} e +${authors.length - 2}`
+}
+
 interface AddBookDialogProps {
   triggerLabel?: string
 }
@@ -208,12 +214,16 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                       setSelected(book)
                       setStep('preview')
                     }}
-                    className="flex items-center gap-3 w-full rounded-lg p-2 text-left hover:bg-zinc-800 transition-colors"
+                    className="flex items-start gap-3 w-full rounded-lg p-2 text-left hover:bg-zinc-800 transition-colors"
                   >
                     <BookCover src={book.cover} alt={book.title} size="sm" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-zinc-100 truncate">{book.title}</p>
-                      <p className="text-sm text-zinc-400 truncate">{book.authors.join(', ')}</p>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <p className="text-sm font-semibold text-zinc-100 line-clamp-2 break-words">
+                        {book.title}
+                      </p>
+                      <p className="text-xs text-zinc-400 line-clamp-1 break-words mt-0.5">
+                        {formatAuthors(book.authors)}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -243,13 +253,17 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
         {/* Preview step */}
         {step === 'preview' && selected !== null && (
           <div className="flex flex-col gap-4">
-            <div className="flex gap-3">
+            <div className="flex items-start gap-3">
               <BookCover src={selected.cover} alt={selected.title} size="sm" />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-zinc-100">{selected.title}</p>
-                <p className="text-sm text-zinc-400">{selected.authors.join(', ')}</p>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <p className="text-sm font-semibold text-zinc-100 line-clamp-3 break-words">
+                  {selected.title}
+                </p>
+                <p className="text-xs text-zinc-400 line-clamp-2 break-words mt-0.5">
+                  {formatAuthors(selected.authors)}
+                </p>
                 {selected.genre && (
-                  <p className="text-xs text-zinc-500 mt-1">{selected.genre}</p>
+                  <p className="text-xs text-zinc-500 line-clamp-1 mt-1">{selected.genre}</p>
                 )}
                 {selected.year && (
                   <p className="text-xs text-zinc-500">{selected.year}</p>
@@ -303,11 +317,15 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
         {/* Saving state (from preview) */}
         {step === 'saving' && selected !== null && (
           <div className="flex flex-col gap-4">
-            <div className="flex gap-3">
+            <div className="flex items-start gap-3">
               <BookCover src={selected.cover} alt={selected.title} size="sm" />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-zinc-100">{selected.title}</p>
-                <p className="text-sm text-zinc-400">{selected.authors.join(', ')}</p>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <p className="text-sm font-semibold text-zinc-100 line-clamp-3 break-words">
+                  {selected.title}
+                </p>
+                <p className="text-xs text-zinc-400 line-clamp-2 break-words mt-0.5">
+                  {formatAuthors(selected.authors)}
+                </p>
               </div>
             </div>
             <div className="flex gap-2 justify-end">

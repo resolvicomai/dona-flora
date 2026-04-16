@@ -53,11 +53,11 @@ export default async function HomePage() {
                     className="group flex md:flex-col items-center md:items-start gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-3 transition-colors hover:border-zinc-700"
                   >
                     <BookCover src={book.cover} alt={book.title} size="sm" />
-                    <div className="flex flex-col gap-1 min-w-0">
-                      <p className="text-sm font-semibold text-zinc-100 truncate">
+                    <div className="flex flex-col gap-1 flex-1 min-w-0 overflow-hidden">
+                      <p className="text-sm font-semibold text-zinc-100 line-clamp-2 break-words">
                         {book.title}
                       </p>
-                      <p className="text-sm text-zinc-400 truncate">
+                      <p className="text-xs text-zinc-400 line-clamp-1 break-words">
                         {book.author}
                       </p>
                       <StatusBadge status={book.status} />
