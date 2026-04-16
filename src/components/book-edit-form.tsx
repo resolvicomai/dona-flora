@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { StarRating } from '@/components/star-rating'
 import { Button } from '@/components/ui/button'
@@ -68,9 +68,14 @@ export function BookEditForm({
         body: JSON.stringify(body),
       })
       if (!res.ok) throw new Error()
-      setFeedback('Alteracoes salvas.')
+      // Show feedback FIRST so it paints before refresh swaps server props.
+      setFeedback('Alterações salvas.')
+      // Defer refresh into a transition so state updates above commit before the
+      // Server Component re-fetch; this preserves the feedback across router.refresh.
+      startTransition(() => {
+        router.refresh()
+      })
       setTimeout(() => setFeedback(null), 3000)
-      router.refresh()
     } catch {
       setFeedback('Erro ao salvar. Tente novamente.')
     } finally {
