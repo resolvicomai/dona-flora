@@ -32,12 +32,11 @@ export async function PUT(
         { status: 400 }
       )
     }
-    // Convert null rating to undefined (null means "clear rating", undefined means "not provided")
-    const updates = {
-      ...result.data,
-      rating: result.data.rating ?? undefined,
+    const updates: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(result.data)) {
+      if (v !== undefined && v !== null) updates[k] = v
     }
-    await updateBook(slug, updates)
+    await updateBook(slug, updates as Parameters<typeof updateBook>[1])
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[API] PUT /api/books/[slug] error:', err)
