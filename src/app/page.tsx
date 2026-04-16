@@ -1,6 +1,10 @@
+import { unstable_noStore as noStore } from 'next/cache'
 import { listBooks } from '@/lib/books/library-service'
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
+  noStore()
   const books = await listBooks()
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
