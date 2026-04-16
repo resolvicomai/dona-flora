@@ -11,13 +11,13 @@
 ### CATALOG — Catálogo de Livros
 
 - [ ] **CATALOG-01**: Usuário pode adicionar livro digitando título ou ISBN — sistema busca dados automaticamente (Google Books → Open Library como fallback)
-- [ ] **CATALOG-02**: Cada livro cadastrado gera um arquivo Markdown em `/data/books/` com frontmatter YAML (título, autor, ISBN, sinopse, capa, gênero, ano, status, nota, notas pessoais)
-- [ ] **CATALOG-03**: Usuário pode definir status do livro: `quero-ler` / `lendo` / `lido` / `quero-reler` / `abandonado`
-- [ ] **CATALOG-04**: Usuário pode atribuir nota de 1 a 5 estrelas a qualquer livro
-- [ ] **CATALOG-05**: Usuário pode escrever notas pessoais em texto livre para cada livro
-- [ ] **CATALOG-06**: Usuário pode editar metadados de um livro já cadastrado (status, nota, notas)
-- [ ] **CATALOG-07**: Usuário pode remover um livro do catálogo (apaga o arquivo Markdown)
-- [ ] **CATALOG-08**: Alterações feitas manualmente no arquivo Markdown são refletidas na interface (leitura sempre do disco)
+- [x] **CATALOG-02**: Cada livro cadastrado gera um arquivo Markdown em `/data/books/` com frontmatter YAML (título, autor, ISBN, sinopse, capa, gênero, ano, status, nota, notas pessoais)
+- [x] **CATALOG-03**: Usuário pode definir status do livro: `quero-ler` / `lendo` / `lido` / `quero-reler` / `abandonado`
+- [x] **CATALOG-04**: Usuário pode atribuir nota de 1 a 5 estrelas a qualquer livro
+- [x] **CATALOG-05**: Usuário pode escrever notas pessoais em texto livre para cada livro
+- [x] **CATALOG-06**: Usuário pode editar metadados de um livro já cadastrado (status, nota, notas)
+- [x] **CATALOG-07**: Usuário pode remover um livro do catálogo (apaga o arquivo Markdown)
+- [x] **CATALOG-08**: Alterações feitas manualmente no arquivo Markdown são refletidas na interface (leitura sempre do disco)
 
 ### BROWSE — Navegação e Filtros
 
@@ -72,13 +72,13 @@
 | INFRA-02 | Phase 1: Foundation & Data Layer | Complete |
 | INFRA-03 | Phase 1: Foundation & Data Layer | Complete |
 | CATALOG-01 | Phase 2: Catalog Core | Pending |
-| CATALOG-02 | Phase 2: Catalog Core | Pending |
-| CATALOG-03 | Phase 2: Catalog Core | Pending |
-| CATALOG-04 | Phase 2: Catalog Core | Pending |
-| CATALOG-05 | Phase 2: Catalog Core | Pending |
-| CATALOG-06 | Phase 2: Catalog Core | Pending |
-| CATALOG-07 | Phase 2: Catalog Core | Pending |
-| CATALOG-08 | Phase 2: Catalog Core | Pending |
+| CATALOG-02 | Phase 2: Catalog Core | Complete |
+| CATALOG-03 | Phase 2: Catalog Core | Complete |
+| CATALOG-04 | Phase 2: Catalog Core | Complete |
+| CATALOG-05 | Phase 2: Catalog Core | Complete |
+| CATALOG-06 | Phase 2: Catalog Core | Complete |
+| CATALOG-07 | Phase 2: Catalog Core | Complete |
+| CATALOG-08 | Phase 2: Catalog Core | Complete |
 | BROWSE-01 | Phase 3: Browse & UI | Pending |
 | BROWSE-02 | Phase 3: Browse & UI | Pending |
 | BROWSE-03 | Phase 3: Browse & UI | Pending |

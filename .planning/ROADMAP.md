@@ -42,9 +42,9 @@ Plans:
   2. User can change a book's status (quero-ler, lendo, lido, quero-reler, abandonado), rate it 1-5 stars, and write personal notes -- all persisted to the Markdown file
   3. User can edit metadata and delete a book from the catalog
   4. A Markdown file edited manually outside the app (e.g., in Obsidian) shows updated data when the interface is refreshed
-**Plans:** 6 plans
+**Plans:** 1/6 plans executed
 Plans:
-- [ ] 02-01-PLAN.md -- LibraryService CRUD (writeBook, updateBook, deleteBook) + slug generation + unit tests
+- [x] 02-01-PLAN.md -- LibraryService CRUD (writeBook, updateBook, deleteBook) + slug generation + unit tests
 - [ ] 02-02-PLAN.md -- Google Books + Open Library API clients + Markdown rendering pipeline + tests
 - [ ] 02-03-PLAN.md -- shadcn/ui init + next.config image patterns + shared components (StarRating, StatusBadge, BookCover)
 - [ ] 02-04-PLAN.md -- API routes: POST/PUT/DELETE /api/books, POST /api/books/search
@@ -85,6 +85,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Layer | 2/2 | Complete    | 2026-04-16 |
-| 2. Catalog Core | 0/6 | Planning complete | - |
+| 2. Catalog Core | 1/6 | In Progress|  |
 | 3. Browse & UI | 0/TBD | Not started | - |
 | 4. AI Librarian | 0/TBD | Not started | - |
