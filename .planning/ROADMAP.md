@@ -47,7 +47,7 @@ Plans:
 - [x] 02-01-PLAN.md -- LibraryService CRUD (writeBook, updateBook, deleteBook) + slug generation + unit tests
 - [x] 02-02-PLAN.md -- Google Books + Open Library API clients + Markdown rendering pipeline + tests
 - [x] 02-03-PLAN.md -- shadcn/ui init + next.config image patterns + shared components (StarRating, StatusBadge, BookCover)
-- [ ] 02-04-PLAN.md -- API routes: POST/PUT/DELETE /api/books, POST /api/books/search
+- [x] 02-04-PLAN.md -- API routes: POST/PUT/DELETE /api/books, POST /api/books/search
 - [ ] 02-05-PLAN.md -- Home page redesign with book grid + AddBookDialog (search + manual add)
 - [ ] 02-06-PLAN.md -- Book detail page /books/[slug] + edit form + delete button + human verification
 **UI hint**: yes
