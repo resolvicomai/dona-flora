@@ -133,7 +133,7 @@ export function BookEditForm({
           <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
             {renderedNotes ? (
               <div
-                className="markdown-content"
+                className="prose prose-invert prose-sm prose-zinc max-w-none"
                 dangerouslySetInnerHTML={{ __html: renderedNotes }}
               />
             ) : (
