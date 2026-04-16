@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-04-16T17:12:38.079Z"
+stopped_at: Completed 02-05-PLAN.md
+last_updated: "2026-04-16T17:33:09.717Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 88
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-15)
 ## Current Position
 
 Phase: 02 (catalog-core) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-04-16
 
@@ -58,6 +58,7 @@ Progress: [..........] 0%
 | Phase 02-catalog-core P02 | 25 | 2 tasks | 10 files |
 | Phase 02-catalog-core P03 | 10 | 2 tasks | 13 files |
 | Phase 02-catalog-core P04 | 12 | 2 tasks | 3 files |
+| Phase 02-catalog-core P05 | 20 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 02-catalog-core]: remotePatterns uses exact hostnames without wildcards for books.google.com and covers.openlibrary.org (T-02-08 mitigation)
 - [Phase 02-catalog-core]: Badge component uses @base-ui/react under the hood -- StatusBadge uses variant=secondary which is compatible with the installed base-ui badge API
 - [Phase 02-catalog-core]: null rating converted to undefined before updateBook — WriteBookInput has no null, Zod schema needs nullable for UI clear-rating UX
+- [Phase 02-catalog-core]: Single DialogTrigger with hidden/visible span for mobile/desktop instead of two separate triggers — avoids base-ui multiple trigger ambiguity
+- [Phase 02-catalog-core]: base-ui Select onValueChange returns string | null — guard with 'if (v)' before setState to prevent null being set as status value
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-16T17:12:38.076Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-04-16T17:33:09.714Z
+Stopped at: Completed 02-05-PLAN.md
 Resume file: None
