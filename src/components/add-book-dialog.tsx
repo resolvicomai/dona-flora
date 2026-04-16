@@ -228,7 +228,10 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
             {/* Manual add link */}
             {query.length >= 3 && !searching && (
               <button
-                onClick={() => setStep('manual')}
+                onClick={() => {
+                  setError(null)
+                  setStep('manual')
+                }}
                 className="text-sm text-zinc-400 underline hover:text-zinc-200 text-center transition-colors"
               >
                 Nao encontrei meu livro
