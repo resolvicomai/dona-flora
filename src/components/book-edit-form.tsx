@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { StarRating } from '@/components/star-rating'
 import { Button } from '@/components/ui/button'
@@ -14,14 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { BookStatus } from '@/lib/books/schema'
-
-const STATUS_OPTIONS: { value: BookStatus; label: string }[] = [
-  { value: 'quero-ler', label: 'Quero ler' },
-  { value: 'lendo', label: 'Lendo' },
-  { value: 'lido', label: 'Lido' },
-  { value: 'quero-reler', label: 'Quero reler' },
-  { value: 'abandonado', label: 'Abandonado' },
-]
+import { STATUS_OPTIONS, getStatusLabel } from '@/lib/books/status-labels'
 
 interface BookEditFormProps {
   slug: string
@@ -75,9 +68,14 @@ export function BookEditForm({
         body: JSON.stringify(body),
       })
       if (!res.ok) throw new Error()
-      setFeedback('Alteracoes salvas.')
+      // Show feedback FIRST so it paints before refresh swaps server props.
+      setFeedback('Alterações salvas.')
+      // Defer refresh into a transition so state updates above commit before the
+      // Server Component re-fetch; this preserves the feedback across router.refresh.
+      startTransition(() => {
+        router.refresh()
+      })
       setTimeout(() => setFeedback(null), 3000)
-      router.refresh()
     } catch {
       setFeedback('Erro ao salvar. Tente novamente.')
     } finally {
@@ -97,7 +95,7 @@ export function BookEditForm({
           }}
         >
           <SelectTrigger className="w-48 bg-zinc-800 border-zinc-700">
-            <SelectValue />
+            <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((opt) => (
@@ -140,7 +138,7 @@ export function BookEditForm({
           <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
             {renderedNotes ? (
               <div
-                className="markdown-content"
+                className="prose prose-invert prose-sm prose-zinc max-w-none"
                 dangerouslySetInnerHTML={{ __html: renderedNotes }}
               />
             ) : (

@@ -24,16 +24,9 @@ import {
 } from '@/components/ui/select'
 
 import type { BookSearchResult } from '@/lib/api/google-books'
+import { STATUS_OPTIONS, getStatusLabel } from '@/lib/books/status-labels'
 
 type Step = 'search' | 'results' | 'preview' | 'manual' | 'saving'
-
-const STATUS_OPTIONS = [
-  { value: 'quero-ler', label: 'Quero ler' },
-  { value: 'lendo', label: 'Lendo' },
-  { value: 'lido', label: 'Lido' },
-  { value: 'quero-reler', label: 'Quero reler' },
-  { value: 'abandonado', label: 'Abandonado' },
-] as const
 
 interface AddBookDialogProps {
   triggerLabel?: string
@@ -235,7 +228,10 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
             {/* Manual add link */}
             {query.length >= 3 && !searching && (
               <button
-                onClick={() => setStep('manual')}
+                onClick={() => {
+                  setError(null)
+                  setStep('manual')
+                }}
                 className="text-sm text-zinc-400 underline hover:text-zinc-200 text-center transition-colors"
               >
                 Nao encontrei meu livro
@@ -265,7 +261,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
               <Label className="text-sm text-zinc-400">Status</Label>
               <Select value={previewStatus} onValueChange={(v) => { if (v) setPreviewStatus(v) }}>
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {STATUS_OPTIONS.map((opt) => (
@@ -355,7 +351,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
               <Label className="text-sm text-zinc-400">Status</Label>
               <Select value={manualStatus} onValueChange={(v) => { if (v) setManualStatus(v) }}>
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {STATUS_OPTIONS.map((opt) => (
