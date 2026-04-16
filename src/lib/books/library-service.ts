@@ -20,7 +20,7 @@ export const SAFE_MATTER_OPTIONS: matter.GrayMatterOption<string, any> = {
 export function getLibraryDir(): string {
   return path.resolve(
     process.cwd(),
-    process.env.LIBRARY_DIR ?? '/data/books'
+    process.env.LIBRARY_DIR ?? 'data/books'
   )
 }
 
