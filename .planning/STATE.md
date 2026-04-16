@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-04-16T16:29:30.517Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-16T16:56:39.760Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 4
-  percent: 50
+  completed_plans: 5
+  percent: 63
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-15)
 ## Current Position
 
 Phase: 02 (catalog-core) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-04-16
 
@@ -56,6 +56,7 @@ Progress: [..........] 0%
 | Phase 01 P02 | 35min | 2 tasks | 6 files |
 | Phase 02-catalog-core P01 | 12 | 2 tasks | 6 files |
 | Phase 02-catalog-core P02 | 25 | 2 tasks | 10 files |
+| Phase 02-catalog-core P03 | 10 | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - [Phase 02-catalog-core]: babel-jest required alongside ts-jest to transpile ESM-only unified ecosystem packages in Jest/CJS mode
 - [Phase 02-catalog-core]: GOOGLE_BOOKS_API_KEY read from server env only (no NEXT_PUBLIC_ prefix) — API key never exposed to client
 - [Phase 02-catalog-core]: rehype-sanitize chosen over remark-html (maintenance mode) for XSS-safe Markdown rendering
+- [Phase 02-catalog-core]: remotePatterns uses exact hostnames without wildcards for books.google.com and covers.openlibrary.org (T-02-08 mitigation)
+- [Phase 02-catalog-core]: Badge component uses @base-ui/react under the hood -- StatusBadge uses variant=secondary which is compatible with the installed base-ui badge API
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-16T16:29:30.515Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-04-16T16:56:39.757Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
