@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select'
 
 import type { BookSearchResult } from '@/lib/api/google-books'
+import { dedupeBooks } from '@/lib/api/dedupe'
 import { STATUS_OPTIONS, getStatusLabel } from '@/lib/books/status-labels'
 
 type Step = 'search' | 'results' | 'preview' | 'manual' | 'saving'
@@ -57,6 +58,14 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
   const [manualAuthor, setManualAuthor] = useState('')
   const [manualStatus, setManualStatus] = useState<string>('quero-ler')
 
+  // Pagination state (Phase 3 D-23)
+  const [nextStart, setNextStart] = useState(0)
+  const [nextPage, setNextPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function resetDialog() {
@@ -69,6 +78,11 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
     setManualTitle('')
     setManualAuthor('')
     setManualStatus('quero-ler')
+    setNextStart(0)
+    setNextPage(1)
+    setHasMore(true)
+    setLoadingMore(false)
+    setLoadMoreError(null)
   }
 
   function handleOpenChange(value: boolean) {
@@ -81,11 +95,17 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
   function handleQueryChange(value: string) {
     setQuery(value)
     setError(null)
+    setLoadMoreError(null)
+    // Reset pagination on every query change (RESEARCH Pitfall 7 + Anti-Pattern 9)
+    setResults([])
+    setNextStart(0)
+    setNextPage(1)
+    setHasMore(true)
+    setLoadingMore(false)
 
     if (timerRef.current) clearTimeout(timerRef.current)
 
     if (value.length < 3) {
-      setResults([])
       setStep('search')
       return
     }
@@ -99,15 +119,46 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
           body: JSON.stringify({ query: value }),
         })
         if (!res.ok) throw new Error()
-        const data = await res.json()
+        const data: BookSearchResult[] = await res.json()
         setResults(data)
         setStep(data.length > 0 ? 'results' : 'search')
+        // If initial page returned fewer than the per-page cap (20), no more pages.
+        setHasMore(data.length >= 20)
+        setNextStart(20)
+        setNextPage(2)
       } catch {
         setError('Erro ao buscar. Tente novamente.')
       } finally {
         setSearching(false)
       }
     }, 400)
+  }
+
+  async function fetchMore() {
+    if (!hasMore || loadingMore || !query || query.length < 3) return
+    setLoadingMore(true)
+    setLoadMoreError(null)
+    try {
+      const res = await fetch('/api/books/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, startIndex: nextStart, page: nextPage }),
+      })
+      if (!res.ok) throw new Error()
+      const data: BookSearchResult[] = await res.json()
+      if (data.length === 0) {
+        setHasMore(false)
+        return
+      }
+      setResults((prev) => dedupeBooks([...prev, ...data]))
+      setNextStart((s) => s + 20)
+      setNextPage((p) => p + 1)
+      if (data.length < 20) setHasMore(false)
+    } catch {
+      setLoadMoreError('Não foi possível carregar mais resultados.')
+    } finally {
+      setLoadingMore(false)
+    }
   }
 
   async function saveBook(bookData: Record<string, unknown>) {
@@ -157,6 +208,20 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [])
+
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore || loadingMore || results.length === 0) return
+    const target = sentinelRef.current
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) fetchMore()
+      },
+      { rootMargin: '100px' },
+    )
+    observer.observe(target)
+    return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results.length, hasMore, loadingMore, query])
 
   const isSaving = step === 'saving'
 
@@ -227,6 +292,24 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                     </div>
                   </button>
                 ))}
+                {hasMore && <div ref={sentinelRef} className="h-4" aria-hidden />}
+                {loadingMore && (
+                  <div className="flex items-center justify-center py-3">
+                    <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
+                  </div>
+                )}
+                {loadMoreError && (
+                  <div className="flex flex-col items-center gap-2 py-3 text-center">
+                    <p className="text-xs text-zinc-400">{loadMoreError}</p>
+                    <button
+                      type="button"
+                      onClick={fetchMore}
+                      className="text-sm text-zinc-300 underline hover:text-zinc-100 transition-colors"
+                    >
+                      Tentar novamente
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
