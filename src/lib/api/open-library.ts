@@ -1,10 +1,7 @@
 import type { BookSearchResult } from './google-books'
+import { stripDiacritics, dedupeKey } from './dedupe'
 
 const OPEN_LIBRARY_API = 'https://openlibrary.org/search.json'
-
-function stripDiacritics(s: string): string {
-  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-}
 
 async function fetchOnce(
   query: string,
@@ -40,13 +37,6 @@ async function fetchOnce(
         year: doc.first_publish_year,
       }) satisfies BookSearchResult
   )
-}
-
-function dedupeKey(b: BookSearchResult): string {
-  if (b.isbn) return `isbn:${b.isbn}`
-  const title = stripDiacritics(b.title.toLowerCase()).replace(/\s+/g, ' ').trim()
-  const author = stripDiacritics((b.authors[0] ?? '').toLowerCase()).trim()
-  return `ta:${title}|${author}`
 }
 
 export async function searchOpenLibrary(
