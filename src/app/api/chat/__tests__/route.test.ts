@@ -1,0 +1,195 @@
+import { NextRequest } from 'next/server'
+
+/**
+ * Mock strategy (AI-SPEC §3 + Plan 04-03 <behavior>):
+ *  - `ai` is mocked so `streamText` never reaches the network.
+ *  - `@ai-sdk/anthropic` is mocked so `anthropic('claude-sonnet-4-5')` is just
+ *    a fake object carrying `{ modelId }` for assertions.
+ *  - `loadLibraryContext` returns a fixed string ('FAKE LIBRARY') so we can
+ *    assert the system prompt wraps it in <LIBRARY>...</LIBRARY>.
+ *  - `saveChat` is a jest.fn so we can assert onFinish invoked it.
+ */
+
+// Captures for assertions — populated by the mocked toUIMessageStreamResponse.
+const capturedStreamTextArgs: { value?: Record<string, unknown> } = {}
+const capturedToUIMessageStreamResponseOpts: {
+  value?: {
+    originalMessages?: unknown
+    generateMessageId?: () => string
+    onFinish?: (args: { messages: unknown[] }) => Promise<void> | void
+  }
+} = {}
+const consumeStreamSpy = jest.fn()
+
+jest.mock('ai', () => ({
+  streamText: jest.fn((args: Record<string, unknown>) => {
+    capturedStreamTextArgs.value = args
+    return {
+      consumeStream: consumeStreamSpy,
+      toUIMessageStreamResponse: (opts: typeof capturedToUIMessageStreamResponseOpts.value) => {
+        capturedToUIMessageStreamResponseOpts.value = opts
+        return new Response('stream', {
+          status: 200,
+          headers: { 'content-type': 'text/event-stream' },
+        })
+      },
+    }
+  }),
+  convertToModelMessages: jest.fn(async (m: unknown[]) => m),
+  stepCountIs: jest.fn((n: number) => ({ __stopWhen: 'stepCountIs', n })),
+  tool: jest.fn(<T>(def: T) => def),
+  generateId: jest.fn(() => 'generated-id'),
+}))
+
+jest.mock('@ai-sdk/anthropic', () => ({
+  anthropic: jest.fn((modelId: string) => ({ modelId })),
+}))
+
+jest.mock('@/lib/library/context', () => ({
+  loadLibraryContext: jest.fn(async () => 'FAKE LIBRARY'),
+}))
+
+jest.mock('@/lib/chats/store', () => ({
+  saveChat: jest.fn(async () => undefined),
+}))
+
+// Import AFTER mocks are registered.
+import { POST } from '@/app/api/chat/route'
+import { saveChat } from '@/lib/chats/store'
+
+const mockedSaveChat = saveChat as jest.MockedFunction<typeof saveChat>
+
+function makeRequest(body: unknown): NextRequest {
+  return new NextRequest('http://localhost/api/chat', {
+    method: 'POST',
+    body: typeof body === 'string' ? body : JSON.stringify(body),
+  })
+}
+
+function validMessages() {
+  return [
+    { id: 'm1', role: 'user', parts: [{ type: 'text', text: 'Olá!' }] },
+  ]
+}
+
+beforeEach(() => {
+  capturedStreamTextArgs.value = undefined
+  capturedToUIMessageStreamResponseOpts.value = undefined
+  consumeStreamSpy.mockClear()
+  mockedSaveChat.mockClear()
+})
+
+describe('POST /api/chat — validation', () => {
+  it('returns 400 when body is not JSON', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    const res = await POST(makeRequest('not-json{{{'))
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when chatId is missing', async () => {
+    const res = await POST(makeRequest({ messages: validMessages() }))
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.error).toMatch(/Validation failed/i)
+  })
+
+  it("returns 400 when chatId contains path-traversal chars ('../../etc')", async () => {
+    const res = await POST(
+      makeRequest({ chatId: '../../etc', messages: validMessages() })
+    )
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when chatId is empty string', async () => {
+    const res = await POST(
+      makeRequest({ chatId: '', messages: validMessages() })
+    )
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when messages array is empty', async () => {
+    const res = await POST(makeRequest({ chatId: 'abc123', messages: [] }))
+    expect(res.status).toBe(400)
+  })
+})
+
+describe('POST /api/chat — streamText wiring', () => {
+  it('invokes streamText with Anthropic model id claude-sonnet-4-5', async () => {
+    const res = await POST(
+      makeRequest({ chatId: 'abc-123', messages: validMessages() })
+    )
+    expect(res.status).toBe(200)
+    const args = capturedStreamTextArgs.value
+    expect(args).toBeDefined()
+    const model = args?.model as { modelId?: string }
+    expect(model.modelId).toBe('claude-sonnet-4-5')
+  })
+
+  it('injects buildSystemPrompt output as first message with cacheControl ephemeral', async () => {
+    await POST(
+      makeRequest({ chatId: 'abc-123', messages: validMessages() })
+    )
+    const args = capturedStreamTextArgs.value
+    const messages = args?.messages as Array<{
+      role: string
+      content: Array<{ type: string; text: string; providerOptions?: unknown }>
+    }>
+    expect(messages[0].role).toBe('system')
+    expect(messages[0].content[0].type).toBe('text')
+    expect(messages[0].content[0].text).toContain(
+      '<LIBRARY>\nFAKE LIBRARY\n</LIBRARY>'
+    )
+    expect(messages[0].content[0].text).toContain('Dona Flora')
+    const provOpts = messages[0].content[0].providerOptions as {
+      anthropic?: { cacheControl?: { type?: string } }
+    }
+    expect(provOpts.anthropic?.cacheControl?.type).toBe('ephemeral')
+  })
+
+  it('passes librarianTools containing both expected keys', async () => {
+    await POST(
+      makeRequest({ chatId: 'abc-123', messages: validMessages() })
+    )
+    const args = capturedStreamTextArgs.value
+    const tools = args?.tools as Record<string, unknown>
+    expect(tools).toBeDefined()
+    expect(Object.keys(tools).sort()).toEqual(
+      ['render_external_book_mention', 'render_library_book_card'].sort()
+    )
+  })
+
+  it('passes stopWhen (stepCountIs(4)), temperature 0.6, maxOutputTokens 1500', async () => {
+    await POST(
+      makeRequest({ chatId: 'abc-123', messages: validMessages() })
+    )
+    const args = capturedStreamTextArgs.value
+    expect(args?.temperature).toBe(0.6)
+    expect(args?.maxOutputTokens).toBe(1500)
+    const stopWhen = args?.stopWhen as { __stopWhen?: string; n?: number }
+    expect(stopWhen.__stopWhen).toBe('stepCountIs')
+    expect(stopWhen.n).toBe(4)
+  })
+
+  it('calls consumeStream() (guards onFinish against client abort)', async () => {
+    await POST(
+      makeRequest({ chatId: 'abc-123', messages: validMessages() })
+    )
+    expect(consumeStreamSpy).toHaveBeenCalled()
+  })
+
+  it('onFinish calls saveChat with chatId and messages', async () => {
+    await POST(
+      makeRequest({ chatId: 'meu-chat', messages: validMessages() })
+    )
+    const opts = capturedToUIMessageStreamResponseOpts.value
+    expect(opts?.onFinish).toBeDefined()
+    const finalMessages = [
+      { id: 'a1', role: 'assistant', parts: [{ type: 'text', text: 'Oi!' }] },
+    ]
+    await opts!.onFinish!({ messages: finalMessages })
+    expect(mockedSaveChat).toHaveBeenCalledWith({
+      chatId: 'meu-chat',
+      messages: finalMessages,
+    })
+  })
+})
