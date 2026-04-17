@@ -21,6 +21,13 @@ function makeRequest(query: unknown): NextRequest {
   })
 }
 
+function makeRequestBody(body: unknown): NextRequest {
+  return new NextRequest('http://localhost/api/books/search', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
 beforeEach(() => {
   jest.restoreAllMocks()
   mockedSearchGoogleBooks.mockReset()
@@ -95,6 +102,78 @@ describe('POST /api/books/search — resilient fallback', () => {
 
   it('returns 400 on invalid input (query too short)', async () => {
     const res = await POST(makeRequest('a'))
+
+    expect(res.status).toBe(400)
+    expect(mockedSearchGoogleBooks).not.toHaveBeenCalled()
+    expect(mockedSearchOpenLibrary).not.toHaveBeenCalled()
+  })
+})
+
+describe('POST /api/books/search — pagination', () => {
+  it('threads startIndex to searchGoogleBooks when provided', async () => {
+    mockedSearchGoogleBooks.mockResolvedValueOnce([
+      { title: 'Tolkien', authors: ['JRRT'] },
+    ])
+
+    const res = await POST(
+      makeRequestBody({ query: 'tolkien', startIndex: 20 }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith(
+      'tolkien',
+      expect.any(Number),
+      20,
+    )
+  })
+
+  it('threads page to searchOpenLibrary on fallback when provided', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    mockedSearchGoogleBooks.mockResolvedValueOnce([])
+    mockedSearchOpenLibrary.mockResolvedValueOnce([
+      { title: 'Tolkien OL', authors: ['JRRT'] },
+    ])
+
+    const res = await POST(
+      makeRequestBody({ query: 'tolkien', page: 3 }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(mockedSearchOpenLibrary).toHaveBeenCalledWith(
+      'tolkien',
+      expect.any(Number),
+      3,
+    )
+    warnSpy.mockRestore()
+  })
+
+  it('defaults startIndex=0 and page=1 when omitted', async () => {
+    mockedSearchGoogleBooks.mockResolvedValueOnce([
+      { title: 'Tolkien', authors: ['JRRT'] },
+    ])
+
+    const res = await POST(makeRequestBody({ query: 'tolkien' }))
+
+    expect(res.status).toBe(200)
+    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith(
+      'tolkien',
+      expect.any(Number),
+      0,
+    )
+  })
+
+  it('returns 400 when startIndex is negative', async () => {
+    const res = await POST(
+      makeRequestBody({ query: 'tolkien', startIndex: -1 }),
+    )
+
+    expect(res.status).toBe(400)
+    expect(mockedSearchGoogleBooks).not.toHaveBeenCalled()
+    expect(mockedSearchOpenLibrary).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when page is 0', async () => {
+    const res = await POST(makeRequestBody({ query: 'tolkien', page: 0 }))
 
     expect(res.status).toBe(400)
     expect(mockedSearchGoogleBooks).not.toHaveBeenCalled()

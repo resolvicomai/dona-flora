@@ -85,3 +85,43 @@ describe('searchOpenLibrary', () => {
     await expect(searchOpenLibrary('Fundacao')).rejects.toThrow('[OpenLibrary] API error: 503')
   })
 })
+
+describe('searchOpenLibrary pagination', () => {
+  it('forwards page to the URL when provided', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ docs: [] }),
+    } as Response)
+
+    await searchOpenLibrary('tolkien', 20, 2)
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toMatch(/page=2/)
+    expect(calledUrl).toMatch(/limit=20/)
+  })
+
+  it('defaults page to 1 when omitted', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ docs: [] }),
+    } as Response)
+
+    await searchOpenLibrary('tolkien')
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toMatch(/page=1/)
+  })
+
+  it('backward compat: (query, limit) still works without page arg', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ docs: [] }),
+    } as Response)
+
+    await searchOpenLibrary('tolkien', 10)
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toMatch(/limit=10/)
+    expect(calledUrl).toMatch(/page=1/)
+  })
+})

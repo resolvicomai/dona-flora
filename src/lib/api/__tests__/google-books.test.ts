@@ -118,3 +118,43 @@ describe('searchGoogleBooks', () => {
     await expect(searchGoogleBooks('Fundacao')).rejects.toThrow('[GoogleBooks] API error: 403')
   })
 })
+
+describe('searchGoogleBooks pagination', () => {
+  it('forwards startIndex to the URL when provided', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    await searchGoogleBooks('tolkien', 20, 40)
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toMatch(/startIndex=40/)
+    expect(calledUrl).toMatch(/maxResults=20/)
+  })
+
+  it('defaults startIndex to 0 when omitted', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    await searchGoogleBooks('tolkien')
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toMatch(/startIndex=0/)
+  })
+
+  it('backward compat: (query, maxResults) still works without startIndex arg', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    await searchGoogleBooks('tolkien', 10)
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toMatch(/maxResults=10/)
+    expect(calledUrl).toMatch(/startIndex=0/)
+  })
+})
