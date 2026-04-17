@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import { BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface BookCoverProps {
@@ -15,20 +14,35 @@ const SIZES = {
   lg: { width: 192, height: 288 },  // desktop detail
 }
 
+const INITIAL_SIZE: Record<'sm' | 'md' | 'lg', string> = {
+  sm: 'text-xl',
+  md: 'text-2xl',
+  lg: 'text-4xl',
+}
+
+/**
+ * @param alt - Book title. Used both as accessible text (<img alt>) and as the
+ * visible first-initial character in the fallback placeholder.
+ */
 export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) {
   const { width, height } = SIZES[size]
 
   if (!src) {
+    const trimmed = alt.trim()
+    const initial = trimmed.length > 0 ? trimmed.charAt(0).toUpperCase() : '?'
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-lg bg-zinc-800',
-          className
+          'flex items-center justify-center rounded-lg bg-gradient-to-br from-zinc-800 to-zinc-900',
+          className,
         )}
         style={{ width, height }}
-        aria-label="Sem capa disponivel"
+        aria-label={`Capa de ${alt || 'livro'} não disponível`}
+        role="img"
       >
-        <BookOpen className="h-8 w-8 text-zinc-600" />
+        <span className={cn('font-semibold text-zinc-100', INITIAL_SIZE[size])}>
+          {initial}
+        </span>
       </div>
     )
   }
