@@ -7,6 +7,7 @@ import { renderMarkdown } from '@/lib/markdown'
 import { BookCover } from '@/components/book-cover'
 import { BookEditForm } from '@/components/book-edit-form'
 import { DeleteBookButton } from '@/components/delete-book-button'
+import { ConversarSobreLivroButton } from '@/components/chat/conversar-sobre-livro-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,7 +57,7 @@ export default async function BookDetailPage({
           </div>
 
           {/* Title + author + static metadata */}
-          <div className="flex flex-col gap-2 text-center md:text-left">
+          <div className="flex flex-1 flex-col gap-2 text-center md:text-left">
             <h1 className="text-[28px] font-semibold leading-tight text-zinc-100">
               {book.title}
             </h1>
@@ -84,6 +85,12 @@ export default async function BookDetailPage({
                   </span>
                 </div>
               )}
+            </div>
+
+            {/* CTA: Conversar sobre este livro — desktop right-aligned,
+                mobile full-width below metadata (UI-SPEC §Entry points). */}
+            <div className="mt-4 flex justify-center md:mt-auto md:justify-end">
+              <ConversarSobreLivroButton slug={slug} titulo={book.title} />
             </div>
           </div>
         </div>
