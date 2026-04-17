@@ -76,4 +76,4 @@ Este documento evolui a cada transição de fase e marco de milestone.
 3. Auditar Out of Scope — motivos ainda válidos?
 
 ---
-*Last updated: 2026-04-15 após inicialização*
+*Last updated: 2026-04-17 — Phase 03 (Browse & UI) complete*
