@@ -5,11 +5,13 @@ const OPEN_LIBRARY_API = 'https://openlibrary.org/search.json'
 
 async function fetchOnce(
   query: string,
-  limit: number
+  limit: number,
+  page: number
 ): Promise<BookSearchResult[]> {
   const params = new URLSearchParams({
     q: query,
     limit: String(limit),
+    page: String(page),
     fields: 'title,author_name,first_publish_year,cover_i,isbn',
   })
   const res = await fetch(`${OPEN_LIBRARY_API}?${params}`, {
@@ -41,13 +43,14 @@ async function fetchOnce(
 
 export async function searchOpenLibrary(
   query: string,
-  limit = 5
+  limit = 5,
+  page = 1
 ): Promise<BookSearchResult[]> {
   const stripped = stripDiacritics(query)
   const variants = stripped === query ? [query] : [query, stripped]
 
   const settled = await Promise.allSettled(
-    variants.map((v) => fetchOnce(v, limit))
+    variants.map((v) => fetchOnce(v, limit, page))
   )
   const successes = settled
     .filter(

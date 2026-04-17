@@ -17,7 +17,8 @@ function isIsbnQuery(q: string): boolean {
 
 export async function searchGoogleBooks(
   query: string,
-  maxResults = 5
+  maxResults = 5,
+  startIndex = 0
 ): Promise<BookSearchResult[]> {
   const q = isIsbnQuery(query)
     ? `isbn:${query.replace(/[-\s]/g, '')}`
@@ -25,6 +26,7 @@ export async function searchGoogleBooks(
   const params = new URLSearchParams({
     q,
     maxResults: String(maxResults),
+    startIndex: String(startIndex),
   })
 
   const apiKey = process.env.GOOGLE_BOOKS_API_KEY

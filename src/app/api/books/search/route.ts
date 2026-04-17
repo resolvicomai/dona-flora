@@ -8,6 +8,8 @@ export const dynamic = 'force-dynamic'
 
 const SearchSchema = z.object({
   query: z.string().min(2),
+  startIndex: z.coerce.number().int().nonnegative().optional().default(0),
+  page: z.coerce.number().int().min(1).optional().default(1),
 })
 
 export async function POST(request: NextRequest) {
@@ -34,7 +36,11 @@ export async function POST(request: NextRequest) {
   let results: BookSearchResult[] = []
   let googleError: unknown = null
   try {
-    results = await searchGoogleBooks(result.data.query, limit)
+    results = await searchGoogleBooks(
+      result.data.query,
+      limit,
+      result.data.startIndex
+    )
   } catch (err) {
     googleError = err
     console.warn(
@@ -45,7 +51,11 @@ export async function POST(request: NextRequest) {
 
   if (results.length === 0) {
     try {
-      results = await searchOpenLibrary(result.data.query, limit)
+      results = await searchOpenLibrary(
+        result.data.query,
+        limit,
+        result.data.page
+      )
     } catch (err) {
       console.error(
         '[API] Both providers failed. Google error:',
