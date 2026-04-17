@@ -1,0 +1,136 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+import { SendHorizontal, Square } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
+
+interface ComposerProps {
+  input: string
+  onInputChange: (value: string) => void
+  onSubmit: () => void
+  onStop: () => void
+  status: 'ready' | 'submitted' | 'streaming' | 'error'
+  autoFocusOnMount?: boolean
+}
+
+/**
+ * Sticky-bottom form with a controlled Textarea + contextual Send/Stop button.
+ *
+ * Keyboard contract (UI-SPEC §Keyboard Shortcuts):
+ *  - Enter (no shift): submit if input non-empty AND status === 'ready'.
+ *  - Shift+Enter: default textarea behavior (newline).
+ *  - Escape (while busy): calls onStop() to abort the stream.
+ *
+ * The textarea auto-expands from `min-h-14` up to `max-h-48`. The textarea
+ * primitive already uses CSS `field-sizing: content`; the ref-based height
+ * adjustment is a belt-and-suspenders fallback for older browsers (same
+ * pattern as `book-edit-form.tsx`).
+ *
+ * Busy states:
+ *  - 'submitted': textarea disabled + `opacity-60`; Stop button visible with
+ *    autoFocus so keyboard users can abort without hunting.
+ *  - 'streaming': textarea stays enabled (user may queue the next question);
+ *    Stop button still autoFocused.
+ *  - 'ready': Send button, disabled until `input.trim().length > 0`.
+ *  - 'error': same as 'ready' — composer enabled so the user may type again.
+ *
+ * Touch targets are ≥ 44×44px on both buttons (UI-SPEC §Accessibility).
+ * iOS safe area honored via `pb-[env(safe-area-inset-bottom)]`.
+ */
+export function Composer({
+  input,
+  onInputChange,
+  onSubmit,
+  onStop,
+  status,
+  autoFocusOnMount,
+}: ComposerProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Height adjustment: auto → scrollHeight (capped at 192px ≈ max-h-48).
+  useEffect(() => {
+    const ta = textareaRef.current
+    if (!ta) return
+    ta.style.height = 'auto'
+    ta.style.height = `${Math.min(ta.scrollHeight, 192)}px`
+  }, [input])
+
+  useEffect(() => {
+    if (autoFocusOnMount && textareaRef.current) {
+      textareaRef.current.focus()
+      // Put cursor at the end so seed-pre-filled text is editable without
+      // selecting-then-replacing.
+      const len = textareaRef.current.value.length
+      textareaRef.current.setSelectionRange(len, len)
+    }
+  }, [autoFocusOnMount])
+
+  const isBusy = status === 'submitted' || status === 'streaming'
+  const canSend = status === 'ready' && input.trim().length > 0
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      // Never insert a newline on plain Enter — it's a submit key here.
+      // Only actually submit when preconditions are met.
+      e.preventDefault()
+      if (canSend) onSubmit()
+      return
+    }
+    if (e.key === 'Escape' && isBusy) {
+      e.preventDefault()
+      onStop()
+    }
+  }
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (canSend) onSubmit()
+      }}
+      className="sticky bottom-0 z-10 bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-800 px-4 py-3 md:px-8 pb-[env(safe-area-inset-bottom)]"
+    >
+      <div className="max-w-3xl mx-auto w-full flex gap-2 items-end">
+        <Textarea
+          ref={textareaRef}
+          value={input}
+          onChange={(e) => onInputChange(e.target.value)}
+          onKeyDown={onKeyDown}
+          aria-label="Mensagem para a Dona Flora"
+          placeholder="Pergunte para a Dona Flora..."
+          rows={1}
+          disabled={status === 'submitted'}
+          className={cn(
+            'flex-1 resize-none min-h-14 max-h-48 bg-zinc-900 border-zinc-800 text-zinc-100',
+            status === 'submitted' && 'opacity-60',
+          )}
+        />
+        {isBusy ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            aria-label="Parar de gerar resposta"
+            onClick={onStop}
+            autoFocus
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <Square className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            size="icon"
+            aria-label="Enviar mensagem"
+            disabled={!canSend}
+            className="min-h-[44px] min-w-[44px]"
+          >
+            <SendHorizontal className="h-4 w-4" aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+    </form>
+  )
+}
