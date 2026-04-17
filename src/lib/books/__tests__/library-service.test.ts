@@ -19,9 +19,10 @@ afterEach(() => {
 describe('listBooks', () => {
   it('returns valid books from the fixtures directory', async () => {
     const books = await listBooks()
-    // 2 valid books (valid-book.md, valid-book-chinese.md)
+    // 3 valid books (valid-book.md, valid-book-chinese.md, book-no-added-at.md)
     // malformed and javascript-engine-attack are skipped
-    expect(books.length).toBe(2)
+    // book-no-added-at.md exercises the lazy-backfill path (D-22)
+    expect(books.length).toBe(3)
   })
 
   it('returns empty array when directory does not exist', async () => {
@@ -255,5 +256,26 @@ describe('deleteBook', () => {
 
   it('throws an error when the book does not exist', async () => {
     await expect(deleteBook('nonexistent-slug')).rejects.toThrow()
+  })
+})
+
+describe('listBooks - added_at backfill (D-22)', () => {
+  // Uses the shared FIXTURES_DIR set in the top-level beforeEach.
+  // book-no-added-at.md has no added_at field, so the lazy-backfill
+  // path from listBooks() must populate it from fs.stat().mtime.
+  it('populates added_at from fs.stat().mtime when the field is absent', async () => {
+    const books = await listBooks()
+    const legacy = books.find((b) => b._filename === 'book-no-added-at.md')
+    expect(legacy).toBeDefined()
+    expect(legacy!.added_at).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+
+  it('does not rewrite the .md file on disk after backfill', async () => {
+    // Idempotency + Obsidian-safe: listBooks must never touch the .md file.
+    const filepath = path.join(FIXTURES_DIR, 'book-no-added-at.md')
+    const before = await fs.readFile(filepath, 'utf-8')
+    await listBooks()
+    const after = await fs.readFile(filepath, 'utf-8')
+    expect(after).toBe(before)
   })
 })

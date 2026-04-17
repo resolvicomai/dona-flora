@@ -42,6 +42,25 @@ export async function listBooks(): Promise<Book[]> {
     const raw = await fs.readFile(filepath, 'utf-8')
     try {
       const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
+
+      // YAML auto-parses unquoted ISO dates into Date objects (Pitfall 6).
+      // Coerce back to "YYYY-MM-DD" string so Zod's z.string() accepts it.
+      if (data.added_at instanceof Date) {
+        data.added_at = data.added_at.toISOString().split('T')[0]
+      }
+
+      // Lazy backfill (D-22): if the file has no added_at, or the value is not
+      // a valid ISO-parseable string, fall back to file mtime. Never rewrite
+      // the .md file — idempotent and Obsidian-edit-safe.
+      if (
+        !data.added_at ||
+        typeof data.added_at !== 'string' ||
+        Number.isNaN(Date.parse(data.added_at))
+      ) {
+        const stat = await fs.stat(filepath)
+        data.added_at = stat.mtime.toISOString().split('T')[0]
+      }
+
       const result = BookSchema.safeParse({
         ...data,
         _notes: content.trim(),

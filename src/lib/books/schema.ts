@@ -18,6 +18,12 @@ export const BookSchema = z.object({
   year: z.coerce.number().int().optional(),
   status: BookStatusEnum,
   rating: z.coerce.number().int().min(1).max(5).optional(),
+  /**
+   * ISO date string "YYYY-MM-DD". Set by writeBook() on creation.
+   * If missing or unparseable when listBooks() reads a file, lazy-backfilled
+   * from fs.stat().mtime. YAML Date objects (unquoted `added_at: 2026-04-01`)
+   * are coerced to strings before validation. Never rewrites the file.
+   */
   added_at: z.string(),
   _notes: z.string().default(''),
   _filename: z.string().optional(),
