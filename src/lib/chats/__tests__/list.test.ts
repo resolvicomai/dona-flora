@@ -24,6 +24,8 @@ async function writeChatFile(name: string, fm: Record<string, unknown>, body = '
   const yaml = Object.entries(fm)
     .map(([k, v]) => {
       if (Array.isArray(v)) {
+        // Inline empty array as `[]` so YAML doesn't parse it as `null`.
+        if (v.length === 0) return `${k}: []`
         return `${k}:\n${v.map((x) => `  - ${x}`).join('\n')}`
       }
       return `${k}: ${JSON.stringify(v)}`
