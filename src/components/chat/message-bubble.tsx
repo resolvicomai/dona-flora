@@ -5,6 +5,7 @@ import { MessageText } from './message-text'
 import { LibraryBookCardInline } from './library-book-card-inline'
 import { ExternalBookMention } from './external-book-mention'
 import { StreamingCursor } from './streaming-cursor'
+import { ReadingTrailArtifact } from './reading-trail-artifact'
 import { useKnownSlugs } from './known-library-context'
 import type { LibrarianClientMessage } from '@/app/api/chat/route'
 
@@ -19,6 +20,41 @@ interface MessageBubbleProps {
 // threading the full provider union through the component.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseMessagePart = any
+
+/**
+ * AI-04 trail detection heuristic (UI-D11): scan the message parts for a run
+ * of 2+ CONSECUTIVE `tool-render_library_book_card` parts that resolved to
+ * known slugs. Text parts (or any other part type) between cards break the
+ * run. When multiple groups exist, return the first — keeps the UI quiet
+ * in the rare multi-trail assistant turn.
+ *
+ * Returns:
+ *   - array of slugs when a qualifying group is found, OR
+ *   - null when no group of 2+ exists.
+ */
+function detectTrail(
+  parts: LooseMessagePart[],
+  knownSlugs: Set<string>,
+): string[] | null {
+  const groups: string[][] = []
+  let current: string[] = []
+  for (const p of parts) {
+    const slug = p?.output?.slug as string | undefined
+    if (
+      p?.type === 'tool-render_library_book_card' &&
+      p?.state === 'output-available' &&
+      typeof slug === 'string' &&
+      knownSlugs.has(slug)
+    ) {
+      current.push(slug)
+    } else {
+      if (current.length >= 2) groups.push(current)
+      current = []
+    }
+  }
+  if (current.length >= 2) groups.push(current)
+  return groups[0] ?? null
+}
 
 /**
  * Per-message renderer dispatching on `part.type` (AI-SPEC §3 table):
@@ -69,69 +105,86 @@ export function MessageBubble({
     if (parts[i]?.type === 'text') lastTextIndex = i
   }
 
-  return (
-    <div data-role="assistant" className="flex justify-start gap-2 my-4">
-      <AvatarMonogram />
-      <div className="bg-zinc-900 text-zinc-100 rounded-2xl rounded-bl-md px-4 py-3 max-w-[75ch] min-w-0 break-words">
-        {parts.map((part, i) => {
-          switch (part.type) {
-            case 'text':
-              return (
-                <span key={i}>
-                  <MessageText text={part.text as string} />
-                  {isLastAssistantStreaming && i === lastTextIndex ? (
-                    <StreamingCursor />
-                  ) : null}
-                </span>
-              )
+  // AI-04 heuristic: surface a trail artifact below the bubble when the
+  // assistant produced 2+ consecutive known-library cards. The inline cards
+  // still render inside the bubble — the artifact is an additional structured
+  // view with a Save-to-disk affordance, not a replacement of the conversation
+  // flow.
+  const trail = detectTrail(parts, knownSlugs)
 
-            case 'tool-render_library_book_card': {
-              if (part.state !== 'output-available') {
-                // Layout-stable skeleton to avoid card-shaped content jump once
-                // the tool resolves (AI-SPEC §Streaming Affordances §Partial-content).
+  return (
+    <div
+      data-role="assistant"
+      className="flex flex-col items-start gap-0 my-4"
+    >
+      <div className="flex justify-start gap-2">
+        <AvatarMonogram />
+        <div className="bg-zinc-900 text-zinc-100 rounded-2xl rounded-bl-md px-4 py-3 max-w-[75ch] min-w-0 break-words">
+          {parts.map((part, i) => {
+            switch (part.type) {
+              case 'text':
                 return (
-                  <div
+                  <span key={i}>
+                    <MessageText text={part.text as string} />
+                    {isLastAssistantStreaming && i === lastTextIndex ? (
+                      <StreamingCursor />
+                    ) : null}
+                  </span>
+                )
+
+              case 'tool-render_library_book_card': {
+                if (part.state !== 'output-available') {
+                  // Layout-stable skeleton to avoid card-shaped content jump once
+                  // the tool resolves (AI-SPEC §Streaming Affordances §Partial-content).
+                  return (
+                    <div
+                      key={i}
+                      className="h-16 w-64 rounded-xl bg-zinc-800/70 my-1 motion-safe:animate-pulse"
+                      aria-hidden="true"
+                    />
+                  )
+                }
+                const slug = (part.output?.slug ?? '') as string
+                if (!knownSlugs.has(slug)) {
+                  // Layered D-14 guardrail: unknown slug never mounts the card
+                  // component. See `LibraryBookCardInline` for the inner fallback.
+                  return (
+                    <span key={i} className="text-muted-foreground italic">
+                      (livro mencionado indisponível)
+                    </span>
+                  )
+                }
+                return <LibraryBookCardInline key={i} slug={slug} />
+              }
+
+              case 'tool-render_external_book_mention': {
+                if (part.state !== 'output-available') return null
+                const out = part.output ?? {}
+                return (
+                  <ExternalBookMention
                     key={i}
-                    className="h-16 w-64 rounded-xl bg-zinc-800/70 my-1 motion-safe:animate-pulse"
-                    aria-hidden="true"
+                    title={out.title as string}
+                    author={out.author as string}
+                    reason={out.reason as string}
                   />
                 )
               }
-              const slug = (part.output?.slug ?? '') as string
-              if (!knownSlugs.has(slug)) {
-                // Layered D-14 guardrail: unknown slug never mounts the card
-                // component. See `LibraryBookCardInline` for the inner fallback.
-                return (
-                  <span key={i} className="text-muted-foreground italic">
-                    (livro mencionado indisponível)
-                  </span>
-                )
-              }
-              return <LibraryBookCardInline key={i} slug={slug} />
-            }
 
-            case 'tool-render_external_book_mention': {
-              if (part.state !== 'output-available') return null
-              const out = part.output ?? {}
-              return (
-                <ExternalBookMention
-                  key={i}
-                  title={out.title as string}
-                  author={out.author as string}
-                  reason={out.reason as string}
-                />
-              )
+              default:
+                if (process.env.NODE_ENV !== 'production') {
+                  // eslint-disable-next-line no-console
+                  console.warn('[MessageBubble] unknown part', part)
+                }
+                return null
             }
-
-            default:
-              if (process.env.NODE_ENV !== 'production') {
-                // eslint-disable-next-line no-console
-                console.warn('[MessageBubble] unknown part', part)
-              }
-              return null
-          }
-        })}
+          })}
+        </div>
       </div>
+      {trail && (
+        <div className="ml-10 w-full max-w-[75ch]">
+          <ReadingTrailArtifact slugs={trail} />
+        </div>
+      )}
     </div>
   )
 }
