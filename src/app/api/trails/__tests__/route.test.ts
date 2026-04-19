@@ -4,10 +4,23 @@ jest.mock('@/lib/trails/store', () => ({
   saveTrail: jest.fn(),
 }))
 
+// WR-06: trails route cross-checks book_refs against the known-slugs set.
+// Default mock returns a permissive set that contains every fixture slug
+// used in the happy-path tests; individual tests override as needed.
+jest.mock('@/lib/library/slug-set', () => ({
+  loadKnownSlugs: jest.fn(
+    async () => new Set(['o-hobbit', 'a-sociedade-do-anel']),
+  ),
+}))
+
 import { POST } from '@/app/api/trails/route'
 import { saveTrail } from '@/lib/trails/store'
+import { loadKnownSlugs } from '@/lib/library/slug-set'
 
 const mockedSaveTrail = saveTrail as jest.MockedFunction<typeof saveTrail>
+const mockedLoadKnownSlugs = loadKnownSlugs as jest.MockedFunction<
+  typeof loadKnownSlugs
+>
 
 function makeRequest(body: unknown): NextRequest {
   return new NextRequest('http://localhost/api/trails', {
@@ -18,6 +31,10 @@ function makeRequest(body: unknown): NextRequest {
 
 beforeEach(() => {
   mockedSaveTrail.mockReset()
+  mockedLoadKnownSlugs.mockReset()
+  mockedLoadKnownSlugs.mockResolvedValue(
+    new Set(['o-hobbit', 'a-sociedade-do-anel']),
+  )
 })
 
 describe('POST /api/trails — happy path', () => {
@@ -95,6 +112,24 @@ describe('POST /api/trails — validation', () => {
     )
     expect(res.status).toBe(400)
     expect(mockedSaveTrail).not.toHaveBeenCalled()
+  })
+
+  // WR-06: kebab-valid but non-existent slugs are rejected so we don't
+  // persist a dangling reference.
+  it('returns 400 when a kebab-valid book_ref is not in loadKnownSlugs', async () => {
+    mockedLoadKnownSlugs.mockResolvedValueOnce(new Set(['o-hobbit']))
+    const res = await POST(
+      makeRequest({
+        title: 'Minha Trilha',
+        book_refs: ['o-hobbit', 'livro-que-nao-existe'],
+      })
+    )
+    expect(res.status).toBe(400)
+    expect(mockedSaveTrail).not.toHaveBeenCalled()
+    const body = await res.json()
+    expect(body.details?.fieldErrors?.book_refs?.[0]).toMatch(
+      /livro-que-nao-existe/,
+    )
   })
 
   it('returns 400 when body is not JSON', async () => {
