@@ -158,3 +158,23 @@ export async function loadChat(chatId: string): Promise<LibrarianMessage[] | nul
     return null
   }
 }
+
+/**
+ * Deletes `data/chats/{chatId}.md`. Returns true if the file was removed,
+ * false if it did not exist. Any other fs error re-throws so the API route
+ * can translate it into a 500.
+ *
+ * `chatId` MUST be validated at the API boundary with the same regex as
+ * `saveChat` — this function trusts its input, matching the contract of
+ * the rest of the store.
+ */
+export async function deleteChat(chatId: string): Promise<boolean> {
+  const file = path.join(getChatsDir(), `${chatId}.md`)
+  try {
+    await fs.unlink(file)
+    return true
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return false
+    throw err
+  }
+}

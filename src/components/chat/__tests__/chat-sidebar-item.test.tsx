@@ -4,6 +4,14 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import type { ChatSummary } from '@/lib/chats/schema'
+
+// Mock next/navigation — ChatSidebarItem uses usePathname + useRouter for the
+// delete-action bounce-to-/chat behavior.
+jest.mock('next/navigation', () => ({
+  usePathname: () => '/chat',
+  useRouter: () => ({ refresh: jest.fn(), push: jest.fn() }),
+}))
+
 import { ChatSidebarItem } from '../chat-sidebar-item'
 
 function makeChat(overrides: Partial<ChatSummary> = {}): ChatSummary {
@@ -21,7 +29,7 @@ describe('ChatSidebarItem', () => {
   test("renders title and Link href='/chat/{id}'", () => {
     render(<ChatSidebarItem chat={makeChat()} active={false} />)
     expect(screen.getByText('Conversa sobre Grande Sertão')).toBeInTheDocument()
-    const link = screen.getByRole('link')
+    const link = screen.getAllByRole('link')[0]
     expect(link).toHaveAttribute('href', '/chat/chat-123')
   })
 
@@ -59,9 +67,12 @@ describe('ChatSidebarItem', () => {
 
   test('active state has left-border accent', () => {
     render(<ChatSidebarItem chat={makeChat()} active={true} />)
+    // Border accent lives on the wrapper div (which also owns the hover state
+    // for the delete action), not on the Link itself.
     const link = screen.getByRole('link')
-    expect(link.className).toMatch(/border-l-2/)
-    expect(link.className).toMatch(/border-zinc-100/)
+    const wrapper = link.parentElement as HTMLElement
+    expect(wrapper.className).toMatch(/border-l-2/)
+    expect(wrapper.className).toMatch(/border-zinc-100/)
   })
 
   test('renders time element with dateTime attribute', () => {

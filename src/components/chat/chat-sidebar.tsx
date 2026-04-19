@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Plus, Search } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ChatSidebarItem } from './chat-sidebar-item'
 import { SidebarEmptyState } from './sidebar-empty-state'
 import type { ChatSummary } from '@/lib/chats/schema'
@@ -44,13 +46,61 @@ interface Props {
   activeChatId?: string
 }
 
+/**
+ * Filters a chat list by title substring (case/diacritic-insensitive via
+ * `String.localeCompare`-style fold). Empty / whitespace query returns the
+ * original list unchanged.
+ */
+function filterChats(chats: ChatSummary[], query: string): ChatSummary[] {
+  const q = query.trim().toLowerCase()
+  if (!q) return chats
+  const folded = q
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+  return chats.filter((c) => {
+    const t = c.title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+    return t.includes(folded)
+  })
+}
+
 export function SidebarBody({ chats, activeChatId }: Props) {
-  if (chats.length === 0) return <SidebarEmptyState />
+  const [query, setQuery] = useState('')
+  const filtered = useMemo(() => filterChats(chats, query), [chats, query])
+
   return (
-    <div className="flex flex-col gap-1 p-2">
-      {chats.map((c) => (
-        <ChatSidebarItem key={c.id} chat={c} active={c.id === activeChatId} />
-      ))}
+    <div className="flex flex-col gap-2">
+      {chats.length > 0 && (
+        <div className="relative px-2 pt-2">
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500 pointer-events-none"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            placeholder="Buscar conversas…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Buscar conversas"
+            className="pl-8 h-8 text-sm bg-zinc-950 border-zinc-800"
+          />
+        </div>
+      )}
+      {chats.length === 0 ? (
+        <SidebarEmptyState />
+      ) : filtered.length === 0 ? (
+        <p className="px-4 py-6 text-sm text-zinc-500 text-center">
+          Nenhuma conversa encontrada.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-1 p-2 pt-0">
+          {filtered.map((c) => (
+            <ChatSidebarItem key={c.id} chat={c} active={c.id === activeChatId} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
