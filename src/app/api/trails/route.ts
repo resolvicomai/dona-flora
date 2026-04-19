@@ -24,8 +24,19 @@ export const dynamic = 'force-dynamic'
 
 const KEBAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
+// WR-09: mirror TrailFrontmatterSchema's HAS_SLUG_CHAR refinement at the
+// boundary so the API returns a 400 on punctuation-only titles instead of
+// relying on the store's own validation throw (which returns 500).
+const HAS_SLUG_CHAR = /[a-z0-9]/i
+
 const CreateTrailSchema = z.object({
-  title: z.string().min(1).max(120),
+  title: z
+    .string()
+    .min(1)
+    .max(120)
+    .refine((s) => HAS_SLUG_CHAR.test(s), {
+      message: 'título precisa conter pelo menos uma letra ou número',
+    }),
   goal: z.string().max(500).optional(),
   book_refs: z
     .array(z.string().regex(KEBAB_SLUG, 'slug deve ser kebab-case ASCII'))

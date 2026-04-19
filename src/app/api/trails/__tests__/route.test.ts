@@ -138,6 +138,20 @@ describe('POST /api/trails — validation', () => {
     expect(res.status).toBe(400)
     expect(mockedSaveTrail).not.toHaveBeenCalled()
   })
+
+  // WR-09: punctuation-only title would slugify to empty and collide on
+  // the literal `trilha.md`. Reject at the boundary so the user gets a
+  // 400 instead of a 500 surprise.
+  it("returns 400 when title is punctuation-only ('!!!')", async () => {
+    const res = await POST(
+      makeRequest({
+        title: '!!!',
+        book_refs: ['o-hobbit'],
+      }),
+    )
+    expect(res.status).toBe(400)
+    expect(mockedSaveTrail).not.toHaveBeenCalled()
+  })
 })
 
 describe('POST /api/trails — failure paths', () => {

@@ -103,22 +103,21 @@ describe('saveTrail', () => {
     ).rejects.toThrow()
   })
 
-  it("uses 'trilha' base slug when generateSlug produces empty string", async () => {
-    // A title made entirely of punctuation slugifies to empty.
-    const { slug } = await saveTrail({
-      title: '!!!',
-      book_refs: ['foo'],
-    })
-    expect(slug).toBe('trilha')
+  // WR-09: punctuation-only titles are rejected by the schema (they
+  // slugify to empty and would collide on the literal `trilha.md`
+  // fallback). The store throws; the API boundary returns 400. Previous
+  // tests covered the old fallback behavior — replaced with explicit
+  // rejection.
+  it('throws when title has no slug-eligible characters (WR-09)', async () => {
+    await expect(
+      saveTrail({ title: '!!!', book_refs: ['foo'] }),
+    ).rejects.toThrow()
   })
 
-  it('handles collision chain for fallback slug too', async () => {
-    await fs.writeFile(path.join(tmpDir, 'trilha.md'), '---\ntitle: x\n---\n\n')
-    const { slug } = await saveTrail({
-      title: '???',
-      book_refs: ['bar'],
-    })
-    expect(slug).toBe('trilha-2')
+  it('throws on punctuation-only title even with "???" variant (WR-09)', async () => {
+    await expect(
+      saveTrail({ title: '???', book_refs: ['bar'] }),
+    ).rejects.toThrow()
   })
 
   it('omits empty goal/notes gracefully when not provided', async () => {

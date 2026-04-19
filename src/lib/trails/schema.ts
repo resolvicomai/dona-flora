@@ -12,8 +12,20 @@ import { z } from 'zod'
  *    min(1) because an empty trail is meaningless
  * - `notes`: free-form description (rendered as body in the .md file)
  */
+// WR-09: reject titles that carry zero slug-eligible characters (e.g. "!!!",
+// "------", "***"). Without this guard `generateSlug(title)` returns an
+// empty string and falls back to the literal 'trilha', so every "!!!" trail
+// would collide with every other punctuation-only title and land as
+// trilha-2.md, trilha-3.md, etc. — pure surprise UX.
+const HAS_SLUG_CHAR = /[a-z0-9]/i
+
 export const TrailFrontmatterSchema = z.object({
-  title: z.string().min(1),
+  title: z
+    .string()
+    .min(1)
+    .refine((s) => HAS_SLUG_CHAR.test(s), {
+      message: 'título precisa conter pelo menos uma letra ou número',
+    }),
   goal: z.string().default(''),
   created_at: z.string(),
   book_refs: z.array(z.string()).min(1),
