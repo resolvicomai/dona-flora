@@ -3,8 +3,8 @@ import { NextRequest } from 'next/server'
 /**
  * Mock strategy (AI-SPEC §3 + Plan 04-03 <behavior>):
  *  - `ai` is mocked so `streamText` never reaches the network.
- *  - `@ai-sdk/anthropic` is mocked so `anthropic('claude-sonnet-4-5')` is just
- *    a fake object carrying `{ modelId }` for assertions.
+ *  - `@openrouter/ai-sdk-provider` is mocked so the factory returns a function
+ *    that echoes `{ modelId }` for assertions.
  *  - `loadLibraryContext` returns a fixed string ('FAKE LIBRARY') so we can
  *    assert the system prompt wraps it in <LIBRARY>...</LIBRARY>.
  *  - `saveChat` is a jest.fn so we can assert onFinish invoked it.
@@ -41,8 +41,8 @@ jest.mock('ai', () => ({
   generateId: jest.fn(() => 'generated-id'),
 }))
 
-jest.mock('@ai-sdk/anthropic', () => ({
-  anthropic: jest.fn((modelId: string) => ({ modelId })),
+jest.mock('@openrouter/ai-sdk-provider', () => ({
+  createOpenRouter: jest.fn(() => (modelId: string) => ({ modelId })),
 }))
 
 jest.mock('@/lib/library/context', () => ({
@@ -114,7 +114,7 @@ describe('POST /api/chat — validation', () => {
 })
 
 describe('POST /api/chat — streamText wiring', () => {
-  it('invokes streamText with Anthropic model id claude-sonnet-4-5', async () => {
+  it('invokes streamText with OpenRouter model id (default anthropic/claude-sonnet-4.6)', async () => {
     const res = await POST(
       makeRequest({ chatId: 'abc-123', messages: validMessages() })
     )
@@ -122,7 +122,7 @@ describe('POST /api/chat — streamText wiring', () => {
     const args = capturedStreamTextArgs.value
     expect(args).toBeDefined()
     const model = args?.model as { modelId?: string }
-    expect(model.modelId).toBe('claude-sonnet-4-5')
+    expect(model.modelId).toBe('anthropic/claude-sonnet-4.6')
   })
 
   it('passes buildSystemPrompt output via top-level `system` param with cacheControl ephemeral', async () => {

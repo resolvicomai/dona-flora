@@ -8,7 +8,7 @@ import {
   type UIMessage,
   type UIDataTypes,
 } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { z } from 'zod'
 import { loadLibraryContext } from '@/lib/library/context'
 import { saveChat } from '@/lib/chats/store'
@@ -19,7 +19,7 @@ import type { LibrarianMessage } from '@/lib/chats/types'
 /**
  * POST /api/chat — Dona Flora streaming endpoint (AI-SPEC §3).
  *
- * Wires Vercel AI SDK v6 + @ai-sdk/anthropic to stream a pt-BR response, with
+ * Wires Vercel AI SDK v6 + OpenRouter to stream a pt-BR response, with
  * the static persona/rules header marked `cacheControl: ephemeral` and the
  * dynamic <LIBRARY> block appended. Two read-only UI tools render inline book
  * cards. `onFinish` persists the full conversation to `data/chats/{chatId}.md`
@@ -29,8 +29,8 @@ import type { LibrarianMessage } from '@/lib/chats/types'
  * Path traversal on `chatId` is closed here via a Zod regex BEFORE the value
  * ever reaches `saveChat` (threat T-04-09).
  *
- * Model ID confirmed: `claude-sonnet-4-5` (AI-SPEC §4 line 449 + Context7
- * lookup 2026-04-17).
+ * Model routed via OpenRouter — default `anthropic/claude-sonnet-4.6`, override
+ * via `OPENROUTER_MODEL` env var.
  */
 
 export const dynamic = 'force-dynamic'
@@ -89,8 +89,14 @@ export async function POST(request: NextRequest) {
       },
     }
 
+    const openrouter = createOpenRouter({
+      apiKey: process.env.OPENROUTER_API_KEY,
+    })
+    const modelId =
+      process.env.OPENROUTER_MODEL ?? 'anthropic/claude-sonnet-4.6'
+
     const result = streamText({
-      model: anthropic('claude-sonnet-4-5'),
+      model: openrouter(modelId),
       system: systemMessage,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: await convertToModelMessages(messages as any),
