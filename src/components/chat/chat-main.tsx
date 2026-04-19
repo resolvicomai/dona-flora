@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { ChatSidebarDrawer } from './chat-sidebar-drawer'
 import { MessageList } from './message-list'
 import { Composer } from './composer'
-import type { ChatSummary } from '@/lib/chats/schema'
+import type { ChatListEntry } from '@/lib/chats/list'
 import type { LibrarianMessage } from '@/lib/chats/types'
 import type { LibrarianClientMessage } from '@/app/api/chat/route'
 
@@ -27,7 +27,7 @@ import type { LibrarianClientMessage } from '@/app/api/chat/route'
 export interface ChatMainProps {
   chatId?: string
   initialMessages?: LibrarianMessage[]
-  chats: ChatSummary[]
+  chats: ChatListEntry[]
   bookCount: number
   seedBook: { slug: string; title: string; author: string } | null
 }

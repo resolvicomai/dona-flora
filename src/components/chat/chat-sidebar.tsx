@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ChatSidebarItem } from './chat-sidebar-item'
 import { SidebarEmptyState } from './sidebar-empty-state'
-import type { ChatSummary } from '@/lib/chats/schema'
+import type { ChatListEntry } from '@/lib/chats/list'
 import { cn } from '@/lib/utils'
 
 /**
@@ -42,27 +42,31 @@ export function useNewChatHandler() {
  */
 
 interface Props {
-  chats: ChatSummary[]
+  chats: ChatListEntry[]
   activeChatId?: string
 }
 
 /**
- * Filters a chat list by title substring (case/diacritic-insensitive via
- * `String.localeCompare`-style fold). Empty / whitespace query returns the
- * original list unchanged.
+ * Folds a string to lowercase-ASCII so search ignores case and diacritics
+ * (so "açorianos" matches "Acorianos").
  */
-function filterChats(chats: ChatSummary[], query: string): ChatSummary[] {
-  const q = query.trim().toLowerCase()
-  if (!q) return chats
-  const folded = q
+function fold(s: string): string {
+  return s
+    .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+}
+
+/**
+ * Filters a chat list by matching `query` against BOTH title and body excerpt
+ * (case/diacritic-insensitive). Empty / whitespace query returns the original
+ * list unchanged.
+ */
+function filterChats(chats: ChatListEntry[], query: string): ChatListEntry[] {
+  const q = fold(query.trim())
+  if (!q) return chats
   return chats.filter((c) => {
-    const t = c.title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-    return t.includes(folded)
+    return fold(c.title).includes(q) || fold(c.content).includes(q)
   })
 }
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { KnownLibraryProvider, type ChatBookMeta } from './known-library-context'
 import { ChatSidebar } from './chat-sidebar'
 import { ChatMain } from './chat-main' // Placeholder in this plan; Plan 06 replaces with streaming UI.
-import type { ChatSummary } from '@/lib/chats/schema'
+import type { ChatListEntry } from '@/lib/chats/list'
 import type { LibrarianMessage } from '@/lib/chats/types'
 
 /**
@@ -25,7 +25,7 @@ import type { LibrarianMessage } from '@/lib/chats/types'
 export interface ChatShellProps {
   chatId?: string
   initialMessages?: LibrarianMessage[]
-  chats: ChatSummary[]
+  chats: ChatListEntry[]
   knownBooks: ChatBookMeta[]
   bookCount: number
   seedBook?: { slug: string; title: string; author: string } | null

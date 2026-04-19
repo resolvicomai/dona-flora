@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { SidebarBody, useNewChatHandler } from './chat-sidebar'
-import type { ChatSummary } from '@/lib/chats/schema'
+import type { ChatListEntry } from '@/lib/chats/list'
 import type { ReactElement } from 'react'
 
 /**
@@ -27,7 +27,7 @@ import type { ReactElement } from 'react'
  */
 interface Props {
   trigger: ReactElement
-  chats: ChatSummary[]
+  chats: ChatListEntry[]
   activeChatId?: string
 }
 
