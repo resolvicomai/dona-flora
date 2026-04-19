@@ -44,6 +44,97 @@ export type LibrarianClientMessage = UIMessage<
   LibrarianTools
 >
 
+// CR-02: Shape-validate inbound `messages` at the boundary instead of
+// trusting client JSON. A malicious client could otherwise persist
+// `role: 'system'`, oversize text, or forged tool-output parts into
+// `data/chats/{id}.md` — which is re-read on next visit and streamed
+// back to the model verbatim (persistent prompt-injection surface).
+//
+// Contract (AI-SPEC §3 + Plan 04-02 <behavior>):
+//   - Roles: only 'user' or 'assistant' at the boundary. 'system' is
+//     injected server-side via buildSystemPrompt(); a client-supplied
+//     system role is always a red flag.
+//   - Per-text length: 16 000 chars (an exceptionally long user turn,
+//     ~4k tokens — well above any legitimate human input).
+//   - Array cap: 200 messages per request. Long threads are persisted
+//     across turns; if we ever hit this we have bigger problems.
+//   - Tool-output parts use discriminated `type: 'tool-*'` names and
+//     carry small fixed-shape outputs. Slugs are kebab-regex'd here
+//     (defense-in-depth against the D-14 layered guardrail).
+const KEBAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const MAX_TEXT_CHARS = 16_000
+const MAX_MESSAGES = 200
+
+// Known part-type whitelist. useChat/AI SDK emits reasoning, step-start,
+// dynamic-tool, etc. during streaming — we keep a loose catch-all branch
+// for forward-compat but refuse completely unknown tool-* shapes so a
+// malicious client cannot smuggle arbitrary tool outputs into the
+// persistence layer.
+const MessagePartSchema: z.ZodType<unknown> = z.unknown().superRefine(
+  (raw, ctx) => {
+    if (!raw || typeof raw !== 'object') {
+      ctx.addIssue({ code: 'custom', message: 'part must be an object' })
+      return
+    }
+    const part = raw as { type?: unknown; text?: unknown; output?: unknown }
+    const t = part.type
+    if (typeof t !== 'string') {
+      ctx.addIssue({ code: 'custom', message: 'part.type must be a string' })
+      return
+    }
+    if (t === 'text') {
+      if (typeof part.text !== 'string') {
+        ctx.addIssue({ code: 'custom', message: 'text part missing .text' })
+        return
+      }
+      if (part.text.length > MAX_TEXT_CHARS) {
+        ctx.addIssue({ code: 'custom', message: 'text exceeds MAX_TEXT_CHARS' })
+      }
+      return
+    }
+    if (t === 'tool-render_library_book_card') {
+      const out = part.output as { slug?: unknown } | undefined
+      if (out && out.slug !== undefined) {
+        if (typeof out.slug !== 'string' || !KEBAB_SLUG.test(out.slug) || out.slug.length > 200) {
+          ctx.addIssue({ code: 'custom', message: 'invalid slug in library-card part' })
+        }
+      }
+      return
+    }
+    if (t === 'tool-render_external_book_mention') {
+      const out = part.output as
+        | { title?: unknown; author?: unknown; reason?: unknown }
+        | undefined
+      if (out) {
+        if (out.title !== undefined && (typeof out.title !== 'string' || out.title.length > 500)) {
+          ctx.addIssue({ code: 'custom', message: 'external title too long' })
+        }
+        if (out.author !== undefined && (typeof out.author !== 'string' || out.author.length > 500)) {
+          ctx.addIssue({ code: 'custom', message: 'external author too long' })
+        }
+        if (out.reason !== undefined && (typeof out.reason !== 'string' || out.reason.length > 1000)) {
+          ctx.addIssue({ code: 'custom', message: 'external reason too long' })
+        }
+      }
+      return
+    }
+    // Forward-compat: accept other useChat-emitted parts (reasoning,
+    // step-start, dynamic-tool, etc.) opaquely — but still bound any
+    // stringy `text` field if present.
+    if (typeof part.text === 'string' && part.text.length > MAX_TEXT_CHARS) {
+      ctx.addIssue({ code: 'custom', message: 'generic part text exceeds MAX_TEXT_CHARS' })
+    }
+  },
+)
+
+const InboundMessageSchema = z
+  .object({
+    id: z.string().max(200).optional(),
+    role: z.enum(['user', 'assistant']),
+    parts: z.array(MessagePartSchema).max(200),
+  })
+  .passthrough()
+
 const ChatRequestSchema = z.object({
   // chatId regex: ^[A-Za-z0-9][A-Za-z0-9_-]*$ — inlined (not extracted to a
   // const) so the acceptance grep can find it in a single line.
@@ -53,7 +144,7 @@ const ChatRequestSchema = z.object({
     .max(128)
     // eslint-disable-next-line prettier/prettier
     .regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/, 'chatId deve ser alfanumérico/hífen/underscore sem começar com traço'),
-  messages: z.array(z.any()).min(1),
+  messages: z.array(InboundMessageSchema).min(1).max(MAX_MESSAGES),
 })
 
 export async function POST(request: NextRequest) {
