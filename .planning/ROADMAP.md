@@ -96,3 +96,13 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 2. Catalog Core | 6/6 | Complete   | 2026-04-16 |
 | 3. Browse & UI | 0/TBD | Not started | - |
 | 4. AI Librarian | 0/7 | Planned | - |
+
+### Phase 5: UX polish and AI behavior tuning
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 4
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 5 to break down)
