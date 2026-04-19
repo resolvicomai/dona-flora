@@ -29,8 +29,12 @@ interface ComposerProps {
  * pattern as `book-edit-form.tsx`).
  *
  * Busy states:
- *  - 'submitted': textarea disabled + `opacity-60`; Stop button visible with
- *    autoFocus so keyboard users can abort without hunting.
+ *  - 'submitted': textarea stays enabled but paints as "busy" via
+ *    `aria-busy` + `opacity-60`. A `disabled` textarea drops in-flight IME
+ *    compositions (pt-BR users typing accents) and steals focus away mid-
+ *    keystroke — the WR-03 regression from iteration 1. Stop button is the
+ *    visible affordance; Enter is swallowed by the canSend guard so the
+ *    composer is still effectively input-locked against submits.
  *  - 'streaming': textarea stays enabled (user may queue the next question);
  *    Stop button still autoFocused.
  *  - 'ready': Send button, disabled until `input.trim().length > 0`.
@@ -101,7 +105,11 @@ export function Composer({
           aria-label="Mensagem para a Dona Flora"
           placeholder="Pergunte para a Dona Flora..."
           rows={1}
-          disabled={status === 'submitted'}
+          // WR-03: aria-busy instead of disabled — lets IME compositions
+          // (pt-BR accents, diacritics) complete without stealing focus.
+          // Submit gating lives in canSend; aria-busy tells assistive tech
+          // that the response is in flight.
+          aria-busy={status === 'submitted'}
           className={cn(
             'flex-1 resize-none min-h-14 max-h-48 bg-zinc-900 border-zinc-800 text-zinc-100',
             status === 'submitted' && 'opacity-60',
