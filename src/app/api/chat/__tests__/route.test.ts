@@ -125,25 +125,26 @@ describe('POST /api/chat — streamText wiring', () => {
     expect(model.modelId).toBe('claude-sonnet-4-5')
   })
 
-  it('injects buildSystemPrompt output as first message with cacheControl ephemeral', async () => {
+  it('passes buildSystemPrompt output via top-level `system` param with cacheControl ephemeral', async () => {
     await POST(
       makeRequest({ chatId: 'abc-123', messages: validMessages() })
     )
     const args = capturedStreamTextArgs.value
-    const messages = args?.messages as Array<{
+    const system = args?.system as {
       role: string
-      content: Array<{ type: string; text: string; providerOptions?: unknown }>
-    }>
-    expect(messages[0].role).toBe('system')
-    expect(messages[0].content[0].type).toBe('text')
-    expect(messages[0].content[0].text).toContain(
-      '<LIBRARY>\nFAKE LIBRARY\n</LIBRARY>'
-    )
-    expect(messages[0].content[0].text).toContain('Dona Flora')
-    const provOpts = messages[0].content[0].providerOptions as {
-      anthropic?: { cacheControl?: { type?: string } }
+      content: string
+      providerOptions?: { anthropic?: { cacheControl?: { type?: string } } }
     }
-    expect(provOpts.anthropic?.cacheControl?.type).toBe('ephemeral')
+    expect(system).toBeDefined()
+    expect(system.role).toBe('system')
+    expect(system.content).toContain('<LIBRARY>\nFAKE LIBRARY\n</LIBRARY>')
+    expect(system.content).toContain('Dona Flora')
+    expect(system.providerOptions?.anthropic?.cacheControl?.type).toBe(
+      'ephemeral'
+    )
+    // user messages live in `messages`; the system prompt is NOT there.
+    const userMessages = args?.messages as Array<{ role: string }>
+    expect(userMessages.every((m) => m.role !== 'system')).toBe(true)
   })
 
   it('passes librarianTools containing both expected keys', async () => {

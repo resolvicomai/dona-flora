@@ -78,30 +78,22 @@ export async function POST(request: NextRequest) {
   try {
     const libraryContext = await loadLibraryContext()
 
+    // AI SDK v6: `system` is a top-level streamText param, not a message.
+    // SystemModelMessage.content is a string (not a parts array); cacheControl
+    // lives on providerOptions at the message level (AI-SPEC §3 pitfall #4).
     const systemMessage = {
       role: 'system' as const,
-      content: [
-        {
-          type: 'text' as const,
-          text: buildSystemPrompt(libraryContext),
-          // AI-SPEC §3 pitfall #4: cacheControl MUST live on the content part,
-          // not on a `system: 'string'` shorthand — otherwise Anthropic never
-          // caches the large library payload (we pay full price every turn).
-          providerOptions: {
-            anthropic: { cacheControl: { type: 'ephemeral' } },
-          },
-        },
-      ],
+      content: buildSystemPrompt(libraryContext),
+      providerOptions: {
+        anthropic: { cacheControl: { type: 'ephemeral' } },
+      },
     }
 
     const result = streamText({
       model: anthropic('claude-sonnet-4-5'),
-      messages: [
-        systemMessage,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ...(await convertToModelMessages(messages as any)),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ] as any,
+      system: systemMessage,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: await convertToModelMessages(messages as any),
       tools: librarianTools,
       stopWhen: stepCountIs(4),
       temperature: 0.6,
