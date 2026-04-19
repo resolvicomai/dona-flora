@@ -68,38 +68,55 @@ export function ChatMain({
   const effectiveChatId = useStableChatId(chatId)
   const [input, setInput] = useState('')
   const seedApplied = useRef(false)
+  // WR-02: listChats() readdirs data/chats/ + parses every .md on every
+  // refresh. The sidebar entry for this conversation appears after the
+  // FIRST persisted assistant turn; subsequent turns only update
+  // `updated_at`, so we skip the refresh after that. Existing conversations
+  // (chatId provided via URL) are already in the sidebar on mount.
+  const hasRefreshedSidebar = useRef<boolean>(Boolean(chatId))
+
+  // Memoize initialMessages to stabilize the useChat prop reference across
+  // renders (WR-04). useChat v6 does not guarantee behavior when `messages`
+  // changes identity mid-session; freezing to the first-mount value matches
+  // the "hydrate once" Plan 06 contract.
+  const memoInitialMessages = useRef(
+    (initialMessages ?? []) as unknown as LibrarianClientMessage[],
+  ).current
 
   const { messages, sendMessage, status, stop, regenerate, error } =
     useChat<LibrarianClientMessage>({
       id: effectiveChatId,
-      messages: (initialMessages ?? []) as unknown as LibrarianClientMessage[],
+      messages: memoInitialMessages,
       transport: new DefaultChatTransport<LibrarianClientMessage>({
         api: '/api/chat',
         body: { chatId: effectiveChatId },
       }),
       onFinish: () => {
-        // Refresh the server tree so the sidebar list picks up the newly
-        // persisted conversation (ChatPage re-reads listChats()).
+        // Refresh once so the sidebar list picks up the newly persisted
+        // conversation (ChatPage re-reads listChats()). Skip on subsequent
+        // turns: the entry is already rendered and listChats() is O(N files).
+        if (hasRefreshedSidebar.current) return
+        hasRefreshedSidebar.current = true
         router.refresh()
       },
     })
 
   // Deep-link seed: on first mount when ?about=slug was resolved to a
   // `seedBook` server-side, pre-fill the composer in pt-BR without sending.
-  // Strip the query param so refreshes don't re-apply the seed.
+  // Strip the query param so refreshes don't re-apply the seed — but only
+  // when we actually applied the seed; otherwise a stray re-render (WR-01)
+  // would strip `?about` before the seed had a chance to take.
   useEffect(() => {
-    if (
-      !seedApplied.current &&
-      seedBook &&
-      input === '' &&
-      (messages?.length ?? 0) === 0
-    ) {
-      setInput(
-        `Conte-me mais sobre "${seedBook.title}" de ${seedBook.author}. O que você acha dessa minha escolha?`,
-      )
-      seedApplied.current = true
-      router.replace('/chat')
-    }
+    if (seedApplied.current) return
+    if (!seedBook) return
+    if (input !== '') return
+    if ((messages?.length ?? 0) !== 0) return
+
+    setInput(
+      `Conte-me mais sobre "${seedBook.title}" de ${seedBook.author}. O que você acha dessa minha escolha?`,
+    )
+    seedApplied.current = true
+    router.replace('/chat')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seedBook])
 
@@ -143,6 +160,12 @@ export function ChatMain({
         status={status}
         error={error ?? null}
         onRetry={() => {
+          // WR-05: a pending stream must be cancelled before asking useChat
+          // to restart, otherwise two streams race, double-persist via
+          // onFinish, and double-render tokens during the interim.
+          if (status === 'submitted' || status === 'streaming') {
+            stop()
+          }
           void regenerate()
         }}
         bookCount={bookCount}
