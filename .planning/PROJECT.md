@@ -22,28 +22,30 @@ O diferencial não é o catálogo — é o **bibliotecário**: uma IA conversaci
 
 ### Validated
 
-(None yet — ship to validate)
+**Catálogo (Phases 01-03):**
+- [x] Usuário adiciona livro por título ou ISBN (Google Books + Open Library fallback) — *Phase 02*
+- [x] Cada livro gera/atualiza `.md` com frontmatter completo (título, autor, sinopse, capa, ISBN, status, rating, notes) — *Phase 01*
+- [x] Usuário define status (quero_ler / lendo / lido / quero_reler / abandonado) — *Phase 02*
+- [x] Usuário atribui nota 1–5 estrelas — *Phase 02*
+- [x] Usuário adiciona notas pessoais (markdown body) — *Phase 02*
+- [x] Usuário visualiza e filtra catálogo por status, nota, gênero, autor — *Phase 03*
+
+**Bibliotecário IA (Phase 04):**
+- [x] Chat com bibliotecário pessoal alimentado por Claude Sonnet 4.6 via OpenRouter — *Phase 04, AI-01*
+- [x] IA acessa toda a biblioteca via `<LIBRARY>` no system prompt com prompt-caching ephemeral — *Phase 04, AI-02*
+- [x] IA recomenda próximo livro através de diálogo contextualizado — *Phase 04, AI-03*
+- [x] IA monta trilha de leitura (heurística cliente + persistência em `data/trails/`) — *Phase 04, AI-04*
+- [x] IA discute livro específico via deep-link `/books/[slug]` → `/chat?about={slug}` — *Phase 04, AI-05*
+- [x] Respostas em pt-BR streaming token-by-token — *Phase 04, AI-06/AI-07*
+- [x] Guardrail D-14 em dois níveis contra alucinação (`useKnownSlugs` client + kebab-regex server) — *Phase 04, AI-08*
+
+**Infraestrutura:**
+- [x] Arquivos Markdown são a fonte de verdade (editáveis em Obsidian/VS Code) — *Phase 01*
+- [x] Interface web responsiva (sidebar desktop + Sheet drawer mobile) — *Phases 02-04*
 
 ### Active
 
-**Catálogo:**
-- [ ] Usuário pode adicionar livro por título ou ISBN (busca dados automaticamente via API)
-- [ ] Cada livro gera/atualiza um arquivo Markdown com seus metadados (título, autor, sinopse, capa, ISBN)
-- [ ] Usuário pode definir status do livro: quero ler / lendo / lido / quero reler / abandonado
-- [ ] Usuário pode atribuir nota (1–5 estrelas) a livros lidos
-- [ ] Usuário pode adicionar notas pessoais a cada livro
-- [ ] Usuário pode visualizar e filtrar catálogo por status, nota, gênero, autor
-
-**Bibliotecário IA:**
-- [ ] Interface de chat com bibliotecário pessoal alimentado por IA
-- [ ] IA tem acesso a toda a biblioteca (livros, status, notas, avaliações)
-- [ ] IA recomenda próximo livro através de diálogo contextualizado
-- [ ] IA pode montar trilha de leitura baseada em objetivo declarado pelo usuário
-- [ ] IA considera histórico completo: lidos, notas, quero reler
-
-**Infraestrutura:**
-- [ ] Arquivos Markdown são a fonte de verdade (editáveis manualmente)
-- [ ] Interface web responsiva (funciona no mobile também)
+(None — milestone v1.0 feature-complete)
 
 ### Out of Scope
 
@@ -56,9 +58,11 @@ O diferencial não é o catálogo — é o **bibliotecário**: uma IA conversaci
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Markdown como fonte de verdade | Editável manualmente no Obsidian/VS Code, portável, sem lock-in | Pending |
-| Google Books + Open Library | Melhor cobertura combinada, nenhum custo | Pending |
-| Web responsivo em vez de app nativo | Menor complexidade, funciona em qualquer device | Pending |
+| Markdown como fonte de verdade | Editável manualmente no Obsidian/VS Code, portável, sem lock-in | **Validated** — 4 phases shipped; files stay human-readable |
+| Google Books + Open Library | Melhor cobertura combinada, nenhum custo | **Validated** — Phase 02 fallback pattern works |
+| Web responsivo em vez de app nativo | Menor complexidade, funciona em qualquer device | **Validated** — shadcn Sheet drawer cobre mobile |
+| Claude Sonnet 4.6 via OpenRouter (não Anthropic direto) | Trocou durante UAT de Phase 04; OpenRouter permite trocar modelo sem recompile | **Validated** — live smoke test de Phase 04 |
+| System prompt com `cacheControl: ephemeral` no nível da mensagem | AI SDK v6 `SystemModelMessage.content` é `string`; providerOptions no message-level é a forma tipada | **Validated** — verificado contra node_modules/@ai-sdk/provider-utils + @openrouter/ai-sdk-provider |
 
 ## Evolution
 
@@ -76,4 +80,4 @@ Este documento evolui a cada transição de fase e marco de milestone.
 3. Auditar Out of Scope — motivos ainda válidos?
 
 ---
-*Last updated: 2026-04-17 — Phase 03 (Browse & UI) complete*
+*Last updated: 2026-04-19 — Phase 04 (AI Librarian) complete, milestone v1.0 feature-complete*
