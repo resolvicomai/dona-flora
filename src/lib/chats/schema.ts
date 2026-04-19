@@ -10,9 +10,19 @@ import { z } from 'zod'
  *
  * `book_refs` defaults to `[]` so files written before the sidebar feature (D-10)
  * still parse.
+ *
+ * `id` uses the SAME regex the chat API boundary enforces
+ * (`^[A-Za-z0-9][A-Za-z0-9_-]*$`, AI-SPEC §3 threat T-04-09) so a hand-edited
+ * chat file whose frontmatter id would collide with a traversal sequence is
+ * rejected at listChats/loadChat parse time instead of propagating downstream
+ * (WR-08).
  */
 export const ChatFrontmatterSchema = z.object({
-  id: z.string().min(1),
+  id: z
+    .string()
+    .min(1)
+    .max(128)
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/, 'chatId deve ser alfanumérico/hífen/underscore sem começar com traço'),
   title: z.string(),
   started_at: z.string(),
   updated_at: z.string(),
