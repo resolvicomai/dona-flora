@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { Plus } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
@@ -8,6 +9,27 @@ import { ChatSidebarItem } from './chat-sidebar-item'
 import { SidebarEmptyState } from './sidebar-empty-state'
 import type { ChatSummary } from '@/lib/chats/schema'
 import { cn } from '@/lib/utils'
+
+/**
+ * "Nova conversa" handler.
+ *
+ * When already on `/chat` (no id), a Next.js soft navigation does NOT remount
+ * ChatMain, so the `useChat` hook keeps prior messages/state and the user sees
+ * "nothing happened". A full-page navigation resets client state reliably. If
+ * we are elsewhere (e.g. `/chat/{id}`), a normal `router.push` is enough —
+ * chatId changes and the downstream components react accordingly.
+ */
+export function useNewChatHandler() {
+  const router = useRouter()
+  const pathname = usePathname()
+  return () => {
+    if (pathname === '/chat') {
+      window.location.assign('/chat')
+    } else {
+      router.push('/chat')
+    }
+  }
+}
 
 /**
  * Desktop persistent sidebar (`w-72`, hidden below `lg`) and its reusable
@@ -34,6 +56,7 @@ export function SidebarBody({ chats, activeChatId }: Props) {
 }
 
 export function ChatSidebar({ chats, activeChatId }: Props) {
+  const newChat = useNewChatHandler()
   return (
     <aside
       className={cn(
@@ -46,7 +69,7 @@ export function ChatSidebar({ chats, activeChatId }: Props) {
           size="icon"
           variant="ghost"
           aria-label="Nova conversa"
-          render={<Link href="/chat" />}
+          onClick={newChat}
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
         </Button>

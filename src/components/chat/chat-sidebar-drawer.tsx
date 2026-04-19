@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import {
   Sheet,
@@ -10,7 +9,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
-import { SidebarBody } from './chat-sidebar'
+import { SidebarBody, useNewChatHandler } from './chat-sidebar'
 import type { ChatSummary } from '@/lib/chats/schema'
 import type { ReactElement } from 'react'
 
@@ -33,6 +32,7 @@ interface Props {
 }
 
 export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
+  const newChat = useNewChatHandler()
   return (
     <Sheet>
       <SheetTrigger render={trigger} />
@@ -48,7 +48,7 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
             size="icon"
             variant="ghost"
             aria-label="Nova conversa"
-            render={<Link href="/chat" />}
+            onClick={newChat}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
           </Button>
