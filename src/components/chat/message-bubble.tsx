@@ -26,7 +26,9 @@ type LooseMessagePart = any
  * of 2+ CONSECUTIVE `tool-render_library_book_card` parts that resolved to
  * known slugs. Text parts (or any other part type) between cards break the
  * run. When multiple groups exist, return the first — keeps the UI quiet
- * in the rare multi-trail assistant turn.
+ * in the rare multi-trail assistant turn (WR-10: this single-group policy
+ * is INTENTIONAL, not an oversight; a dev-only warning fires on the 2nd+
+ * group so we can spot the case if it actually occurs in practice).
  *
  * Returns:
  *   - array of slugs when a qualifying group is found, OR
@@ -53,6 +55,17 @@ function detectTrail(
     }
   }
   if (current.length >= 2) groups.push(current)
+  // WR-10: surface multi-group turns in dev so we can decide whether to
+  // relax the single-group policy later. Prod stays quiet.
+  if (groups.length > 1 && process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line no-console
+    console.info(
+      '[MessageBubble] detectTrail: found',
+      groups.length,
+      'consecutive-card groups; rendering only the first (single-group policy, WR-10)',
+      groups,
+    )
+  }
   return groups[0] ?? null
 }
 
