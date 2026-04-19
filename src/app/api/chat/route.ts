@@ -78,14 +78,29 @@ export async function POST(request: NextRequest) {
   try {
     const libraryContext = await loadLibraryContext()
 
-    // AI SDK v6: `system` is a top-level streamText param, not a message.
-    // SystemModelMessage.content is a string (not a parts array); cacheControl
-    // lives on providerOptions at the message level (AI-SPEC §3 pitfall #4).
+    // AI SDK v6 contract (verified against installed @ai-sdk/provider-utils v6
+    // types + @openrouter/ai-sdk-provider 2.x source — AI-SPEC §3 pitfall #4):
+    //
+    //   `SystemModelMessage.content` is strictly typed as `string`. The reviewer's
+    //   proposed `content: [{ type: 'text', text, providerOptions }]` shape will
+    //   NOT typecheck under the installed provider-utils version, so we route
+    //   cache-control through the message-level `providerOptions` instead.
+    //
+    //   `standardizePrompt` forwards `{ role, content, providerOptions }` to the
+    //   language model verbatim. The OpenRouter provider's
+    //   `convertToOpenRouterChatMessages` (see
+    //   node_modules/@openrouter/ai-sdk-provider/dist/index.mjs → `getCacheControl`)
+    //   reads EITHER `providerOptions.anthropic.cacheControl` OR
+    //   `providerOptions.openrouter.cacheControl` and emits a `cache_control`
+    //   marker on the first content part of the resulting system message. Both
+    //   keys are set defensively in case the OpenRouter provider drops one in
+    //   a future minor release.
     const systemMessage = {
       role: 'system' as const,
       content: buildSystemPrompt(libraryContext),
       providerOptions: {
         anthropic: { cacheControl: { type: 'ephemeral' } },
+        openrouter: { cacheControl: { type: 'ephemeral' } },
       },
     }
 

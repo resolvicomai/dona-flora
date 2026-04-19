@@ -133,13 +133,22 @@ describe('POST /api/chat — streamText wiring', () => {
     const system = args?.system as {
       role: string
       content: string
-      providerOptions?: { anthropic?: { cacheControl?: { type?: string } } }
+      providerOptions?: {
+        anthropic?: { cacheControl?: { type?: string } }
+        openrouter?: { cacheControl?: { type?: string } }
+      }
     }
     expect(system).toBeDefined()
     expect(system.role).toBe('system')
     expect(system.content).toContain('<LIBRARY>\nFAKE LIBRARY\n</LIBRARY>')
     expect(system.content).toContain('Dona Flora')
+    // Both provider keys carry the same cacheControl marker (CR-01 defense:
+    // OpenRouter's getCacheControl accepts either key; we set both so a
+    // future provider change that drops one still leaves caching active).
     expect(system.providerOptions?.anthropic?.cacheControl?.type).toBe(
+      'ephemeral'
+    )
+    expect(system.providerOptions?.openrouter?.cacheControl?.type).toBe(
       'ephemeral'
     )
     // user messages live in `messages`; the system prompt is NOT there.
