@@ -74,7 +74,15 @@ Plans:
   3. The librarian recommends a next book to read based on the user's history and preferences, and never recommends books the user does not own
   4. The librarian can build a reading trail (sequenced book list) when the user states a learning goal
   5. The librarian can discuss a specific book with the user, referencing the user's own notes and rating
-**Plans**: TBD
+**Plans:** 7 plans
+Plans:
+- [x] 04-01-PLAN.md -- Foundation lib A: loadLibraryContext, loadKnownSlugs, LibrarianMessage types, ChatFrontmatter schema, transcript serializer round-trip
+- [x] 04-02-PLAN.md -- Foundation lib B: saveChat/loadChat/listChats + TrailFrontmatter schema + saveTrail with slug collision resolution
+- [x] 04-03-PLAN.md -- AI SDK v6 install + buildSystemPrompt + read-only tools + POST /api/chat streaming + POST /api/trails CRUD
+- [x] 04-04-PLAN.md -- shadcn scroll-area/sheet/tooltip/skeleton + react-markdown/date-fns + KnownLibraryContext + AvatarMonogram + MessageText + LibraryBookCardInline (D-14 fallback) + ExternalBookMention
+- [x] 04-05-PLAN.md -- Chat pages (/chat, /chat/[id]) + ChatShell with KnownLibraryProvider + ChatSidebar + ChatSidebarDrawer + SidebarEmptyState/Skeleton + ChatMain placeholder
+- [x] 04-06-PLAN.md -- ChatMain (useChat + deep-link seed + Cmd+K) + MessageList (auto-scroll + aria-live) + MessageBubble (layered D-14 guard) + Composer + WelcomeState + error/typing/streaming state leaves
+- [x] 04-07-PLAN.md -- ChatHeaderEntryButton (home) + ConversarSobreLivroButton (/books/[slug]) + ReadingTrailArtifact (heuristic + save) + human verification checkpoint
 **UI hint**: yes
 
 ## Progress
@@ -87,4 +95,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Foundation & Data Layer | 2/2 | Complete    | 2026-04-16 |
 | 2. Catalog Core | 6/6 | Complete   | 2026-04-16 |
 | 3. Browse & UI | 0/TBD | Not started | - |
-| 4. AI Librarian | 0/TBD | Not started | - |
+| 4. AI Librarian | 0/7 | Planned | - |
