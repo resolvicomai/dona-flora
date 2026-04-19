@@ -87,10 +87,14 @@ export function serializeTranscript(messages: LibrarianMessage[]): string {
 // the Portuguese word; the time token is treated opaquely.
 const HEADING_RE = /^##\s+(Você|Dona Flora)\s+—\s+(\S+)\s*$/gm
 
-// Wiki-link: `[[slug]]`. Slugs may contain alphanumerics, hyphens, underscores,
-// accents (Unicode), and dots — be permissive, slug-collision logic lives in
-// library-service / slug.ts.
+// Wiki-link: `[[slug]]`. The lexer regex is permissive (anything between
+// the brackets) so a malformed transcript does not silently swallow
+// adjacent text; the KEBAB_SLUG filter below is what decides whether the
+// capture becomes a library-card part. Hand-edited chat files with
+// traversal-shaped slugs (`[[../../etc/passwd]]`) therefore round-trip
+// as plain text instead of forging a tool-output part (WR-07).
 const WIKILINK_RE = /\[\[([^\]\n]+?)\]\]/g
+const KEBAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 // External-mention token: `> external: Title — Author — Reason`. The em-dash is
 // U+2014 (same char emitted by the serializer). The token is INLINE — it may
@@ -148,13 +152,20 @@ function tokenizeBody(body: string): LibrarianMessagePart[] {
   WIKILINK_RE.lastIndex = 0
   let wm: RegExpExecArray | null
   while ((wm = WIKILINK_RE.exec(body)) !== null) {
+    const candidate = wm[1].trim()
+    // WR-07: only KEBAB-shaped captures become library-card parts.
+    // Anything else (traversal, punctuation, Unicode) remains in the
+    // text flow — the tokenizer leaves it untouched and the stretch of
+    // body between tokens renders as plain text in the assembled part
+    // list. Matches the client-side D-14 layered guardrail.
+    if (!KEBAB_SLUG.test(candidate)) continue
     tokens.push({
       start: wm.index,
       end: wm.index + wm[0].length,
       part: {
         type: 'tool-render_library_book_card',
         state: 'output-available',
-        output: { slug: wm[1].trim() },
+        output: { slug: candidate },
       },
     })
   }

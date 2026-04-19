@@ -199,6 +199,22 @@ describe('parseTranscript', () => {
     })
   })
 
+  // WR-07: non-kebab wikilink captures (traversal, punctuation, Unicode)
+  // do NOT forge a library-card part; they remain in the text flow.
+  it('does NOT tokenize non-kebab wikilink captures as library-card parts', () => {
+    const md = [
+      '## Dona Flora — 15:35',
+      '',
+      'Um texto suspeito: [[../../etc/passwd]] e outro [[Título Qualquer]].',
+    ].join('\n')
+    const msgs = parseTranscript(md)
+    expect(msgs).toHaveLength(1)
+    const cardParts = msgs[0].parts.filter(
+      (p) => p.type === 'tool-render_library_book_card',
+    )
+    expect(cardParts).toHaveLength(0)
+  })
+
   it('tokenizes > external: lines as external-mention parts', () => {
     const md = [
       '## Dona Flora — 15:41',
