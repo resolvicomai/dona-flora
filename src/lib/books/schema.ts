@@ -16,6 +16,7 @@ export const BookSchema = z.object({
   cover: z.string().optional(),
   genre: z.string().optional(),
   year: z.coerce.number().int().optional(),
+  language: z.string().min(2).max(32).optional(),
   status: BookStatusEnum,
   rating: z.coerce.number().int().min(1).max(5).optional(),
   /**
