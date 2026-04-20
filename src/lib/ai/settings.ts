@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AppLanguageSchema } from '@/lib/i18n/app-language'
+import { AppLanguageSchema, normalizeAppLanguage } from '@/lib/i18n/app-language'
 
 export const AISettingsSchema = z.object({
   tone: z.enum(['calorosa', 'analitica', 'assertiva']),
@@ -11,6 +11,10 @@ export const AISettingsSchema = z.object({
 })
 
 export type AISettings = z.infer<typeof AISettingsSchema>
+
+export type AISettingsInput = Partial<Omit<AISettings, 'language'>> & {
+  language?: string | null
+}
 
 export const DEFAULT_AI_SETTINGS: AISettings = {
   tone: 'calorosa',
@@ -89,11 +93,12 @@ const responseLabels: Record<AISettings['responseStyle'], string> = {
 }
 
 export function normalizeAISettings(
-  input?: Partial<AISettings> | null,
+  input?: AISettingsInput | null,
 ): AISettings {
   return AISettingsSchema.parse({
     ...DEFAULT_AI_SETTINGS,
     ...(input ?? {}),
+    language: normalizeAppLanguage(input?.language),
     additionalInstructions: input?.additionalInstructions?.trim() ?? '',
   })
 }
