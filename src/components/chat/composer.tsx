@@ -94,9 +94,9 @@ export function Composer({
         e.preventDefault()
         if (canSend) onSubmit()
       }}
-      className="sticky bottom-0 z-10 bg-zinc-950/90 backdrop-blur-sm border-t border-zinc-800 px-4 py-3 md:px-8 pb-[env(safe-area-inset-bottom)]"
+      className="sticky bottom-0 z-10 border-t border-border surface-blur pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="max-w-3xl mx-auto w-full flex gap-2 items-end">
+      <div className="mx-auto flex w-full max-w-3xl items-end gap-2 p-3 md:px-6">
         <Textarea
           ref={textareaRef}
           value={input}
@@ -111,7 +111,7 @@ export function Composer({
           // that the response is in flight.
           aria-busy={status === 'submitted'}
           className={cn(
-            'flex-1 resize-none min-h-14 max-h-48 bg-zinc-900 border-zinc-800 text-zinc-100',
+            '!min-h-14 max-h-48 flex-1 resize-none !border-border/70 !bg-background/90 px-3 py-2.5 text-sm shadow-none placeholder:text-muted-foreground',
             status === 'submitted' && 'opacity-60',
           )}
         />
@@ -123,7 +123,7 @@ export function Composer({
             aria-label="Parar de gerar resposta"
             onClick={onStop}
             autoFocus
-            className="min-h-[44px] min-w-[44px]"
+            className="h-10 w-10 min-h-[44px] min-w-[44px] rounded-full shadow-mac-sm"
           >
             <Square className="h-4 w-4" aria-hidden="true" />
           </Button>
@@ -133,7 +133,7 @@ export function Composer({
             size="icon"
             aria-label="Enviar mensagem"
             disabled={!canSend}
-            className="min-h-[44px] min-w-[44px]"
+            className="h-10 w-10 min-h-[44px] min-w-[44px] rounded-full shadow-mac-sm"
           >
             <SendHorizontal className="h-4 w-4" aria-hidden="true" />
           </Button>

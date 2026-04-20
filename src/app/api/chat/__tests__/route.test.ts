@@ -112,6 +112,17 @@ describe('POST /api/chat — validation', () => {
     expect(res.status).toBe(400)
   })
 
+  it('returns 400 when externalPreference is invalid', async () => {
+    const res = await POST(
+      makeRequest({
+        chatId: 'abc123',
+        messages: validMessages(),
+        externalPreference: 'talvez',
+      })
+    )
+    expect(res.status).toBe(400)
+  })
+
   // CR-02 — shape validation on `messages`.
   it("returns 400 when a message has role 'system' (injected role rejected)", async () => {
     const res = await POST(
@@ -224,6 +235,20 @@ describe('POST /api/chat — streamText wiring', () => {
     // user messages live in `messages`; the system prompt is NOT there.
     const userMessages = args?.messages as Array<{ role: string }>
     expect(userMessages.every((m) => m.role !== 'system')).toBe(true)
+  })
+
+  it('injects the validated external preference directive into the system prompt', async () => {
+    await POST(
+      makeRequest({
+        chatId: 'abc-123',
+        messages: validMessages(),
+        externalPreference: 'externo',
+      })
+    )
+    const args = capturedStreamTextArgs.value
+    const system = args?.system as { content: string }
+    expect(system.content).toContain('Preferência atual da conversa')
+    expect(system.content).toContain('priorize sugestões externas')
   })
 
   it('passes librarianTools containing both expected keys', async () => {

@@ -40,20 +40,15 @@ export default async function ChatIdPage({
     .filter((b) => b.slug !== '')
 
   return (
-    <main className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm px-4 py-3 md:px-8">
-        <h1 className="text-xl font-semibold text-zinc-100">Dona Flora</h1>
-      </header>
-      <Suspense fallback={null}>
-        <ChatShell
-          chatId={id}
-          initialMessages={messages}
-          chats={chats}
-          knownBooks={knownBooks}
-          bookCount={books.length}
-          seedBook={null}
-        />
-      </Suspense>
-    </main>
+    <Suspense fallback={null}>
+      <ChatShell
+        chatId={id}
+        initialMessages={messages}
+        chats={chats}
+        knownBooks={knownBooks}
+        bookCount={books.length}
+        seedBook={null}
+      />
+    </Suspense>
   )
 }

@@ -6,7 +6,12 @@ import { Menu } from 'lucide-react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { Button } from '@/components/ui/button'
+import {
+  shouldOfferExternalPreference,
+  type ExternalPreference,
+} from '@/lib/ai/external-preference'
 import { ChatSidebarDrawer } from './chat-sidebar-drawer'
+import { ExternalPreferenceToggle } from './external-preference-toggle'
 import { MessageList } from './message-list'
 import { Composer } from './composer'
 import type { ChatListEntry } from '@/lib/chats/list'
@@ -67,7 +72,9 @@ export function ChatMain({
   const router = useRouter()
   const effectiveChatId = useStableChatId(chatId)
   const [input, setInput] = useState('')
+  const [externalPreference, setExternalPreference] = useState<ExternalPreference | null>(null)
   const seedApplied = useRef(false)
+  const externalPreferenceRef = useRef<ExternalPreference | null>(null)
   // WR-02: listChats() readdirs data/chats/ + parses every .md on every
   // refresh. The sidebar entry for this conversation appears after the
   // FIRST persisted assistant turn; subsequent turns only update
@@ -89,7 +96,10 @@ export function ChatMain({
       messages: memoInitialMessages,
       transport: new DefaultChatTransport<LibrarianClientMessage>({
         api: '/api/chat',
-        body: { chatId: effectiveChatId },
+        body: () => ({
+          chatId: effectiveChatId,
+          externalPreference: externalPreferenceRef.current,
+        }),
       }),
       onFinish: () => {
         // Refresh once so the sidebar list picks up the newly persisted
@@ -99,6 +109,14 @@ export function ChatMain({
         hasRefreshedSidebar.current = true
         router.refresh()
       },
+    })
+
+  const shouldShowExternalPreference =
+    externalPreference === 'ambos' ||
+    externalPreference === 'externo' ||
+    shouldOfferExternalPreference({
+      messages,
+      preference: externalPreference,
     })
 
   // Deep-link seed: on first mount when ?about=slug was resolved to a
@@ -120,6 +138,15 @@ export function ChatMain({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seedBook])
 
+  useEffect(() => {
+    externalPreferenceRef.current = externalPreference
+  }, [externalPreference])
+
+  useEffect(() => {
+    externalPreferenceRef.current = null
+    setExternalPreference(null)
+  }, [effectiveChatId])
+
   function handleSubmit() {
     if (!input.trim() || status !== 'ready') return
     void sendMessage({ text: input })
@@ -129,15 +156,15 @@ export function ChatMain({
   const title = messages.length === 0 ? 'Nova conversa' : 'Conversa'
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-zinc-950">
-      <header className="h-14 sticky top-0 z-10 flex items-center gap-2 px-4 md:px-8 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
+      <header className="surface-blur sticky top-12 z-10 flex h-10 items-center gap-2 border-b border-border/80 px-4 md:px-6">
         <ChatSidebarDrawer
           trigger={
             <Button
               variant="ghost"
               size="icon"
               aria-label="Abrir histórico de conversas"
-              className="lg:hidden"
+              className="h-8 w-8 min-h-[44px] min-w-[44px] rounded-md border border-border bg-background/80 text-foreground shadow-mac-sm backdrop-blur-xl hover:!bg-accent lg:hidden"
             >
               <Menu className="h-4 w-4" aria-hidden="true" />
             </Button>
@@ -145,7 +172,7 @@ export function ChatMain({
           chats={chats}
           activeChatId={effectiveChatId}
         />
-        <h2 className="text-sm font-semibold text-zinc-300 truncate">
+        <h2 className="truncate text-sm font-medium text-foreground">
           {title}
         </h2>
       </header>
@@ -170,6 +197,14 @@ export function ChatMain({
         }}
         bookCount={bookCount}
       />
+      {shouldShowExternalPreference ? (
+        <div className="px-3 md:px-6">
+          <ExternalPreferenceToggle
+            value={externalPreference}
+            onChange={setExternalPreference}
+          />
+        </div>
+      ) : null}
       <Composer
         input={input}
         onInputChange={setInput}

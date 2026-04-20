@@ -31,17 +31,17 @@ export function ViewToggle({ value, onChange, className }: ViewToggleProps) {
       }}
       aria-label="Modo de visualização"
       spacing={4}
-      className={cn('flex gap-1', className)}
+      className={cn('flex rounded-full border border-border bg-secondary p-1 shadow-mac-sm', className)}
     >
       <ToggleGroupItem
         value="grid"
         aria-label="Visualizar em grade"
         className={cn(
-          'min-h-[44px] md:min-h-9 min-w-[44px] md:min-w-9 rounded-md border border-zinc-700 bg-transparent text-zinc-300',
-          'hover:border-zinc-500',
-          'data-[pressed]:bg-zinc-100 data-[pressed]:text-zinc-900 data-[pressed]:border-transparent',
-          'focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
-          'transition-colors flex items-center justify-center',
+          'size-8 rounded-full border border-transparent bg-transparent text-muted-foreground transition-colors',
+          'hover:text-foreground',
+          'data-[pressed]:bg-primary data-[pressed]:text-primary-foreground data-[pressed]:shadow-mac-sm',
+          'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'flex items-center justify-center',
         )}
       >
         <LayoutGrid className="h-4 w-4" />
@@ -50,11 +50,11 @@ export function ViewToggle({ value, onChange, className }: ViewToggleProps) {
         value="list"
         aria-label="Visualizar em lista"
         className={cn(
-          'min-h-[44px] md:min-h-9 min-w-[44px] md:min-w-9 rounded-md border border-zinc-700 bg-transparent text-zinc-300',
-          'hover:border-zinc-500',
-          'data-[pressed]:bg-zinc-100 data-[pressed]:text-zinc-900 data-[pressed]:border-transparent',
-          'focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
-          'transition-colors flex items-center justify-center',
+          'size-8 rounded-full border border-transparent bg-transparent text-muted-foreground transition-colors',
+          'hover:text-foreground',
+          'data-[pressed]:bg-primary data-[pressed]:text-primary-foreground data-[pressed]:shadow-mac-sm',
+          'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'flex items-center justify-center',
         )}
       >
         <List className="h-4 w-4" />

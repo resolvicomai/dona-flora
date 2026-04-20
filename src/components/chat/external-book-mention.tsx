@@ -1,6 +1,5 @@
 'use client'
 
-import { ArrowUpRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ExternalBookMentionProps {
@@ -12,9 +11,9 @@ interface ExternalBookMentionProps {
 
 /**
  * Inline, non-interactive marker for books the librarian brings from outside
- * the user's library. Visually distinct from LibraryBookCardInline (dashed
- * border + italic + "externo" chip + ArrowUpRight icon) so the user can tell
- * at a glance that the book is NOT in their collection.
+ * the user's library. Visually distinct from LibraryBookCardInline through a
+ * dashed border, amber badge, and text-only treatment so the user can tell at
+ * a glance that the book is NOT in their collection.
  *
  * Semantics (UI-D4, UI-SPEC §Accessibility):
  * - role="note" so it's announced as auxiliary content, not as a landmark.
@@ -32,23 +31,24 @@ export function ExternalBookMention({
   className,
 }: ExternalBookMentionProps) {
   return (
-    <span
+    <div
       role="note"
-      aria-label={`Sugestão externa: ${title} de ${author}`}
+      aria-label={`Livro fora do acervo: ${title} de ${author}`}
       title={reason}
       className={cn(
-        'inline-flex items-baseline gap-1 bg-transparent border border-dashed border-zinc-700',
-        'text-zinc-300 rounded-md px-2 py-1 italic',
+        'relative flex w-full max-w-[75ch] min-h-14 flex-col gap-0.5 rounded-md border border-dashed border-border/60 bg-transparent px-3 py-2 pr-20 shadow-none',
         className,
       )}
     >
-      <span className="text-xs uppercase tracking-wide text-zinc-500 not-italic">
-        externo
+      <span className="absolute top-2 right-3 inline-flex items-center rounded-full border border-warning/20 bg-warning/10 px-2 py-0.5 text-[10px] font-medium leading-none text-warning">
+        Fora do acervo
       </span>
-      <span>
+      <span className="line-clamp-1 text-sm font-medium text-foreground">
         {title} — {author}
       </span>
-      <ArrowUpRight className="h-3 w-3 text-zinc-500" aria-hidden="true" />
-    </span>
+      <span className="text-xs text-muted-foreground line-clamp-1">
+        {reason}
+      </span>
+    </div>
   )
 }

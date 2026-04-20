@@ -22,8 +22,8 @@ interface LibraryBookCardInlineProps {
  * /books/{nonexistent}. This is the client-side half of the AI-08
  * guardrail; the server-side half ships in Plan 03.
  *
- * Visual (UI-SPEC §Color row 132): bg-zinc-800 border-zinc-700 — one step
- * above the zinc-900 assistant bubble so the card hierarchy reads cleanly.
+ * Visual: token-driven owned-book card with a solid border, subtle shadow,
+ * and compact density so it reads as a real book surface inside the bubble.
  */
 export function LibraryBookCardInline({
   slug,
@@ -46,19 +46,19 @@ export function LibraryBookCardInline({
       href={`/books/${slug}`}
       aria-label={`Abrir ${book.title} de ${book.author} — status ${book.status}`}
       className={cn(
-        'group flex items-center gap-3 rounded-xl border border-zinc-700 bg-zinc-800 p-3 transition-colors',
-        'hover:border-zinc-600 focus-visible:outline-none focus-visible:ring-2',
-        'focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
-        'min-h-[44px] my-1 no-underline',
+        'group flex min-h-[44px] items-center gap-3 rounded-md border border-border bg-background p-3 no-underline shadow-mac-sm surface-transition',
+        'hover:border-border/80 hover:shadow-mac-md focus-visible:outline-none focus-visible:ring-2',
+        'focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        'my-1',
         className,
       )}
     >
       <BookCover src={book.cover} alt={book.title} size="sm" />
-      <div className="flex flex-col gap-1 flex-1 min-w-0 overflow-hidden">
-        <p className="text-sm font-semibold text-zinc-100 line-clamp-2 break-words">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
+        <p className="line-clamp-2 break-words text-sm font-medium text-foreground">
           {book.title}
         </p>
-        <p className="text-xs text-zinc-400 line-clamp-1 break-words">
+        <p className="line-clamp-1 break-words text-xs text-muted-foreground">
           {book.author}
         </p>
         <div>

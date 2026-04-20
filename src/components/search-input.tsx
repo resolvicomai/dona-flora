@@ -29,7 +29,7 @@ export function SearchInput({
   return (
     <div className={cn('relative md:w-72', className)}>
       <Search
-        className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
         aria-hidden="true"
       />
       <Input
@@ -37,7 +37,7 @@ export function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-label="Buscar na biblioteca"
-        className="min-h-[44px] md:min-h-9 pl-8"
+        className="h-8 rounded-md border-border bg-card/90 pl-9 shadow-mac-sm placeholder:text-muted-foreground"
       />
     </div>
   )

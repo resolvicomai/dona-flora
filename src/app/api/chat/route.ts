@@ -13,6 +13,10 @@ import { z } from 'zod'
 import { loadLibraryContext } from '@/lib/library/context'
 import { saveChat } from '@/lib/chats/store'
 import { buildSystemPrompt } from '@/lib/ai/system-prompt'
+import {
+  buildExternalPreferenceDirective,
+  ExternalPreferenceSchema,
+} from '@/lib/ai/external-preference'
 import { librarianTools, type LibrarianTools } from '@/lib/ai/tools'
 import type { LibrarianMessage } from '@/lib/chats/types'
 
@@ -145,6 +149,7 @@ const ChatRequestSchema = z.object({
     // eslint-disable-next-line prettier/prettier
     .regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/, 'chatId deve ser alfanumérico/hífen/underscore sem começar com traço'),
   messages: z.array(InboundMessageSchema).min(1).max(MAX_MESSAGES),
+  externalPreference: ExternalPreferenceSchema.nullish(),
 })
 
 export async function POST(request: NextRequest) {
@@ -164,10 +169,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { chatId, messages } = parsed.data
+  const { chatId, messages, externalPreference } = parsed.data
 
   try {
     const libraryContext = await loadLibraryContext()
+    const externalPreferenceDirective =
+      buildExternalPreferenceDirective(externalPreference)
 
     // AI SDK v6 contract (verified against installed @ai-sdk/provider-utils v6
     // types + @openrouter/ai-sdk-provider 2.x source — AI-SPEC §3 pitfall #4):
@@ -188,7 +195,10 @@ export async function POST(request: NextRequest) {
     //   a future minor release.
     const systemMessage = {
       role: 'system' as const,
-      content: buildSystemPrompt(libraryContext),
+      content: buildSystemPrompt(
+        libraryContext,
+        externalPreferenceDirective,
+      ),
       providerOptions: {
         anthropic: { cacheControl: { type: 'ephemeral' } },
         openrouter: { cacheControl: { type: 'ephemeral' } },

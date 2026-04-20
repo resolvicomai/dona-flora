@@ -60,19 +60,19 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
   }
 
   return (
-    <div className="my-4 flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+    <div className="my-4 flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-mac-sm">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-zinc-100">
+        <h3 className="text-sm font-medium text-card-foreground">
           Trilha de leitura sugerida
         </h3>
         {state === 'idle' && (
-          <Button size="sm" onClick={handleSave}>
+          <Button size="sm" onClick={handleSave} className="shadow-mac-sm">
             <BookmarkPlus className="mr-2 h-4 w-4" aria-hidden="true" />
             Salvar trilha
           </Button>
         )}
         {state === 'saving' && (
-          <Button size="sm" disabled aria-busy="true">
+          <Button size="sm" disabled aria-busy="true" className="shadow-mac-sm">
             <Loader2
               className="mr-2 h-4 w-4 motion-safe:animate-spin"
               aria-hidden="true"
@@ -81,14 +81,14 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
           </Button>
         )}
         {state === 'saved' && (
-          <span className="inline-flex items-center gap-2 text-sm text-green-500">
+          <span className="inline-flex items-center gap-2 rounded-full border border-success/20 bg-success/10 px-3 py-1 text-sm font-medium text-success">
             <Check className="h-4 w-4" aria-hidden="true" />
             Trilha salva
           </span>
         )}
         {state === 'error' && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-red-500">
+            <span className="text-sm text-destructive">
               Não consegui salvar a trilha.
             </span>
             <Button size="sm" variant="secondary" onClick={handleSave}>
@@ -100,7 +100,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
       <ol className="m-0 flex list-none flex-col gap-2 p-0">
         {slugs.map((slug, i) => (
           <li key={`${slug}-${i}`} className="flex items-start gap-3">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-zinc-800 text-xs font-semibold text-zinc-300">
+            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-medium text-secondary-foreground">
               {i + 1}
             </span>
             <div className="min-w-0 flex-1">

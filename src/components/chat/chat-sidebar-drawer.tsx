@@ -38,10 +38,10 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
       <SheetTrigger render={trigger} />
       <SheetContent
         side="left"
-        className="w-72 p-0 bg-zinc-900"
+        className="w-72 rounded-r-xl !gap-0 !border-border !bg-card/95 p-0 !shadow-mac-lg backdrop-blur-xl"
       >
-        <SheetHeader className="flex-row items-center justify-between px-4 py-4 border-b border-zinc-800">
-          <SheetTitle className="text-xl font-semibold text-zinc-100">
+        <SheetHeader className="flex-row items-center justify-between border-b border-border !px-4 !py-3">
+          <SheetTitle className="text-base font-medium text-foreground">
             Conversas
           </SheetTitle>
           <Button
@@ -49,6 +49,7 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
             variant="ghost"
             aria-label="Nova conversa"
             onClick={newChat}
+            className="h-8 w-8 min-h-[44px] min-w-[44px] rounded-md border border-border bg-background/80 text-foreground shadow-mac-sm backdrop-blur-xl hover:!bg-accent"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
           </Button>

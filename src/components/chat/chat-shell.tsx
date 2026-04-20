@@ -55,9 +55,9 @@ export function ChatShell({
 
   return (
     <KnownLibraryProvider books={knownBooks}>
-      <div className="flex flex-1 min-h-0 bg-zinc-950">
+      <div className="flex min-h-0 flex-1 bg-background">
         <ChatSidebar chats={chats} activeChatId={chatId} />
-        <main className="flex-1 flex flex-col min-w-0">
+        <section className="flex min-w-0 flex-1 flex-col">
           <ChatMain
             chatId={chatId}
             initialMessages={initialMessages}
@@ -65,7 +65,7 @@ export function ChatShell({
             bookCount={bookCount}
             seedBook={seedBook ?? null}
           />
-        </main>
+        </section>
       </div>
     </KnownLibraryProvider>
   )

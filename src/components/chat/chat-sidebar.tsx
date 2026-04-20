@@ -77,9 +77,9 @@ export function SidebarBody({ chats, activeChatId }: Props) {
   return (
     <div className="flex flex-col gap-2">
       {chats.length > 0 && (
-        <div className="relative px-2 pt-2">
+        <div className="relative px-3 pt-3">
           <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500 pointer-events-none"
+            className="pointer-events-none absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
           />
           <Input
@@ -88,14 +88,14 @@ export function SidebarBody({ chats, activeChatId }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Buscar conversas"
-            className="pl-8 h-8 text-sm bg-zinc-950 border-zinc-800"
+            className="h-8 border-border bg-background/80 pl-8 text-sm shadow-mac-sm"
           />
         </div>
       )}
       {chats.length === 0 ? (
         <SidebarEmptyState />
       ) : filtered.length === 0 ? (
-        <p className="px-4 py-6 text-sm text-zinc-500 text-center">
+        <p className="px-4 py-6 text-center text-sm text-muted-foreground">
           Nenhuma conversa encontrada.
         </p>
       ) : (
@@ -114,16 +114,17 @@ export function ChatSidebar({ chats, activeChatId }: Props) {
   return (
     <aside
       className={cn(
-        'hidden lg:flex flex-col w-72 bg-zinc-900 border-r border-zinc-800 h-full',
+        'sticky top-12 hidden h-[calc(100vh-3rem)] w-72 shrink-0 flex-col border-r border-border bg-card/90 backdrop-blur-xl lg:flex',
       )}
     >
-      <header className="flex items-center justify-between gap-2 px-4 py-4 border-b border-zinc-800">
-        <h2 className="text-xl font-semibold text-zinc-100">Conversas</h2>
+      <header className="flex h-10 items-center justify-between gap-2 border-b border-border px-4">
+        <h2 className="text-base font-medium text-foreground">Conversas</h2>
         <Button
           size="icon"
           variant="ghost"
           aria-label="Nova conversa"
           onClick={newChat}
+          className="h-8 w-8 min-h-[44px] min-w-[44px] rounded-md border border-border bg-background/80 text-foreground shadow-mac-sm backdrop-blur-xl hover:!bg-accent"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
         </Button>
@@ -131,10 +132,10 @@ export function ChatSidebar({ chats, activeChatId }: Props) {
       <ScrollArea className="flex-1">
         <SidebarBody chats={chats} activeChatId={activeChatId} />
       </ScrollArea>
-      <footer className="border-t border-zinc-800 p-3">
+      <footer className="border-t border-border p-3">
         <Link
           href="/"
-          className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
+          className="inline-flex items-center rounded-md px-3 py-2 text-sm text-muted-foreground surface-transition hover:bg-accent hover:text-foreground"
         >
           ← Biblioteca
         </Link>

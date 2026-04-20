@@ -80,8 +80,9 @@ function detectTrail(
  *  - `'tool-render_external_book_mention'` → <ExternalBookMention />
  *  - unknown part types → null in prod; console.warn in dev (AI-SPEC pitfall #3).
  *
- * Alignment / palette: user bubbles right-aligned with zinc-100 accent; assistant
- * bubbles left-aligned with AvatarMonogram and zinc-900 surface (UI-SPEC §Color).
+ * Alignment / palette: user bubbles right-aligned with the primary accent;
+ * assistant bubbles left-aligned with AvatarMonogram and card/secondary surfaces
+ * from the Phase 5 token set.
  *
  * Streaming cursor: when `isLastAssistantStreaming` is true, <StreamingCursor />
  * is appended inline after the LAST text part only — tool parts do not get a
@@ -104,8 +105,8 @@ export function MessageBubble({
       .map((p) => p.text as string)
       .join('')
     return (
-      <div data-role="user" className="flex justify-end my-4">
-        <div className="bg-zinc-100 text-zinc-900 rounded-2xl rounded-br-md px-4 py-2 max-w-[75ch] whitespace-pre-wrap break-words">
+      <div data-role="user" className="my-3 flex justify-end">
+        <div className="max-w-[75ch] rounded-lg rounded-br-sm bg-primary px-4 py-2.5 whitespace-pre-wrap break-words text-primary-foreground">
           {text}
         </div>
       </div>
@@ -128,11 +129,11 @@ export function MessageBubble({
   return (
     <div
       data-role="assistant"
-      className="flex flex-col items-start gap-0 my-4"
+      className="my-3 flex flex-col items-start gap-0"
     >
       <div className="flex justify-start gap-2">
-        <AvatarMonogram />
-        <div className="bg-zinc-900 text-zinc-100 rounded-2xl rounded-bl-md px-4 py-3 max-w-[75ch] min-w-0 break-words">
+        <AvatarMonogram className="bg-secondary text-secondary-foreground shadow-mac-sm" />
+        <div className="min-w-0 max-w-[75ch] break-words rounded-lg rounded-bl-sm border border-border bg-card px-4 py-2.5 text-card-foreground shadow-mac-sm">
           {parts.map((part, i) => {
             switch (part.type) {
               case 'text':
@@ -152,7 +153,7 @@ export function MessageBubble({
                   return (
                     <div
                       key={i}
-                      className="h-16 w-64 rounded-xl bg-zinc-800/70 my-1 motion-safe:animate-pulse"
+                      className="my-1 h-16 w-64 rounded-lg border border-border/60 bg-muted motion-safe:animate-pulse"
                       aria-hidden="true"
                     />
                   )
@@ -194,7 +195,7 @@ export function MessageBubble({
         </div>
       </div>
       {trail && (
-        <div className="ml-10 w-full max-w-[75ch]">
+        <div className="ml-10 mt-2 w-full max-w-[75ch]">
           <ReadingTrailArtifact slugs={trail} />
         </div>
       )}

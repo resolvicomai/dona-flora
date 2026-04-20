@@ -80,7 +80,7 @@ export function MessageList({
     <div
       ref={scrollRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto px-4 md:px-8"
+      className="flex-1 overflow-y-auto px-4 py-4 md:px-6"
     >
       <div className="max-w-3xl mx-auto w-full">
         {messages.length === 0 ? (
@@ -97,9 +97,9 @@ export function MessageList({
               />
             ))}
             {status === 'submitted' && lastMessage?.role === 'user' && (
-              <div className="flex justify-start gap-2 my-4">
-                <AvatarMonogram />
-                <div className="bg-zinc-900 rounded-2xl rounded-bl-md px-4 py-3">
+              <div className="flex justify-start gap-2 my-3">
+                <AvatarMonogram className="bg-secondary text-secondary-foreground shadow-mac-sm" />
+                <div className="rounded-lg rounded-bl-sm border border-border bg-card px-4 py-2 shadow-mac-sm">
                   <TypingDots />
                 </div>
               </div>

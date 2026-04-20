@@ -1,14 +1,24 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { Star } from 'lucide-react'
-import type { BookStatus } from '@/lib/books/schema'
-import type { SortKey, SortDir } from '@/lib/books/search-params'
-import { STATUS_OPTIONS } from '@/lib/books/status-labels'
-import { FilterChipGroup } from '@/components/filter-chip-group'
+import { Check, Star } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import {
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+} from '@/components/ui/popover'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { FilterChip } from '@/components/filter-chip'
+import { FilterResetButton } from '@/components/filter-reset-button'
 import { SearchInput } from '@/components/search-input'
 import { SortSelect } from '@/components/sort-select'
 import { ViewToggle } from '@/components/view-toggle'
+import type { BookStatus } from '@/lib/books/schema'
+import type { SortDir, SortKey } from '@/lib/books/search-params'
+import { STATUS_OPTIONS } from '@/lib/books/status-labels'
+import { cn } from '@/lib/utils'
 
 interface FilterBarState {
   status: BookStatus[]
@@ -22,6 +32,7 @@ interface FilterBarState {
 interface FilterBarProps {
   state: FilterBarState
   onChange: (patch: Partial<FilterBarState>) => void
+  onReset: () => void
   view: 'grid' | 'list'
   onViewChange: (next: 'grid' | 'list') => void
   genres: Array<{ key: string; label: string }>
@@ -29,8 +40,6 @@ interface FilterBarProps {
 
 type RatingValue = '1' | '2' | '3' | '4' | '5'
 
-// Rating chips: exact-match semantic per RESEARCH A2 (not "N or more").
-// Star icon on the leading slot reuses the StarRating yellow token — not a new accent.
 const RATING_OPTIONS: ReadonlyArray<{
   value: RatingValue
   label: string
@@ -39,103 +48,63 @@ const RATING_OPTIONS: ReadonlyArray<{
   {
     value: '5',
     label: '5 estrelas',
-    leading: (
-      <Star
-        className="h-3 w-3 fill-yellow-400 text-yellow-400"
-        aria-hidden="true"
-      />
-    ),
+    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
   },
   {
     value: '4',
     label: '4 estrelas',
-    leading: (
-      <Star
-        className="h-3 w-3 fill-yellow-400 text-yellow-400"
-        aria-hidden="true"
-      />
-    ),
+    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
   },
   {
     value: '3',
     label: '3 estrelas',
-    leading: (
-      <Star
-        className="h-3 w-3 fill-yellow-400 text-yellow-400"
-        aria-hidden="true"
-      />
-    ),
+    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
   },
   {
     value: '2',
     label: '2 estrelas',
-    leading: (
-      <Star
-        className="h-3 w-3 fill-yellow-400 text-yellow-400"
-        aria-hidden="true"
-      />
-    ),
+    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
   },
   {
     value: '1',
     label: '1 estrela',
-    leading: (
-      <Star
-        className="h-3 w-3 fill-yellow-400 text-yellow-400"
-        aria-hidden="true"
-      />
-    ),
+    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
   },
 ] as const
 
-/**
- * Sticky filter bar composing SearchInput + three FilterChipGroups
- * (status / rating / genre) + SortSelect + ViewToggle.
- *
- * Layout (UI-SPEC §Sticky bar composition):
- * - Mobile (base): two rows — row 1 = search + sort + toggle, row 2 = chips
- *   with `overflow-x-auto` horizontal scroll (D-08).
- * - Desktop (md+): single-row flex; search on the left, chip cluster in the
- *   middle, sort+view on the right (`md:ml-auto md:order-last`).
- *
- * Sticky stacking:
- * - Header is `sticky top-0 z-10` in page.tsx (will need to bump to z-20 when
- *   this FilterBar is mounted). FilterBar sits below at `top-[57px] z-10`.
- * - Background treatment matches the header: `bg-zinc-950/80 backdrop-blur-sm
- *   border-b border-zinc-800` for a unified sticky surface.
- *
- * State flow: presentational only. All state is owned by the parent
- * (BookBrowser, Plan 05); this component emits `onChange(patch)` and
- * `onViewChange(mode)`. No URL, localStorage, or fetch coupling here.
- */
+const groupOptionClassName = cn(
+  'group flex h-9 w-full items-center justify-between rounded-md border border-border bg-background px-3 text-left text-sm text-foreground shadow-mac-sm outline-none transition-colors duration-[var(--motion-fast)]',
+  'hover:bg-accent hover:text-foreground',
+  'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+  'data-[pressed]:border-transparent data-[pressed]:bg-primary data-[pressed]:text-primary-foreground',
+)
+
 export function FilterBar({
   state,
   onChange,
+  onReset,
   view,
   onViewChange,
   genres,
 }: FilterBarProps) {
   const genreOptions = genres.map((g) => ({ value: g.key, label: g.label }))
-
-  // Explicit cast so FilterChipGroup<T extends string> infers T = '1'|...|'5'
-  // rather than generic `string`; query.ts FilterState stores rating as number[],
-  // so we stringify for the chip group and parse back on change.
-  const ratingStringValue = state.rating.map(String) as ('1' | '2' | '3' | '4' | '5')[]
+  const ratingStringValue = state.rating.map(String) as RatingValue[]
+  const hasActiveFilters =
+    state.q.trim() !== '' ||
+    state.status.length > 0 ||
+    state.rating.length > 0 ||
+    state.genre.length > 0
 
   return (
-    <div className="sticky top-[57px] z-10 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
-      <div className="flex flex-col gap-3 px-4 py-3 md:px-8 md:flex-row md:items-center md:gap-4 md:py-2">
-        {/* Row 1 on mobile / unwrapped into flex row on desktop:
-            search + sort + view-toggle. `md:contents` lifts children into the
-            parent flex so `md:ml-auto md:order-last` can push sort/view right
-            of the chip cluster. */}
-        <div className="flex items-center gap-2 md:contents">
+    <div className="sticky top-12 z-20 border-b border-border/70 bg-background/80 backdrop-blur-xl">
+      <div className="flex flex-col gap-3 px-4 py-3 md:px-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-3">
           <SearchInput
             value={state.q}
             onChange={(q) => onChange({ q })}
-            className="flex-1 md:flex-none"
+            className="w-full md:w-[19rem]"
           />
-          <div className="flex items-center gap-2 md:ml-auto md:order-last">
+          <div className="flex items-center gap-2 md:ml-auto">
             <SortSelect
               sort={state.sort}
               dir={state.dir}
@@ -145,40 +114,150 @@ export function FilterBar({
           </div>
         </div>
 
-        {/* Row 2 on mobile / middle segment on desktop: chip groups.
-            overflow-x-auto on mobile (D-08); md:flex-1 + md:min-w-0 lets the
-            chip container stretch and shrink safely in the desktop row. */}
-        <div
-          className="flex gap-3 overflow-x-auto md:flex-1 md:min-w-0"
-          role="group"
-          aria-label="Filtros"
-        >
-          <FilterChipGroup<BookStatus>
-            label="Filtrar por status"
-            options={STATUS_OPTIONS}
-            value={state.status}
-            onValueChange={(status) => onChange({ status })}
-          />
-          <FilterChipGroup<RatingValue>
-            label="Filtrar por nota"
-            options={RATING_OPTIONS}
-            value={ratingStringValue}
-            onValueChange={(next) =>
-              onChange({
-                rating: next
-                  .map((n) => Number(n))
-                  .filter((n) => !Number.isNaN(n)),
-              })
-            }
-          />
-          {genres.length > 0 && (
-            <FilterChipGroup<string>
-              label="Filtrar por gênero"
-              options={genreOptions}
-              value={state.genre}
-              onValueChange={(genre) => onChange({ genre })}
-            />
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
+          <FilterChip
+            label="Status"
+            count={state.status.length}
+            isActive={state.status.length > 0}
+          >
+            <PopoverHeader>
+              <PopoverTitle className="text-sm font-medium text-foreground">
+                Filtrar por status
+              </PopoverTitle>
+              <PopoverDescription>
+                {state.status.length > 0
+                  ? `${state.status.length} selecionado${state.status.length === 1 ? '' : 's'}`
+                  : 'Selecione um ou mais status.'}
+              </PopoverDescription>
+            </PopoverHeader>
+            <ToggleGroup
+              multiple
+              aria-label="Status"
+              value={state.status}
+              onValueChange={(next) => onChange({ status: next as BookStatus[] })}
+              spacing={4}
+              className="flex flex-col gap-1"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <ToggleGroupItem key={opt.value} value={opt.value} className={groupOptionClassName}>
+                  <span>{opt.label}</span>
+                  <Check className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100" aria-hidden="true" />
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            {state.status.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => onChange({ status: [] })}
+                className="mt-2 h-8 w-full justify-start rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+              >
+                Limpar
+              </Button>
+            )}
+          </FilterChip>
+
+          <FilterChip
+            label="Nota"
+            count={state.rating.length}
+            isActive={state.rating.length > 0}
+          >
+            <PopoverHeader>
+              <PopoverTitle className="text-sm font-medium text-foreground">
+                Filtrar por nota
+              </PopoverTitle>
+              <PopoverDescription>
+                {state.rating.length > 0
+                  ? `${state.rating.length} selecionada${state.rating.length === 1 ? '' : 's'}`
+                  : 'Selecione uma ou mais notas.'}
+              </PopoverDescription>
+            </PopoverHeader>
+            <ToggleGroup
+              multiple
+              aria-label="Notas"
+              value={ratingStringValue}
+              onValueChange={(next) =>
+                onChange({
+                  rating: next
+                    .map((n) => Number(n))
+                    .filter((n) => !Number.isNaN(n)),
+                })
+              }
+              spacing={4}
+              className="flex flex-col gap-1"
+            >
+              {RATING_OPTIONS.map((opt) => (
+                <ToggleGroupItem key={opt.value} value={opt.value} className={groupOptionClassName}>
+                  <span className="flex items-center gap-2">
+                    {opt.leading}
+                    <span>{opt.label}</span>
+                  </span>
+                  <Check className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100" aria-hidden="true" />
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            {state.rating.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => onChange({ rating: [] })}
+                className="mt-2 h-8 w-full justify-start rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+              >
+                Limpar
+              </Button>
+            )}
+          </FilterChip>
+
+          {genreOptions.length > 0 && (
+            <FilterChip
+              label="Gênero"
+              count={state.genre.length}
+              isActive={state.genre.length > 0}
+            >
+              <PopoverHeader>
+                <PopoverTitle className="text-sm font-medium text-foreground">
+                  Filtrar por gênero
+                </PopoverTitle>
+                <PopoverDescription>
+                  {state.genre.length > 0
+                    ? `${state.genre.length} selecionado${state.genre.length === 1 ? '' : 's'}`
+                    : 'Selecione um ou mais gêneros.'}
+                </PopoverDescription>
+              </PopoverHeader>
+              <div className="max-h-56 overflow-y-auto pr-1">
+                <ToggleGroup
+                  multiple
+                  aria-label="Gêneros"
+                  value={state.genre}
+                  onValueChange={(genre) => onChange({ genre })}
+                  spacing={4}
+                  className="flex flex-col gap-1"
+                >
+                  {genreOptions.map((opt) => (
+                    <ToggleGroupItem key={opt.value} value={opt.value} className={groupOptionClassName}>
+                      <span className="truncate">{opt.label}</span>
+                      <Check className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100" aria-hidden="true" />
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </div>
+              {state.genre.length > 0 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onChange({ genre: [] })}
+                  className="mt-2 h-8 w-full justify-start rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                >
+                  Limpar
+                </Button>
+              )}
+            </FilterChip>
           )}
+
+          {hasActiveFilters && <FilterResetButton onClick={onReset} className="ml-auto" />}
         </div>
       </div>
     </div>

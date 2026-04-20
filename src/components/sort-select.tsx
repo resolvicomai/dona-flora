@@ -72,12 +72,12 @@ export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) 
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <span className="sr-only md:not-sr-only text-xs text-zinc-400">
+      <span className="sr-only md:not-sr-only text-xs text-muted-foreground">
         Ordenar por
       </span>
       <Select value={sort} onValueChange={handleKeyChange}>
         <SelectTrigger
-          className="min-h-[44px] md:min-h-9 w-48 bg-zinc-900 border-zinc-700 text-sm text-zinc-100"
+          className="h-8 w-48 rounded-md border-border bg-card/90 text-sm text-foreground shadow-mac-sm"
           aria-label="Ordenar por"
         >
           <SelectValue>{currentLabel}</SelectValue>
@@ -93,11 +93,11 @@ export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) 
       <Button
         type="button"
         variant="outline"
-        size="icon"
+        size="icon-sm"
         onClick={toggleDir}
         aria-label={dirLabel}
         title={dirLabel}
-        className="min-h-[44px] md:min-h-9 min-w-[44px] md:min-w-9"
+        className="rounded-md border-border bg-card/90 shadow-mac-sm"
       >
         <ArrowUpDown
           className={cn(

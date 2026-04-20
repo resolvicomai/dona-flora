@@ -33,14 +33,14 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-lg bg-gradient-to-br from-zinc-800 to-zinc-900',
+          'flex items-center justify-center rounded-lg border border-border/60 bg-gradient-to-br from-secondary via-background to-muted shadow-mac-sm',
           className,
         )}
         style={{ width, height }}
         aria-label={`Capa de ${alt || 'livro'} não disponível`}
         role="img"
       >
-        <span className={cn('font-semibold text-zinc-100', INITIAL_SIZE[size])}>
+        <span className={cn('font-medium text-foreground', INITIAL_SIZE[size])}>
           {initial}
         </span>
       </div>
@@ -53,7 +53,7 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
       alt={`${alt} - capa`}
       width={width}
       height={height}
-      className={cn('rounded-lg object-cover', className)}
+      className={cn('rounded-lg object-cover shadow-mac-sm', className)}
     />
   )
 }

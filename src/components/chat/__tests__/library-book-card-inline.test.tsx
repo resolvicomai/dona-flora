@@ -57,6 +57,13 @@ describe('LibraryBookCardInline', () => {
     expect(screen.getByText('Rosa')).toBeInTheDocument()
   })
 
+  test('renders the cover image for owned books', () => {
+    const { container } = renderWithLibrary(
+      <LibraryBookCardInline slug="grande-sertao" />,
+    )
+    expect(container.querySelector('img')).not.toBeNull()
+  })
+
   test("renders a StatusBadge with the book's status", () => {
     renderWithLibrary(<LibraryBookCardInline slug="grande-sertao" />)
     // StatusBadge renders the label "Lido" for status "lido"

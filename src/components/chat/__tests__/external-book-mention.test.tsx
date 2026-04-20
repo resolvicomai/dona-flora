@@ -12,25 +12,27 @@ describe('ExternalBookMention', () => {
     reason: 'Similar ao Grande Sertão pela densidade narrativa.',
   }
 
-  test("renders 'externo' tag (uppercase)", () => {
+  test('renders the amber badge', () => {
     render(<ExternalBookMention {...baseProps} />)
-    const tag = screen.getByText('externo')
+    const tag = screen.getByText('Fora do acervo')
     expect(tag).toBeInTheDocument()
-    expect(tag.className).toMatch(/uppercase/)
+    expect(tag.className).toMatch(/rounded-full/)
   })
 
-  test('renders title and author text', () => {
+  test('renders title, author, and reason text', () => {
     render(<ExternalBookMention {...baseProps} />)
     // Title/author appear joined with em-dash in the component
     expect(screen.getByText(/Doutor Pasavento/)).toBeInTheDocument()
     expect(screen.getByText(/Vila-Matas/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Similar ao Grande Sertão pela densidade narrativa\./),
+    ).toBeInTheDocument()
   })
 
-  test('ArrowUpRight icon is present and aria-hidden', () => {
+  test('badge is present and no cover image is rendered', () => {
     const { container } = render(<ExternalBookMention {...baseProps} />)
-    const svg = container.querySelector('svg')
-    expect(svg).not.toBeNull()
-    expect(svg).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByText('Fora do acervo')).toBeInTheDocument()
+    expect(container.querySelector('img')).toBeNull()
   })
 
   test("has role='note'", () => {
@@ -38,10 +40,10 @@ describe('ExternalBookMention', () => {
     expect(screen.getByRole('note')).toBeInTheDocument()
   })
 
-  test("has aria-label 'Sugestão externa: {title} de {author}'", () => {
+  test("has aria-label 'Livro fora do acervo: {title} de {author}'", () => {
     render(<ExternalBookMention {...baseProps} />)
     expect(
-      screen.getByLabelText('Sugestão externa: Doutor Pasavento de Vila-Matas'),
+      screen.getByLabelText('Livro fora do acervo: Doutor Pasavento de Vila-Matas'),
     ).toBeInTheDocument()
   })
 
@@ -51,19 +53,18 @@ describe('ExternalBookMention', () => {
     expect(note).toHaveAttribute('title', baseProps.reason)
   })
 
-  test('is not a button or link (non-interactive span)', () => {
+  test('is not a button or link (non-interactive note container)', () => {
     const { container } = render(<ExternalBookMention {...baseProps} />)
     expect(container.querySelector('a')).toBeNull()
     expect(container.querySelector('button')).toBeNull()
-    // The wrapper is a <span>
     const note = screen.getByRole('note')
-    expect(note.tagName).toBe('SPAN')
+    expect(note.tagName).toBe('DIV')
   })
 
   test('has dashed border + italic styling (UI-SPEC contract)', () => {
     render(<ExternalBookMention {...baseProps} />)
     const note = screen.getByRole('note')
     expect(note.className).toMatch(/border-dashed/)
-    expect(note.className).toMatch(/italic/)
+    expect(note.className).toMatch(/rounded-md/)
   })
 })

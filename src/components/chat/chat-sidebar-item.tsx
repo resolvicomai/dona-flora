@@ -69,25 +69,25 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-1 rounded-xl transition-colors',
-        'hover:bg-zinc-800 focus-within:bg-zinc-800',
-        active && 'bg-zinc-800 border-l-2 border-zinc-100',
+        'group relative flex items-stretch rounded-md transition-colors surface-transition',
+        'hover:bg-accent focus-within:bg-accent',
+        active && 'border-l-2 border-primary bg-accent',
       )}
     >
       <Link
         href={`/chat/${chat.id}`}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex-1 flex flex-col gap-1 p-3 min-h-[44px] no-underline',
+          'flex min-h-[44px] flex-1 flex-col gap-1 px-3 py-2 no-underline',
           'focus-visible:outline-none focus-visible:ring-2',
-          'focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-xl',
+          'rounded-md focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         )}
       >
-        <p className="text-sm font-semibold text-zinc-100 line-clamp-1">
+        <p className="line-clamp-1 text-sm font-medium text-foreground">
           {chat.title}
         </p>
         {label && (
-          <time dateTime={chat.updated_at} className="text-xs text-zinc-400">
+          <time dateTime={chat.updated_at} className="text-xs text-muted-foreground">
             {label}
           </time>
         )}
@@ -97,9 +97,9 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
               aria-label={`Excluir conversa ${chat.title}`}
-              className="mr-2 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-zinc-400 hover:text-red-400"
+              className="mr-2 h-8 w-8 min-h-[44px] min-w-[44px] opacity-0 text-muted-foreground hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
             />
           }
         >
@@ -118,7 +118,8 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleting}
-              className="bg-red-500/10 text-red-400 hover:bg-red-500/20"
+              variant="destructive"
+              size="sm"
             >
               {deleting ? 'Excluindo…' : 'Excluir conversa'}
             </AlertDialogAction>

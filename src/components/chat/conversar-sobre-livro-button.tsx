@@ -32,6 +32,7 @@ export function ConversarSobreLivroButton({ slug, titulo }: Props) {
     <Button
       aria-label={`Conversar sobre ${titulo} com a Dona Flora`}
       render={<Link href={`/chat?about=${encodeURIComponent(slug)}`} />}
+      className="shadow-mac-sm"
     >
       <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
       Conversar sobre este livro
