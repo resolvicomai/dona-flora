@@ -1,0 +1,93 @@
+import {
+  DEFAULT_AI_SETTINGS,
+  AI_LANGUAGE_OPTIONS,
+  buildAISettingsDirective,
+  AISettingsSchema,
+  getAIOptionLabel,
+  normalizeAISettings,
+  AI_EXTERNAL_OPENNESS_OPTIONS,
+} from '@/lib/ai/settings'
+import { buildSystemPrompt } from '@/lib/ai/system-prompt'
+
+describe('normalizeAISettings', () => {
+  it('fills missing values with the product defaults', () => {
+    expect(normalizeAISettings({ tone: 'analitica' })).toEqual({
+      ...DEFAULT_AI_SETTINGS,
+      tone: 'analitica',
+    })
+  })
+})
+
+describe('AISettingsSchema', () => {
+  it('rejects unsupported UI locale values', () => {
+    expect(() =>
+      AISettingsSchema.parse({
+        tone: 'calorosa',
+        focus: 'equilibrado',
+        externalOpenness: 'sob-demanda',
+        responseStyle: 'conversa',
+        language: 'fr-FR',
+        additionalInstructions: '',
+      }),
+    ).toThrow()
+  })
+})
+
+describe('AI_LANGUAGE_OPTIONS', () => {
+  it('lists only supported app locales', () => {
+    expect(AI_LANGUAGE_OPTIONS.map((option) => option.value)).toEqual([
+      'pt-BR',
+      'en',
+      'es',
+      'zh-CN',
+    ])
+  })
+})
+
+describe('buildAISettingsDirective', () => {
+  it('renders a stable pt-BR preference block for the system prompt', () => {
+    const directive = buildAISettingsDirective({
+      tone: 'analitica',
+      focus: 'descoberta',
+      externalOpenness: 'somente-acervo',
+      responseStyle: 'profunda',
+      language: 'en',
+      additionalInstructions: 'Sempre explique o porquê das recomendações.',
+    })
+
+    expect(directive).toContain('Tom preferido: analítica')
+    expect(directive).toContain('Foco preferido: descoberta')
+    expect(directive).toContain('Livros externos: somente quando o usuário pedir')
+    expect(directive).toContain('Estilo de resposta: profunda')
+    expect(directive).toContain('Idioma preferido: en')
+    expect(directive).toContain('Instruções adicionais: Sempre explique o porquê das recomendações.')
+  })
+})
+
+describe('buildSystemPrompt with user settings', () => {
+  it('appends user preferences before the <LIBRARY> block', () => {
+    const output = buildSystemPrompt('BIBLIOTECA', {
+      externalPreferenceDirective: 'Prefira livros do acervo nesta conversa.',
+      aiSettingsDirective: 'Tom preferido: calorosa',
+    })
+
+    expect(output).toContain(
+      '<CONVERSATION_PREFERENCE>\nPrefira livros do acervo nesta conversa.\n</CONVERSATION_PREFERENCE>',
+    )
+    expect(output).toContain(
+      '<USER_PREFERENCES>\nTom preferido: calorosa\n</USER_PREFERENCES>',
+    )
+    expect(output).toContain('<LIBRARY>\nBIBLIOTECA\n</LIBRARY>')
+    expect(output.indexOf('<USER_PREFERENCES>')).toBeLessThan(
+      output.lastIndexOf('<LIBRARY>'),
+    )
+  })
+})
+
+describe('getAIOptionLabel', () => {
+  it('returns the display label for the currently selected option', () => {
+    expect(
+      getAIOptionLabel(AI_EXTERNAL_OPENNESS_OPTIONS, 'sob-demanda', 'Fallback'),
+    ).toBe('Só quando fizer sentido')
+  })
+})
