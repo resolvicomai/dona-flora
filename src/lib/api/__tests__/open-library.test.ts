@@ -6,6 +6,7 @@ const MOCK_VALID_RESPONSE = {
     {
       title: 'Fundacao',
       author_name: ['Isaac Asimov'],
+      language: ['eng'],
       first_publish_year: 1951,
       cover_i: 8765432,
       isbn: ['9780553293357', '0553293354'],
@@ -29,6 +30,7 @@ describe('searchOpenLibrary', () => {
     expect(results[0].authors).toEqual(['Isaac Asimov'])
     expect(results[0].year).toBe(1951)
     expect(results[0].isbn).toBe('9780553293357')
+    expect(results[0].language).toBe('eng')
   })
 
   it('returns [] when docs is empty', async () => {

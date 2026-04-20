@@ -12,7 +12,7 @@ async function fetchOnce(
     q: query,
     limit: String(limit),
     page: String(page),
-    fields: 'title,author_name,first_publish_year,cover_i,isbn',
+    fields: 'title,author_name,first_publish_year,cover_i,isbn,language',
   })
   const res = await fetch(`${OPEN_LIBRARY_API}?${params}`, {
     headers: { 'User-Agent': 'DonaFlora/1.0 (personal book catalog)' },
@@ -28,6 +28,7 @@ async function fetchOnce(
       isbn?: string[]
       cover_i?: number
       first_publish_year?: number
+      language?: string[]
     }) =>
       ({
         title: doc.title ?? '',
@@ -37,6 +38,7 @@ async function fetchOnce(
           ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`
           : undefined,
         year: doc.first_publish_year,
+        language: doc.language?.[0],
       }) satisfies BookSearchResult
   )
 }

@@ -1,5 +1,31 @@
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes'
 
+interface GoogleBooksIndustryIdentifier {
+  identifier?: string
+  type?: string
+}
+
+interface GoogleBooksVolumeInfo {
+  authors?: string[]
+  categories?: string[]
+  description?: string
+  imageLinks?: {
+    thumbnail?: string
+  }
+  industryIdentifiers?: GoogleBooksIndustryIdentifier[]
+  language?: string
+  publishedDate?: string
+  title?: string
+}
+
+interface GoogleBooksItem {
+  volumeInfo?: GoogleBooksVolumeInfo
+}
+
+interface GoogleBooksResponse {
+  items?: GoogleBooksItem[]
+}
+
 export interface BookSearchResult {
   title: string
   authors: string[]
@@ -8,6 +34,7 @@ export interface BookSearchResult {
   cover?: string
   genre?: string
   year?: number
+  language?: string
 }
 
 function isIsbnQuery(q: string): boolean {
@@ -39,11 +66,11 @@ export async function searchGoogleBooks(
     throw new Error(`[GoogleBooks] API error: ${res.status}`)
   }
 
-  const data = await res.json()
-  return (data.items ?? []).map((item: any) => {
+  const data = (await res.json()) as GoogleBooksResponse
+  return (data.items ?? []).map((item) => {
     const v = item.volumeInfo ?? {}
     const isbn = v.industryIdentifiers?.find(
-      (id: any) => id.type === 'ISBN_13' || id.type === 'ISBN_10'
+      (id) => id.type === 'ISBN_13' || id.type === 'ISBN_10'
     )
     return {
       title: v.title ?? '',
@@ -55,6 +82,7 @@ export async function searchGoogleBooks(
       year: v.publishedDate
         ? parseInt(v.publishedDate.slice(0, 4), 10) || undefined
         : undefined,
+      language: v.language,
     } satisfies BookSearchResult
   })
 }

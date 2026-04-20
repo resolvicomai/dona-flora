@@ -1,4 +1,23 @@
 import { NextRequest } from 'next/server'
+
+jest.mock('@/lib/auth/server', () => ({
+  getRequestSession: jest.fn(async () => ({
+    session: {
+      expiresAt: new Date('2026-04-20T00:00:00Z'),
+      id: 'session-1',
+      token: 'token-1',
+      userId: 'user-1',
+    },
+    user: {
+      email: 'owner@example.com',
+      emailVerified: true,
+      id: 'user-1',
+      name: 'Owner',
+      role: 'owner',
+    },
+  })),
+}))
+
 import { POST } from '@/app/api/books/search/route'
 import { searchGoogleBooks } from '@/lib/api/google-books'
 import { searchOpenLibrary } from '@/lib/api/open-library'
@@ -37,7 +56,7 @@ beforeEach(() => {
 describe('POST /api/books/search — resilient fallback', () => {
   it('returns Google results when Google Books succeeds', async () => {
     const googleResults: BookSearchResult[] = [
-      { title: 'Dom Casmurro', authors: ['Machado de Assis'] },
+      { title: 'Dom Casmurro', authors: ['Machado de Assis'], language: 'pt-BR' },
     ]
     mockedSearchGoogleBooks.mockResolvedValueOnce(googleResults)
     mockedSearchOpenLibrary.mockResolvedValueOnce([])
@@ -48,13 +67,14 @@ describe('POST /api/books/search — resilient fallback', () => {
     expect(res.status).toBe(200)
     expect(body).toHaveLength(1)
     expect(body[0].title).toBe('Dom Casmurro')
+    expect(body[0].language).toBe('pt-BR')
     expect(mockedSearchOpenLibrary).not.toHaveBeenCalled()
   })
 
   it('falls back to Open Library when Google returns empty', async () => {
     mockedSearchGoogleBooks.mockResolvedValueOnce([])
     mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Rare Book', authors: ['Unknown'] },
+      { title: 'Rare Book', authors: ['Unknown'], language: 'en' },
     ])
 
     const res = await POST(makeRequest('rare query'))
@@ -63,6 +83,7 @@ describe('POST /api/books/search — resilient fallback', () => {
     expect(res.status).toBe(200)
     expect(body).toHaveLength(1)
     expect(body[0].title).toBe('Rare Book')
+    expect(body[0].language).toBe('en')
     expect(mockedSearchOpenLibrary).toHaveBeenCalledTimes(1)
   })
 
@@ -72,7 +93,7 @@ describe('POST /api/books/search — resilient fallback', () => {
       new Error('[GoogleBooks] API error: 503')
     )
     mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Dom Casmurro (OL)', authors: ['Machado'] },
+      { title: 'Dom Casmurro (OL)', authors: ['Machado'], language: 'pt-BR' },
     ])
 
     const res = await POST(makeRequest('dom casmurro'))
@@ -81,6 +102,7 @@ describe('POST /api/books/search — resilient fallback', () => {
     expect(res.status).toBe(200)
     expect(body).toHaveLength(1)
     expect(body[0].title).toBe('Dom Casmurro (OL)')
+    expect(body[0].language).toBe('pt-BR')
     expect(mockedSearchOpenLibrary).toHaveBeenCalledTimes(1)
     expect(warnSpy).toHaveBeenCalled()
   })
@@ -112,7 +134,7 @@ describe('POST /api/books/search — resilient fallback', () => {
 describe('POST /api/books/search — pagination', () => {
   it('threads startIndex to searchGoogleBooks when provided', async () => {
     mockedSearchGoogleBooks.mockResolvedValueOnce([
-      { title: 'Tolkien', authors: ['JRRT'] },
+      { title: 'Tolkien', authors: ['JRRT'], language: 'en' },
     ])
 
     const res = await POST(

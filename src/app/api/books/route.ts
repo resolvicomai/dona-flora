@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import {
+  getRequestSession,
+  getSessionStorageContext,
+} from '@/lib/auth/server'
 import { BookStatusEnum } from '@/lib/books/schema'
 import { writeBook } from '@/lib/books/library-service'
 
@@ -13,6 +17,7 @@ const CreateBookSchema = z.object({
   cover: z.string().url().optional(),
   genre: z.string().optional(),
   year: z.coerce.number().int().optional(),
+  language: z.string().min(2).max(32).optional(),
   status: BookStatusEnum,
   rating: z.coerce.number().int().min(1).max(5).optional(),
   notes: z.string().optional(),
@@ -20,6 +25,14 @@ const CreateBookSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getRequestSession(request)
+    if (!session) {
+      return NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 })
+    }
+    if (!session.user.emailVerified) {
+      return NextResponse.json({ error: 'Email nao verificado.' }, { status: 403 })
+    }
+
     const body = await request.json()
     const result = CreateBookSchema.safeParse(body)
     if (!result.success) {
@@ -28,7 +41,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    const { slug } = await writeBook(result.data)
+    const { slug } = await writeBook(
+      result.data,
+      getSessionStorageContext(session),
+    )
     return NextResponse.json({ slug }, { status: 201 })
   } catch (err) {
     console.error('[API] POST /api/books error:', err)

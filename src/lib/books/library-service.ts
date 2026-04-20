@@ -1,13 +1,15 @@
 import fs from 'fs/promises'
 import path from 'path'
 import matter from 'gray-matter'
+import type { StorageContext } from '@/lib/storage/context'
+import { getDataSubdirectory } from '@/lib/storage/data-root'
 import { BookSchema, type Book, type BookStatus } from './schema'
 import { generateSlug, resolveSlugCollision } from './slug'
 
 // CVE-2025-65108 mitigation: disable JavaScript engine in gray-matter.
 // CRITICAL: The key MUST be 'javascript' (not 'js'). Using 'js' is the
 // bug that caused CVE-2025-65108 -- the override is silently ignored.
-export const SAFE_MATTER_OPTIONS: matter.GrayMatterOption<string, any> = {
+export const SAFE_MATTER_OPTIONS = {
   engines: {
     javascript: () => {
       throw new Error(
@@ -17,15 +19,16 @@ export const SAFE_MATTER_OPTIONS: matter.GrayMatterOption<string, any> = {
   },
 }
 
-export function getLibraryDir(): string {
-  return path.resolve(
-    process.cwd(),
-    process.env.LIBRARY_DIR ?? 'data/books'
-  )
+export function getLibraryDir(context?: StorageContext): string {
+  if (context) {
+    return context.booksDir
+  }
+
+  return getDataSubdirectory('books', process.env.LIBRARY_DIR)
 }
 
-export async function listBooks(): Promise<Book[]> {
-  const libraryDir = getLibraryDir()
+export async function listBooks(context?: StorageContext): Promise<Book[]> {
+  const libraryDir = getLibraryDir(context)
   let files: string[]
   try {
     files = await fs.readdir(libraryDir)
@@ -85,8 +88,11 @@ export async function listBooks(): Promise<Book[]> {
   return books
 }
 
-export async function getBook(slug: string): Promise<Book | null> {
-  const libraryDir = getLibraryDir()
+export async function getBook(
+  slug: string,
+  context?: StorageContext,
+): Promise<Book | null> {
+  const libraryDir = getLibraryDir(context)
   const filename = slug.endsWith('.md') ? slug : `${slug}.md`
   const filepath = path.join(libraryDir, filename)
   try {
@@ -111,15 +117,19 @@ export interface WriteBookInput {
   cover?: string
   genre?: string
   year?: number
+  language?: string
   status: BookStatus
   rating?: number
   notes?: string
 }
 
-export async function writeBook(input: WriteBookInput): Promise<{ slug: string }> {
-  const dir = getLibraryDir()
+export async function writeBook(
+  input: WriteBookInput,
+  context?: StorageContext,
+): Promise<{ slug: string }> {
+  const dir = getLibraryDir(context)
   const baseSlug = generateSlug(input.title)
-  const slug = await resolveSlugCollision(baseSlug)
+  const slug = await resolveSlugCollision(baseSlug, undefined, dir)
   const filepath = path.join(dir, `${slug}.md`)
 
   const { notes, ...rest } = input
@@ -135,9 +145,10 @@ export async function writeBook(input: WriteBookInput): Promise<{ slug: string }
 
 export async function updateBook(
   slug: string,
-  updates: Partial<WriteBookInput>
+  updates: Partial<WriteBookInput>,
+  context?: StorageContext,
 ): Promise<void> {
-  const dir = getLibraryDir()
+  const dir = getLibraryDir(context)
   const filepath = path.join(dir, `${slug}.md`)
 
   const raw = await fs.readFile(filepath, 'utf-8')
@@ -151,8 +162,11 @@ export async function updateBook(
   await fs.writeFile(filepath, output, 'utf-8')
 }
 
-export async function deleteBook(slug: string): Promise<void> {
-  const dir = getLibraryDir()
+export async function deleteBook(
+  slug: string,
+  context?: StorageContext,
+): Promise<void> {
+  const dir = getLibraryDir(context)
   const filepath = path.join(dir, `${slug}.md`)
   await fs.unlink(filepath)
 }

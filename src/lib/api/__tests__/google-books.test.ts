@@ -15,6 +15,7 @@ const MOCK_VALID_RESPONSE = {
           { type: 'ISBN_13', identifier: '9788576570509' },
           { type: 'ISBN_10', identifier: '8576570505' },
         ],
+        language: 'pt-BR',
         publishedDate: '2009',
       },
     },
@@ -39,6 +40,7 @@ describe('searchGoogleBooks', () => {
     expect(results[0].synopsis).toBe('Uma saga épica sobre o futuro da humanidade.')
     expect(results[0].genre).toBe('Fiction')
     expect(results[0].year).toBe(2009)
+    expect(results[0].language).toBe('pt-BR')
   })
 
   it('returns [] when items is null/undefined', async () => {
