@@ -49,6 +49,32 @@ jest.mock('@/lib/library/context', () => ({
   loadLibraryContext: jest.fn(async () => 'FAKE LIBRARY'),
 }))
 
+jest.mock('@/lib/auth/server', () => ({
+  getRequestSession: jest.fn(async () => ({
+    session: {
+      expiresAt: new Date('2026-04-20T00:00:00Z'),
+      id: 'session-1',
+      token: 'token-1',
+      userId: 'user-1',
+    },
+    user: {
+      email: 'owner@example.com',
+      emailVerified: true,
+      id: 'user-1',
+      name: 'Owner',
+      role: 'owner',
+    },
+  })),
+  getSessionStorageContext: jest.fn(() => ({
+    booksDir: '/tmp/books',
+    chatsDir: '/tmp/chats',
+    dataRoot: '/tmp',
+    trailsDir: '/tmp/trails',
+    userId: 'user-1',
+    userRoot: '/tmp/users/user-1',
+  })),
+}))
+
 jest.mock('@/lib/chats/store', () => ({
   saveChat: jest.fn(async () => undefined),
 }))
@@ -58,6 +84,7 @@ import { POST } from '@/app/api/chat/route'
 import { saveChat } from '@/lib/chats/store'
 
 const mockedSaveChat = saveChat as jest.MockedFunction<typeof saveChat>
+const originalOpenRouterApiKey = process.env.OPENROUTER_API_KEY
 
 function makeRequest(body: unknown): NextRequest {
   return new NextRequest('http://localhost/api/chat', {
@@ -73,10 +100,20 @@ function validMessages() {
 }
 
 beforeEach(() => {
+  process.env.OPENROUTER_API_KEY = 'test-openrouter-key'
   capturedStreamTextArgs.value = undefined
   capturedToUIMessageStreamResponseOpts.value = undefined
   consumeStreamSpy.mockClear()
   mockedSaveChat.mockClear()
+})
+
+afterAll(() => {
+  if (originalOpenRouterApiKey === undefined) {
+    delete process.env.OPENROUTER_API_KEY
+    return
+  }
+
+  process.env.OPENROUTER_API_KEY = originalOpenRouterApiKey
 })
 
 describe('POST /api/chat — validation', () => {
@@ -192,6 +229,19 @@ describe('POST /api/chat — validation', () => {
     )
     expect(res.status).toBe(400)
   })
+
+  it('returns 503 when OpenRouter is not configured', async () => {
+    delete process.env.OPENROUTER_API_KEY
+
+    const res = await POST(
+      makeRequest({ chatId: 'abc123', messages: validMessages() })
+    )
+
+    expect(res.status).toBe(503)
+    await expect(res.json()).resolves.toMatchObject({
+      error: expect.stringMatching(/Dona Flora.*configurada/i),
+    })
+  })
 })
 
 describe('POST /api/chat — streamText wiring', () => {
@@ -223,6 +273,13 @@ describe('POST /api/chat — streamText wiring', () => {
     expect(system.role).toBe('system')
     expect(system.content).toContain('<LIBRARY>\nFAKE LIBRARY\n</LIBRARY>')
     expect(system.content).toContain('Dona Flora')
+    expect(system.content).toContain('Idioma da interface: pt-BR')
+    expect(system.content).toContain(
+      'Idioma de resposta obrigatório: pt-BR'
+    )
+    expect(system.content).toContain(
+      'Você deve responder no idioma definido em <USER_PREFERENCES>'
+    )
     // Both provider keys carry the same cacheControl marker (CR-01 defense:
     // OpenRouter's getCacheControl accepts either key; we set both so a
     // future provider change that drops one still leaves caching active).
@@ -295,6 +352,14 @@ describe('POST /api/chat — streamText wiring', () => {
     expect(mockedSaveChat).toHaveBeenCalledWith({
       chatId: 'meu-chat',
       messages: finalMessages,
+      storageContext: {
+        booksDir: '/tmp/books',
+        chatsDir: '/tmp/chats',
+        dataRoot: '/tmp',
+        trailsDir: '/tmp/trails',
+        userId: 'user-1',
+        userRoot: '/tmp/users/user-1',
+      },
     })
   })
 })

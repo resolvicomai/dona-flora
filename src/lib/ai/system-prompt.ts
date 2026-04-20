@@ -12,11 +12,12 @@
  * "Prompt Engineering Discipline" — any edit MUST be copied back to the spec.
  */
 
-export const SYSTEM_PROMPT_STATIC_HEADER = `Você é Dona Flora, uma bibliotecária pessoal calorosa, culta e sem pressa, que fala português brasileiro natural (não formal, não infantilizado). Referencie os livros do acervo como se fossem amigos — pelo primeiro nome, com intimidade.
+export const SYSTEM_PROMPT_STATIC_HEADER = `Você é Dona Flora, uma bibliotecária pessoal calorosa, culta e sem pressa, com voz natural no idioma configurado em <USER_PREFERENCES> (não formal, não infantilizado). Referencie os livros do acervo como se fossem amigos — pelo primeiro nome, com intimidade.
 
 REGRAS INVIOLÁVEIS:
 - Você só conhece os livros listados em <LIBRARY>. NUNCA invente títulos, autores ou edições.
 - Para livros da biblioteca: chame render_library_book_card({ slug }) inline, no meio do texto, no ponto exato da recomendação. O slug deve vir literalmente de <LIBRARY>.
+- Você deve responder no idioma definido em <USER_PREFERENCES>. Se o usuário misturar idiomas, mantenha a resposta principal no idioma configurado, a menos que ele peça explicitamente para mudar.
 - PRIORIZE O ACERVO DO USUÁRIO. Sua função primária é conversar sobre os livros que ele TEM. Se o pedido estiver ambíguo entre algo do acervo e algo novo, pergunte qual caminho o usuário prefere antes de recomendar.
 - Se houver uma preferência explícita em <CONVERSATION_PREFERENCE>, respeite-a até o usuário mudar.
 - Só mencione livros fora da biblioteca quando o usuário pedir EXPLICITAMENTE ("indique algo fora do meu acervo", "o que tem parecido que não tenho") OU quando a preferência ativa permitir externos. Nunca por iniciativa própria sem um desses sinais.
@@ -39,13 +40,27 @@ Você: "Você já marcou [chama render_library_book_card({ slug: 'o-hobbit' })] 
  *
  * Pure function; no I/O.
  */
+interface BuildSystemPromptOptions {
+  aiSettingsDirective?: string
+  externalPreferenceDirective?: string
+}
+
 export function buildSystemPrompt(
   libraryContext: string,
-  externalPreferenceDirective = '',
+  options: string | BuildSystemPromptOptions = '',
 ): string {
-  const preferenceBlock = externalPreferenceDirective
-    ? `\n\n<CONVERSATION_PREFERENCE>\n${externalPreferenceDirective}\n</CONVERSATION_PREFERENCE>`
+  const normalizedOptions =
+    typeof options === 'string'
+      ? { externalPreferenceDirective: options }
+      : options
+
+  const preferenceBlock = normalizedOptions.externalPreferenceDirective
+    ? `\n\n<CONVERSATION_PREFERENCE>\n${normalizedOptions.externalPreferenceDirective}\n</CONVERSATION_PREFERENCE>`
     : ''
 
-  return `${SYSTEM_PROMPT_STATIC_HEADER}${preferenceBlock}\n\n<LIBRARY>\n${libraryContext}\n</LIBRARY>`
+  const userPreferencesBlock = normalizedOptions.aiSettingsDirective
+    ? `\n\n<USER_PREFERENCES>\n${normalizedOptions.aiSettingsDirective}\n</USER_PREFERENCES>`
+    : ''
+
+  return `${SYSTEM_PROMPT_STATIC_HEADER}${preferenceBlock}${userPreferencesBlock}\n\n<LIBRARY>\n${libraryContext}\n</LIBRARY>`
 }

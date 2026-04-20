@@ -92,6 +92,13 @@ const responseLabels: Record<AISettings['responseStyle'], string> = {
   profunda: 'profunda',
 }
 
+const responseLanguageLabels: Record<AISettings['language'], string> = {
+  'pt-BR': 'pt-BR',
+  en: 'en',
+  es: 'es',
+  'zh-CN': 'zh-CN',
+}
+
 export function normalizeAISettings(
   input?: AISettingsInput | null,
 ): AISettings {
@@ -113,7 +120,8 @@ export function buildAISettingsDirective(
     `Foco preferido: ${focusLabels[settings.focus]}`,
     `Livros externos: ${externalLabels[settings.externalOpenness]}`,
     `Estilo de resposta: ${responseLabels[settings.responseStyle]}`,
-    `Idioma preferido: ${settings.language}`,
+    `Idioma da interface: ${settings.language}`,
+    `Idioma de resposta obrigatório: ${responseLanguageLabels[settings.language]}`,
   ]
 
   if (settings.additionalInstructions) {
