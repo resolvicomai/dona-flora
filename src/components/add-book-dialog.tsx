@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { BookLanguageBadge } from '@/components/book-language-badge'
 
 import type { BookSearchResult } from '@/lib/api/google-books'
 import { dedupeBooks } from '@/lib/api/dedupe'
@@ -190,6 +191,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
       cover: selected.cover,
       genre: selected.genre,
       year: selected.year,
+      language: selected.language,
       status: previewStatus,
     })
   }
@@ -241,9 +243,9 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
           )
         }
       />
-      <DialogContent className="sm:max-w-lg rounded-xl border border-border bg-card p-4 shadow-mac-lg">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader className="space-y-1">
-          <DialogTitle className="text-base font-semibold tracking-tight text-foreground">
+          <DialogTitle className="text-lg font-semibold tracking-[-0.03em] text-foreground">
             {step === 'manual' ? 'Adicionar manualmente' : 'Adicionar livro'}
           </DialogTitle>
         </DialogHeader>
@@ -253,16 +255,16 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
           <div className="flex flex-col gap-4">
             {/* Search input */}
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 autoFocus
-                placeholder="Buscar por título ou ISBN..."
+                placeholder="Buscar por título ou ISBN…"
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
-                className="border-border bg-background/80 pl-9 pr-9 shadow-mac-sm"
+                className="pl-11 pr-10"
               />
               {searching && (
-                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                <Loader2 className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
               )}
             </div>
 
@@ -279,16 +281,17 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                       setSelected(book)
                       setStep('preview')
                     }}
-                    className="flex w-full items-start gap-3 rounded-lg p-2 text-left transition-colors hover:bg-accent"
+                    className="surface-transition flex w-full items-start gap-3 rounded-[1.35rem] p-3 text-left hover:bg-foreground/[0.05]"
                   >
                     <BookCover src={book.cover} alt={book.title} size="sm" />
                     <div className="flex-1 min-w-0 overflow-hidden">
-                      <p className="line-clamp-2 break-words text-sm font-medium text-foreground">
+                      <p className="line-clamp-2 break-words text-sm font-medium tracking-[-0.02em] text-foreground">
                         {book.title}
                       </p>
                       <p className="mt-0.5 line-clamp-1 break-words text-xs text-muted-foreground">
                         {formatAuthors(book.authors)}
                       </p>
+                      <BookLanguageBadge language={book.language} />
                     </div>
                   </button>
                 ))}
@@ -355,13 +358,14 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                 {selected.year && (
                   <p className="text-xs text-muted-foreground">{selected.year}</p>
                 )}
+                <BookLanguageBadge language={selected.language} />
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm text-muted-foreground">Status</Label>
               <Select value={previewStatus} onValueChange={(v) => { if (v) setPreviewStatus(v) }}>
-                <SelectTrigger className="w-full border-border bg-background/80 shadow-mac-sm">
+                <SelectTrigger className="w-full">
                   <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -391,7 +395,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                 {isSaving ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Adicionando...
+                    Adicionando…
                   </>
                 ) : (
                   'Adicionar'
@@ -418,7 +422,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
             <div className="flex gap-2 justify-end">
               <Button disabled>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Adicionando...
+                Adicionando…
               </Button>
             </div>
           </div>
@@ -437,7 +441,6 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                 placeholder="Título do livro"
                 value={manualTitle}
                 onChange={(e) => setManualTitle(e.target.value)}
-                className="border-border bg-background/80 shadow-mac-sm"
               />
             </div>
 
@@ -450,14 +453,13 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                 placeholder="Autor"
                 value={manualAuthor}
                 onChange={(e) => setManualAuthor(e.target.value)}
-                className="border-border bg-background/80 shadow-mac-sm"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm text-muted-foreground">Status</Label>
               <Select value={manualStatus} onValueChange={(v) => { if (v) setManualStatus(v) }}>
-                <SelectTrigger className="w-full border-border bg-background/80 shadow-mac-sm">
+                <SelectTrigger className="w-full">
                   <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -470,7 +472,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
               </Select>
             </div>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
             <div className="flex gap-2 justify-end">
               <Button
@@ -489,7 +491,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                 {isSaving ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Adicionando...
+                    Adicionando…
                   </>
                 ) : (
                   'Adicionar'

@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { BookCover } from '@/components/book-cover'
+import { BookLanguageBadge } from '@/components/book-language-badge'
+import { RatingStars } from '@/components/rating-stars'
 import { StatusBadge } from '@/components/status-badge'
 import { cn } from '@/lib/utils'
 import type { Book } from '@/lib/books/schema'
@@ -15,19 +17,23 @@ export function BookRow({ book, className }: BookRowProps) {
     <Link
       href={`/books/${slug}`}
       className={cn(
-        'group flex items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-mac-sm transition-[transform,box-shadow,border-color] duration-[var(--motion-fast)] hover:-translate-y-0.5 hover:border-border/80 hover:shadow-mac-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        'group surface-transition flex items-center gap-4 rounded-[1.6rem] border border-hairline bg-surface px-4 py-4 shadow-mac-sm hover:-translate-y-0.5 hover:bg-surface-elevated hover:shadow-mac-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         className,
       )}
     >
       <BookCover src={book.cover} alt={book.title} size="sm" />
-      <div className="flex flex-col gap-1 flex-1 min-w-0 overflow-hidden">
-        <p className="text-sm font-medium text-foreground line-clamp-1 md:line-clamp-2 break-words">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={book.status} />
+          {book.rating ? <RatingStars value={book.rating} /> : null}
+          <BookLanguageBadge language={book.language} />
+        </div>
+        <p className="line-clamp-1 break-words text-[0.96rem] font-medium tracking-[-0.03em] text-foreground md:line-clamp-2">
           {book.title}
         </p>
-        <p className="text-xs text-muted-foreground line-clamp-1 break-words">
+        <p className="line-clamp-1 break-words text-sm text-muted-foreground">
           {book.author}
         </p>
-        <StatusBadge status={book.status} />
       </div>
     </Link>
   )

@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { BookCover } from '@/components/book-cover'
+import { BookLanguageBadge } from '@/components/book-language-badge'
+import { RatingStars } from '@/components/rating-stars'
 import { StatusBadge } from '@/components/status-badge'
 import { cn } from '@/lib/utils'
 import type { Book } from '@/lib/books/schema'
@@ -15,19 +17,25 @@ export function BookCard({ book, className }: BookCardProps) {
     <Link
       href={`/books/${slug}`}
       className={cn(
-        'group flex flex-col gap-3 rounded-lg border border-border bg-card p-3 shadow-mac-sm transition-[transform,box-shadow,border-color] duration-[var(--motion-fast)] hover:-translate-y-0.5 hover:border-border/80 hover:shadow-mac-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        'group surface-transition flex flex-col gap-4 rounded-[1.85rem] p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         className,
       )}
     >
-      <BookCover src={book.cover} alt={book.title} size="sm" />
-      <div className="flex flex-col gap-1 flex-1 min-w-0 overflow-hidden">
-        <p className="text-sm font-medium text-foreground line-clamp-2 break-words">
+      <div className="panel-quiet overflow-hidden rounded-[1.7rem] p-4 group-hover:-translate-y-0.5 group-hover:shadow-mac-md">
+        <BookCover src={book.cover} alt={book.title} size="card" className="mx-auto" />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden px-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={book.status} className="self-start" />
+          {book.rating ? <RatingStars value={book.rating} /> : null}
+          <BookLanguageBadge language={book.language} />
+        </div>
+        <p className="line-clamp-2 break-words text-[0.96rem] font-medium tracking-[-0.03em] text-foreground">
           {book.title}
         </p>
-        <p className="text-xs text-muted-foreground line-clamp-1 break-words">
+        <p className="line-clamp-1 break-words text-sm text-muted-foreground">
           {book.author}
         </p>
-        <StatusBadge status={book.status} />
       </div>
     </Link>
   )
