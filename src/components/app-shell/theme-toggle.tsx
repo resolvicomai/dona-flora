@@ -1,8 +1,9 @@
 "use client"
 
-import { Check, Monitor, Moon, Sun, type LucideIcon } from "lucide-react"
+import { Check, Monitor, MoonStar, SunMedium, type LucideIcon } from "lucide-react"
 import { useState } from "react"
 
+import { useAppLanguage } from "@/components/app-shell/app-language-provider"
 import {
   Popover,
   PopoverContent,
@@ -24,12 +25,12 @@ const THEME_OPTIONS: Array<{
   value: ThemePreference
 }> = [
   {
-    icon: Sun,
+    icon: SunMedium,
     label: "Claro",
     value: "light",
   },
   {
-    icon: Moon,
+    icon: MoonStar,
     label: "Escuro",
     value: "dark",
   },
@@ -40,6 +41,49 @@ const THEME_OPTIONS: Array<{
     value: "system",
   },
 ]
+
+const THEME_COPY = {
+  "pt-BR": {
+    appearance: "Aparência",
+    automatic: "Automático",
+    automaticDescription: "Acompanha o sistema",
+    dark: "Escuro",
+    description: "Escolha como a Dona Flora vai se apresentar.",
+    light: "Claro",
+    titlePrefix: "Tema",
+    triggerLabel: "Alterar tema",
+  },
+  en: {
+    appearance: "Appearance",
+    automatic: "System",
+    automaticDescription: "Follow the system",
+    dark: "Dark",
+    description: "Choose how Dona Flora should appear.",
+    light: "Light",
+    titlePrefix: "Theme",
+    triggerLabel: "Change theme",
+  },
+  es: {
+    appearance: "Apariencia",
+    automatic: "Sistema",
+    automaticDescription: "Sigue al sistema",
+    dark: "Oscuro",
+    description: "Elige cómo debe presentarse Dona Flora.",
+    light: "Claro",
+    titlePrefix: "Tema",
+    triggerLabel: "Cambiar tema",
+  },
+  "zh-CN": {
+    appearance: "外观",
+    automatic: "跟随系统",
+    automaticDescription: "跟随系统设置",
+    dark: "深色",
+    description: "选择 Dona Flora 的显示方式。",
+    light: "浅色",
+    titlePrefix: "主题",
+    triggerLabel: "切换主题",
+  },
+} as const
 
 function ThemeOptionButton({
   isSelected,
@@ -55,10 +99,12 @@ function ThemeOptionButton({
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="secondary"
       className={cn(
-        "surface-transition h-auto w-full justify-between rounded-md px-2.5 py-2 text-left hover:bg-accent",
-        isSelected && "bg-secondary text-foreground hover:bg-secondary",
+        "h-auto w-full justify-between rounded-[1.25rem] px-3 py-3 text-left shadow-none",
+        isSelected
+          ? "border-hairline bg-foreground/[0.06] text-foreground"
+          : "border-transparent bg-transparent text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
       )}
       onClick={() => onSelect(option.value)}
     >
@@ -85,11 +131,28 @@ function ThemeOptionButton({
 }
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme, theme } = useTheme()
+  const { locale } = useAppLanguage()
+  const { setTheme, theme } = useTheme()
   const [open, setOpen] = useState(false)
+  const copy = THEME_COPY[locale]
+  const themedOptions = [
+    {
+      ...THEME_OPTIONS[0],
+      label: copy.light,
+    },
+    {
+      ...THEME_OPTIONS[1],
+      label: copy.dark,
+    },
+    {
+      ...THEME_OPTIONS[2],
+      description: copy.automaticDescription,
+      label: copy.automatic,
+    },
+  ] as const
 
   const activeOption =
-    THEME_OPTIONS.find((option) => option.value === theme) ?? THEME_OPTIONS[2]
+    themedOptions.find((option) => option.value === theme) ?? themedOptions[2]
   const ActiveIcon = activeOption.icon
 
   const handleSelect = (nextTheme: ThemePreference) => {
@@ -104,30 +167,27 @@ export function ThemeToggle() {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Alterar tema"
-            className="surface-transition rounded-md text-foreground hover:bg-accent"
-            title={`Tema: ${activeOption.label}`}
+            aria-label={copy.triggerLabel}
+            className="size-10 text-foreground"
+            title={`${copy.titlePrefix}: ${activeOption.label}`}
           >
             <ActiveIcon
               aria-hidden="true"
-              className={cn(
-                "transition-transform",
-                theme === "system" && resolvedTheme === "dark" && "rotate-180",
-              )}
+              className="transition-transform"
             />
           </Button>
         }
       />
       <PopoverContent
         align="end"
-        className="surface-blur-popover w-60 rounded-lg border border-border/60 p-2 shadow-mac-md"
+        className="w-64"
       >
-        <PopoverHeader className="px-2 pb-1">
-          <PopoverTitle>Aparência</PopoverTitle>
-          <PopoverDescription>Escolha como a Dona Flora vai se apresentar.</PopoverDescription>
+        <PopoverHeader className="px-1 pb-1">
+          <PopoverTitle>{copy.appearance}</PopoverTitle>
+          <PopoverDescription>{copy.description}</PopoverDescription>
         </PopoverHeader>
         <div className="flex flex-col gap-1">
-          {THEME_OPTIONS.map((option) => (
+          {themedOptions.map((option) => (
             <ThemeOptionButton
               key={option.value}
               isSelected={theme === option.value}

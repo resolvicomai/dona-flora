@@ -69,21 +69,22 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
   return (
     <div
       className={cn(
-        'group relative flex items-stretch rounded-md transition-colors surface-transition',
-        'hover:bg-accent focus-within:bg-accent',
-        active && 'border-l-2 border-primary bg-accent',
+        'group surface-transition relative flex items-stretch rounded-[1.25rem] border border-transparent',
+        'hover:bg-foreground/[0.04] focus-within:bg-foreground/[0.04]',
+        active &&
+          'border-hairline border-l-2 border-l-zinc-100 border-zinc-100/0 bg-foreground/[0.06] shadow-mac-sm',
       )}
     >
       <Link
         href={`/chat/${chat.id}`}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex min-h-[44px] flex-1 flex-col gap-1 px-3 py-2 no-underline',
+          'flex min-h-[44px] flex-1 flex-col gap-1 px-3.5 py-3 no-underline',
           'focus-visible:outline-none focus-visible:ring-2',
           'rounded-md focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         )}
       >
-        <p className="line-clamp-1 text-sm font-medium text-foreground">
+        <p className="line-clamp-1 text-sm font-medium tracking-[-0.02em] text-foreground">
           {chat.title}
         </p>
         {label && (
@@ -99,7 +100,7 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
               variant="ghost"
               size="icon"
               aria-label={`Excluir conversa ${chat.title}`}
-              className="mr-2 h-8 w-8 min-h-[44px] min-w-[44px] opacity-0 text-muted-foreground hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
+              className="mr-2 h-9 w-9 min-h-[44px] min-w-[44px] opacity-0 text-muted-foreground hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
             />
           }
         >

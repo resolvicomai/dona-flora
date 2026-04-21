@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { StarRating } from '@/components/star-rating'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -13,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { BookStatus } from '@/lib/books/schema'
-import { STATUS_OPTIONS, getStatusLabel } from '@/lib/books/status-labels'
+import { getStatusLabel, getStatusOptions } from '@/lib/books/status-labels'
 
 interface BookEditFormProps {
   slug: string
@@ -33,6 +34,8 @@ export function BookEditForm({
   renderedNotes,
 }: BookEditFormProps) {
   const router = useRouter()
+  const { locale } = useAppLanguage()
+  const statusOptions = getStatusOptions(locale)
   const [status, setStatus] = useState<BookStatus>(initialStatus)
   const [rating, setRating] = useState(initialRating ?? 0)
   const [notes, setNotes] = useState(initialNotes)
@@ -100,31 +103,48 @@ export function BookEditForm({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Label className="text-sm text-zinc-400 w-16">Status:</Label>
-        <Select value={status} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-48 bg-zinc-800 border-zinc-700">
-            <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div className="panel-solid space-y-6 rounded-[2rem] p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="eyebrow">Leitura</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-foreground">
+            Anotações e progresso
+          </h2>
+        </div>
         <SaveIndicator state={saveState} />
       </div>
 
-      <div className="flex items-center gap-4">
-        <Label className="text-sm text-zinc-400 w-16">Nota:</Label>
-        <StarRating value={rating} onChange={handleRatingChange} />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,16rem)_1fr]">
+        <div className="space-y-3">
+          <Label className="text-[0.72rem] uppercase tracking-[0.14em] text-muted-foreground">
+            Status
+          </Label>
+          <Select value={status} onValueChange={handleStatusChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue>{(v) => getStatusLabel(v, locale)}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-3">
+          <Label className="text-[0.72rem] uppercase tracking-[0.14em] text-muted-foreground">
+            Nota
+          </Label>
+          <StarRating value={rating} onChange={handleRatingChange} />
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-sm text-zinc-400">Minhas notas</Label>
+      <div className="space-y-3">
+        <Label className="text-[0.72rem] uppercase tracking-[0.14em] text-muted-foreground">
+          Minhas notas
+        </Label>
 
         {editingNotes ? (
           <Textarea
@@ -132,8 +152,8 @@ export function BookEditForm({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             onBlur={handleNotesBlur}
-            placeholder="Suas notas pessoais sobre este livro..."
-            className="min-h-[200px] bg-zinc-900 border-zinc-700 resize-none font-mono text-sm"
+            placeholder="Suas notas pessoais sobre este livro…"
+            className="min-h-[220px] resize-none font-mono text-sm"
           />
         ) : (
           <div
@@ -146,23 +166,23 @@ export function BookEditForm({
                 setEditingNotes(true)
               }
             }}
-            className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 min-h-[120px] cursor-text transition hover:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            className="surface-transition min-h-[140px] cursor-text rounded-[1.6rem] border border-hairline bg-surface p-5 hover:bg-surface-elevated focus:outline-none focus:ring-2 focus:ring-ring"
             title="Clique para editar"
           >
             {renderedNotes ? (
               <div
-                className="prose prose-invert prose-sm prose-zinc max-w-none"
+                className="markdown-content max-w-none"
                 dangerouslySetInnerHTML={{ __html: renderedNotes }}
               />
             ) : (
-              <p className="text-sm text-zinc-500 italic">
-                Clique para adicionar notas em Markdown...
+              <p className="text-sm italic text-muted-foreground">
+                Clique para adicionar notas em Markdown…
               </p>
             )}
           </div>
         )}
 
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs leading-6 text-muted-foreground">
           Suporta Markdown: `# título`, `**negrito**`, `*itálico*`, `- lista`,
           `` `código` ``. Clique fora pra salvar.
         </p>
@@ -179,11 +199,14 @@ function SaveIndicator({ state }: { state: SaveState }) {
       : state === 'saved'
         ? 'Alterações salvas.'
         : 'Erro ao salvar.'
-  const color =
+  const tone =
     state === 'error'
-      ? 'text-red-500'
-      : state === 'saved'
-        ? 'text-green-500'
-        : 'text-zinc-400'
-  return <span className={`text-xs ${color}`}>{label}</span>
+      ? 'border-destructive/20 bg-destructive/10 text-destructive'
+      : 'border-hairline bg-surface text-foreground'
+
+  return (
+    <span className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-medium ${tone}`}>
+      {label}
+    </span>
+  )
 }

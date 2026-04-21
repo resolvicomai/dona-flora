@@ -1,6 +1,8 @@
 import fs from 'fs/promises'
 import path from 'path'
 import matter from 'gray-matter'
+import type { StorageContext } from '@/lib/storage/context'
+import { getDataSubdirectory } from '@/lib/storage/data-root'
 import { generateSlug, resolveSlugCollision } from '@/lib/books/slug'
 import { TrailFrontmatterSchema, type TrailFrontmatter } from './schema'
 
@@ -14,8 +16,12 @@ import { TrailFrontmatterSchema, type TrailFrontmatter } from './schema'
  * path traversal by construction — no '..', '/', or '\\' can survive.
  */
 
-export function getTrailsDir(): string {
-  return path.resolve(process.cwd(), process.env.TRAILS_DIR ?? 'data/trails')
+export function getTrailsDir(context?: StorageContext): string {
+  if (context) {
+    return context.trailsDir
+  }
+
+  return getDataSubdirectory('trails', process.env.TRAILS_DIR)
 }
 
 export interface SaveTrailInput {
@@ -44,8 +50,11 @@ export interface SaveTrailResult {
  * write — throws on invalid input (empty `book_refs`, etc.). The caller (API
  * route in Plan 03) is responsible for converting the throw to a 400 response.
  */
-export async function saveTrail(input: SaveTrailInput): Promise<SaveTrailResult> {
-  const dir = getTrailsDir()
+export async function saveTrail(
+  input: SaveTrailInput,
+  context?: StorageContext,
+): Promise<SaveTrailResult> {
+  const dir = getTrailsDir(context)
   await fs.mkdir(dir, { recursive: true })
 
   let existing: string[] = []

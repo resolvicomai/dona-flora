@@ -5,7 +5,9 @@ import {
   AISettingsSchema,
   getAIOptionLabel,
   normalizeAISettings,
-  AI_EXTERNAL_OPENNESS_OPTIONS,
+  getAIExternalOpennessOptions,
+  getAIResponseStyleOptions,
+  getAIToneOptions,
 } from '@/lib/ai/settings'
 import { buildSystemPrompt } from '@/lib/ai/system-prompt'
 
@@ -106,7 +108,27 @@ describe('buildSystemPrompt with user settings', () => {
 describe('getAIOptionLabel', () => {
   it('returns the display label for the currently selected option', () => {
     expect(
-      getAIOptionLabel(AI_EXTERNAL_OPENNESS_OPTIONS, 'sob-demanda', 'Fallback'),
+      getAIOptionLabel(
+        getAIExternalOpennessOptions('pt-BR'),
+        'sob-demanda',
+        'Fallback',
+      ),
     ).toBe('Só quando fizer sentido')
+  })
+})
+
+describe('localized AI options', () => {
+  it('renders tone and response-style labels in English when requested', () => {
+    expect(getAIToneOptions('en')).toEqual([
+      { label: 'Warm', value: 'calorosa' },
+      { label: 'Analytical', value: 'analitica' },
+      { label: 'Assertive', value: 'assertiva' },
+    ])
+
+    expect(getAIResponseStyleOptions('en')).toEqual([
+      { label: 'Natural conversation', value: 'conversa' },
+      { label: 'More concise', value: 'concisa' },
+      { label: 'More in depth', value: 'profunda' },
+    ])
   })
 })

@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import {
+  getSessionStorageContext,
+  requireVerifiedRequestSession,
+} from '@/lib/auth/server'
 import { deleteChat } from '@/lib/chats/store'
 
 /**
@@ -20,6 +24,12 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireVerifiedRequestSession(_request)
+  if (!authResult.ok) {
+    return authResult.response
+  }
+  const session = authResult.session
+
   const { id } = await params
   const parsed = ChatIdSchema.safeParse(id)
   if (!parsed.success) {
@@ -27,7 +37,10 @@ export async function DELETE(
   }
 
   try {
-    const removed = await deleteChat(parsed.data)
+    const removed = await deleteChat(
+      parsed.data,
+      getSessionStorageContext(session),
+    )
     if (!removed) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }

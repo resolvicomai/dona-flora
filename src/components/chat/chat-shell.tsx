@@ -55,7 +55,7 @@ export function ChatShell({
 
   return (
     <KnownLibraryProvider books={knownBooks}>
-      <div className="flex min-h-0 flex-1 bg-background">
+      <div className="page-frame flex min-h-0 flex-1 gap-3 pt-7 md:gap-4 md:pt-8">
         <ChatSidebar chats={chats} activeChatId={chatId} />
         <section className="flex min-w-0 flex-1 flex-col">
           <ChatMain

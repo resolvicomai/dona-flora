@@ -13,21 +13,25 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import {
-  AI_EXTERNAL_OPENNESS_OPTIONS,
-  AI_FOCUS_OPTIONS,
-  AI_RESPONSE_STYLE_OPTIONS,
-  AI_TONE_OPTIONS,
+  getAIExternalOpennessOptions,
+  getAIFocusOptions,
   getAIOptionLabel,
+  getAIResponseStyleOptions,
+  getAIToneOptions,
   type AISettings,
 } from '@/lib/ai/settings'
 
 export function SettingsForm({ initialSettings }: { initialSettings: AISettings }) {
   const router = useRouter()
-  const { copy } = useAppLanguage()
+  const { copy, locale } = useAppLanguage()
   const [settings, setSettings] = useState(initialSettings)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const toneOptions = getAIToneOptions(locale)
+  const focusOptions = getAIFocusOptions(locale)
+  const externalOpennessOptions = getAIExternalOpennessOptions(locale)
+  const responseStyleOptions = getAIResponseStyleOptions(locale)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -92,7 +96,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 <SelectValue>
                   {() =>
                     getAIOptionLabel(
-                      AI_TONE_OPTIONS,
+                      toneOptions,
                       settings.tone,
                       copy.settings.placeholders.tone,
                     )
@@ -100,7 +104,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {AI_TONE_OPTIONS.map((option) => (
+                {toneOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -122,7 +126,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 <SelectValue>
                   {() =>
                     getAIOptionLabel(
-                      AI_FOCUS_OPTIONS,
+                      focusOptions,
                       settings.focus,
                       copy.settings.placeholders.focus,
                     )
@@ -130,7 +134,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {AI_FOCUS_OPTIONS.map((option) => (
+                {focusOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -155,7 +159,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 <SelectValue>
                   {() =>
                     getAIOptionLabel(
-                      AI_EXTERNAL_OPENNESS_OPTIONS,
+                      externalOpennessOptions,
                       settings.externalOpenness,
                       copy.settings.placeholders.externalOpenness,
                     )
@@ -163,7 +167,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {AI_EXTERNAL_OPENNESS_OPTIONS.map((option) => (
+                {externalOpennessOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -188,7 +192,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 <SelectValue>
                   {() =>
                     getAIOptionLabel(
-                      AI_RESPONSE_STYLE_OPTIONS,
+                      responseStyleOptions,
                       settings.responseStyle,
                       copy.settings.placeholders.responseStyle,
                     )
@@ -196,7 +200,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: AISettings 
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {AI_RESPONSE_STYLE_OPTIONS.map((option) => (
+                {responseStyleOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>

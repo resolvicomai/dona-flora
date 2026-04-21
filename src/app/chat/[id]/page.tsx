@@ -4,6 +4,10 @@ import { Suspense } from 'react'
 import { listBooks } from '@/lib/books/library-service'
 import { listChats } from '@/lib/chats/list'
 import { loadChat } from '@/lib/chats/store'
+import {
+  getSessionStorageContext,
+  requireVerifiedServerSession,
+} from '@/lib/auth/server'
 import { ChatShell } from '@/components/chat/chat-shell'
 import type { ChatBookMeta } from '@/components/chat/known-library-context'
 
@@ -23,11 +27,16 @@ export default async function ChatIdPage({
   params: Promise<{ id: string }>
 }) {
   noStore()
+  const session = await requireVerifiedServerSession()
+  const storageContext = getSessionStorageContext(session)
   const { id } = await params
-  const messages = await loadChat(id)
+  const messages = await loadChat(id, storageContext)
   if (!messages) notFound()
 
-  const [books, chats] = await Promise.all([listBooks(), listChats()])
+  const [books, chats] = await Promise.all([
+    listBooks(storageContext),
+    listChats(storageContext),
+  ])
 
   const knownBooks: ChatBookMeta[] = books
     .map((b) => ({

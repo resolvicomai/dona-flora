@@ -4,6 +4,7 @@
 import '@testing-library/jest-dom'
 import userEvent from '@testing-library/user-event'
 import { render, screen, waitFor } from '@testing-library/react'
+import { AppLanguageProvider } from '@/components/app-shell/app-language-provider'
 import { ProfileForm } from '../profile-form'
 
 const refresh = jest.fn()
@@ -11,6 +12,7 @@ const push = jest.fn()
 const refetch = jest.fn().mockResolvedValue(undefined)
 
 jest.mock('next/navigation', () => ({
+  usePathname: () => '/profile',
   useRouter: () => ({ refresh, push }),
 }))
 
@@ -46,17 +48,19 @@ describe('ProfileForm', () => {
     const user = userEvent.setup()
 
     render(
-      <ProfileForm
-        profile={{
-          displayName: 'Mauro',
-          email: 'mauro@example.com',
-          emailVerified: true,
-          id: 'user-1',
-          image: null,
-          initials: 'MA',
-          role: 'user',
-        }}
-      />,
+      <AppLanguageProvider locale="pt-BR">
+        <ProfileForm
+          profile={{
+            displayName: 'Mauro',
+            email: 'mauro@example.com',
+            emailVerified: true,
+            id: 'user-1',
+            image: null,
+            initials: 'MA',
+            role: 'user',
+          }}
+        />
+      </AppLanguageProvider>,
     )
 
     await user.clear(screen.getByDisplayValue('Mauro'))

@@ -1,4 +1,5 @@
 import fs from 'fs/promises'
+import type { StorageContext } from '@/lib/storage/context'
 import { getLibraryDir } from '@/lib/books/library-service'
 
 /**
@@ -12,9 +13,11 @@ import { getLibraryDir } from '@/lib/books/library-service'
  *
  * Returns an empty Set when the directory is missing.
  */
-export async function loadKnownSlugs(): Promise<Set<string>> {
+export async function loadKnownSlugs(
+  context?: StorageContext,
+): Promise<Set<string>> {
   try {
-    const files = await fs.readdir(getLibraryDir())
+    const files = await fs.readdir(getLibraryDir(context))
     return new Set(
       files.filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''))
     )

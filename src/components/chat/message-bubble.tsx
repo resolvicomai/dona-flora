@@ -58,7 +58,6 @@ function detectTrail(
   // WR-10: surface multi-group turns in dev so we can decide whether to
   // relax the single-group policy later. Prod stays quiet.
   if (groups.length > 1 && process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line no-console
     console.info(
       '[MessageBubble] detectTrail: found',
       groups.length,
@@ -106,7 +105,7 @@ export function MessageBubble({
       .join('')
     return (
       <div data-role="user" className="my-3 flex justify-end">
-        <div className="max-w-[75ch] rounded-lg rounded-br-sm bg-primary px-4 py-2.5 whitespace-pre-wrap break-words text-primary-foreground">
+        <div className="max-w-[75ch] rounded-[1.6rem] rounded-br-[0.6rem] bg-primary px-4 py-3 whitespace-pre-wrap break-words text-primary-foreground shadow-mac-sm">
           {text}
         </div>
       </div>
@@ -129,11 +128,11 @@ export function MessageBubble({
   return (
     <div
       data-role="assistant"
-      className="my-3 flex flex-col items-start gap-0"
+      className="my-4 flex flex-col items-start gap-0"
     >
-      <div className="flex justify-start gap-2">
-        <AvatarMonogram className="bg-secondary text-secondary-foreground shadow-mac-sm" />
-        <div className="min-w-0 max-w-[75ch] break-words rounded-lg rounded-bl-sm border border-border bg-card px-4 py-2.5 text-card-foreground shadow-mac-sm">
+      <div className="flex justify-start gap-3">
+        <AvatarMonogram />
+        <div className="panel-solid min-w-0 max-w-[75ch] break-words rounded-[1.6rem] rounded-bl-[0.6rem] px-4 py-3 text-card-foreground">
           {parts.map((part, i) => {
             switch (part.type) {
               case 'text':
@@ -153,7 +152,7 @@ export function MessageBubble({
                   return (
                     <div
                       key={i}
-                      className="my-1 h-16 w-64 rounded-lg border border-border/60 bg-muted motion-safe:animate-pulse"
+                      className="my-1 h-16 w-64 rounded-[1.25rem] border border-hairline bg-surface motion-safe:animate-pulse"
                       aria-hidden="true"
                     />
                   )
@@ -186,7 +185,6 @@ export function MessageBubble({
 
               default:
                 if (process.env.NODE_ENV !== 'production') {
-                  // eslint-disable-next-line no-console
                   console.warn('[MessageBubble] unknown part', part)
                 }
                 return null
@@ -195,7 +193,7 @@ export function MessageBubble({
         </div>
       </div>
       {trail && (
-        <div className="ml-10 mt-2 w-full max-w-[75ch]">
+        <div className="ml-12 mt-2 w-full max-w-[75ch]">
           <ReadingTrailArtifact slugs={trail} />
         </div>
       )}

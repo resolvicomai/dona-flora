@@ -15,9 +15,10 @@ import { FilterResetButton } from '@/components/filter-reset-button'
 import { SearchInput } from '@/components/search-input'
 import { SortSelect } from '@/components/sort-select'
 import { ViewToggle } from '@/components/view-toggle'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import type { BookStatus } from '@/lib/books/schema'
 import type { SortDir, SortKey } from '@/lib/books/search-params'
-import { STATUS_OPTIONS } from '@/lib/books/status-labels'
+import { getStatusOptions } from '@/lib/books/status-labels'
 import { cn } from '@/lib/utils'
 
 interface FilterBarState {
@@ -48,35 +49,35 @@ const RATING_OPTIONS: ReadonlyArray<{
   {
     value: '5',
     label: '5 estrelas',
-    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
+    leading: <Star className="size-3.5 fill-foreground text-foreground" aria-hidden="true" />,
   },
   {
     value: '4',
     label: '4 estrelas',
-    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
+    leading: <Star className="size-3.5 fill-foreground text-foreground" aria-hidden="true" />,
   },
   {
     value: '3',
     label: '3 estrelas',
-    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
+    leading: <Star className="size-3.5 fill-foreground text-foreground" aria-hidden="true" />,
   },
   {
     value: '2',
     label: '2 estrelas',
-    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
+    leading: <Star className="size-3.5 fill-foreground text-foreground" aria-hidden="true" />,
   },
   {
     value: '1',
     label: '1 estrela',
-    leading: <Star className="size-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />,
+    leading: <Star className="size-3.5 fill-foreground text-foreground" aria-hidden="true" />,
   },
 ] as const
 
 const groupOptionClassName = cn(
-  'group flex h-9 w-full items-center justify-between rounded-md border border-border bg-background px-3 text-left text-sm text-foreground shadow-mac-sm outline-none transition-colors duration-[var(--motion-fast)]',
-  'hover:bg-accent hover:text-foreground',
+  'group surface-transition flex h-11 w-full items-center justify-between rounded-[1.2rem] border border-hairline bg-surface px-3.5 text-left text-sm text-foreground shadow-mac-sm outline-none',
+  'hover:bg-surface-strong hover:text-foreground',
   'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-  'data-[pressed]:border-transparent data-[pressed]:bg-primary data-[pressed]:text-primary-foreground',
+  'data-[pressed]:border-transparent data-[pressed]:bg-primary data-[pressed]:text-primary-foreground data-[pressed]:shadow-mac-md',
 )
 
 export function FilterBar({
@@ -87,6 +88,8 @@ export function FilterBar({
   onViewChange,
   genres,
 }: FilterBarProps) {
+  const { locale } = useAppLanguage()
+  const statusOptions = getStatusOptions(locale)
   const genreOptions = genres.map((g) => ({ value: g.key, label: g.label }))
   const ratingStringValue = state.rating.map(String) as RatingValue[]
   const hasActiveFilters =
@@ -96,15 +99,15 @@ export function FilterBar({
     state.genre.length > 0
 
   return (
-    <div className="sticky top-12 z-20 border-b border-border/70 bg-background/80 backdrop-blur-xl">
-      <div className="flex flex-col gap-3 px-4 py-3 md:px-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-3">
+    <div className="sticky top-[var(--app-nav-offset)] z-20">
+      <div className="surface-blur flex flex-col gap-4 rounded-[2rem] border border-glass-border px-4 py-4 md:px-5">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:gap-3">
           <SearchInput
             value={state.q}
             onChange={(q) => onChange({ q })}
-            className="w-full md:w-[19rem]"
+            className="w-full xl:max-w-[28rem]"
           />
-          <div className="flex items-center gap-2 md:ml-auto">
+          <div className="flex flex-wrap items-center gap-2 xl:ml-auto">
             <SortSelect
               sort={state.sort}
               dir={state.dir}
@@ -114,7 +117,7 @@ export function FilterBar({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
+        <div className="flex flex-wrap items-center gap-2">
           <FilterChip
             label="Status"
             count={state.status.length}
@@ -138,7 +141,7 @@ export function FilterBar({
               spacing={4}
               className="flex flex-col gap-1"
             >
-              {STATUS_OPTIONS.map((opt) => (
+              {statusOptions.map((opt) => (
                 <ToggleGroupItem key={opt.value} value={opt.value} className={groupOptionClassName}>
                   <span>{opt.label}</span>
                   <Check className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100" aria-hidden="true" />
@@ -151,7 +154,7 @@ export function FilterBar({
                 variant="ghost"
                 size="sm"
                 onClick={() => onChange({ status: [] })}
-                className="mt-2 h-8 w-full justify-start rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                className="mt-2 h-9 w-full justify-start rounded-full px-3 text-xs text-muted-foreground"
               >
                 Limpar
               </Button>
@@ -203,7 +206,7 @@ export function FilterBar({
                 variant="ghost"
                 size="sm"
                 onClick={() => onChange({ rating: [] })}
-                className="mt-2 h-8 w-full justify-start rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                className="mt-2 h-9 w-full justify-start rounded-full px-3 text-xs text-muted-foreground"
               >
                 Limpar
               </Button>
@@ -249,7 +252,7 @@ export function FilterBar({
                   variant="ghost"
                   size="sm"
                   onClick={() => onChange({ genre: [] })}
-                  className="mt-2 h-8 w-full justify-start rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                  className="mt-2 h-9 w-full justify-start rounded-full px-3 text-xs text-muted-foreground"
                 >
                   Limpar
                 </Button>
@@ -257,7 +260,7 @@ export function FilterBar({
             </FilterChip>
           )}
 
-          {hasActiveFilters && <FilterResetButton onClick={onReset} className="ml-auto" />}
+          {hasActiveFilters && <FilterResetButton onClick={onReset} className="xl:ml-auto" />}
         </div>
       </div>
     </div>

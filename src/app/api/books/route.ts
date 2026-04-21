@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import {
-  getRequestSession,
   getSessionStorageContext,
+  requireVerifiedRequestSession,
 } from '@/lib/auth/server'
 import { BookStatusEnum } from '@/lib/books/schema'
 import { writeBook } from '@/lib/books/library-service'
@@ -25,13 +25,11 @@ const CreateBookSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getRequestSession(request)
-    if (!session) {
-      return NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 })
+    const authResult = await requireVerifiedRequestSession(request)
+    if (!authResult.ok) {
+      return authResult.response
     }
-    if (!session.user.emailVerified) {
-      return NextResponse.json({ error: 'Email nao verificado.' }, { status: 403 })
-    }
+    const session = authResult.session
 
     const body = await request.json()
     const result = CreateBookSchema.safeParse(body)

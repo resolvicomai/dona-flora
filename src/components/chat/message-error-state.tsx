@@ -17,12 +17,12 @@ interface MessageErrorStateProps {
  */
 export function MessageErrorState({ onRetry }: MessageErrorStateProps) {
   return (
-    <div className="flex flex-col items-start gap-2 rounded-xl border border-red-900/40 bg-red-950/20 p-4 my-4">
-      <div className="flex items-center gap-2 text-red-500">
+    <div className="my-4 flex flex-col items-start gap-3 rounded-[1.6rem] border border-destructive/20 bg-destructive/8 p-4">
+      <div className="flex items-center gap-2 text-destructive">
         <AlertCircle className="h-4 w-4" aria-hidden="true" />
         <p className="text-sm font-semibold">Erro ao gerar resposta.</p>
       </div>
-      <p className="text-sm text-zinc-400">
+      <p className="text-sm leading-7 text-muted-foreground">
         Algo deu errado na conversa. Tente de novo em alguns segundos.
       </p>
       <Button onClick={onRetry} variant="secondary" size="sm">

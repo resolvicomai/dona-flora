@@ -3,12 +3,19 @@
 import {
   createContext,
   useContext,
+  useEffect,
+  useState,
   type ReactNode,
 } from 'react'
+import { usePathname } from 'next/navigation'
+import { useLocalStorage } from '@/lib/use-local-storage'
 
 import {
+  APP_LANGUAGE_STORAGE_KEY,
   DEFAULT_APP_LANGUAGE,
   normalizeAppLanguage,
+  resolveHtmlLang,
+  SUPPORTED_APP_LANGUAGES,
   type AppLanguage,
 } from '@/lib/i18n/app-language'
 
@@ -152,15 +159,15 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       primaryNavigationLabel: 'Navegação principal',
     },
     shell: {
-      accountBody: 'Sessão e recuperação seguras',
+      accountBody: 'Acesso, recuperação e privacidade',
       accountLabel: 'Conta',
-      aiBody: 'Preferências persistidas',
+      aiBody: 'Tom, foco e idioma salvos',
       aiLabel: 'IA',
       eyebrow: 'Biblioteca pessoal',
-      headline: 'Leitura, memória e conversa no mesmo lugar.',
+      headline: 'Seu espaço de leitura, memória e conversa.',
       intro:
-        'Entre na sua biblioteca, ajuste o comportamento da Dona Flora e mantenha cada acervo isolado no seu próprio espaço.',
-      libraryBody: 'Markdown por usuário',
+        'Organize o acervo, converse com a Dona Flora e mantenha tudo no seu próprio espaço.',
+      libraryBody: 'Acervo próprio por conta',
       libraryLabel: 'Acervo',
       brandSubtitle: 'Biblioteca pessoal',
     },
@@ -286,15 +293,15 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       primaryNavigationLabel: 'Primary navigation',
     },
     shell: {
-      accountBody: 'Secure session and recovery',
+      accountBody: 'Access, recovery, and privacy',
       accountLabel: 'Account',
-      aiBody: 'Persisted preferences',
+      aiBody: 'Saved tone, focus, and language',
       aiLabel: 'AI',
       eyebrow: 'Personal library',
-      headline: 'Reading, memory, and conversation in one place.',
+      headline: 'Your space for reading, memory, and conversation.',
       intro:
-        'Sign in to your library, tune Dona Flora, and keep each collection isolated in its own space.',
-      libraryBody: 'Markdown per user',
+        'Organize your library, talk with Dona Flora, and keep everything in your own space.',
+      libraryBody: 'A private collection per account',
       libraryLabel: 'Collection',
       brandSubtitle: 'Personal library',
     },
@@ -419,15 +426,15 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       primaryNavigationLabel: 'Navegación principal',
     },
     shell: {
-      accountBody: 'Sesión y recuperación seguras',
+      accountBody: 'Acceso, recuperación y privacidad',
       accountLabel: 'Cuenta',
-      aiBody: 'Preferencias guardadas',
+      aiBody: 'Tono, enfoque e idioma guardados',
       aiLabel: 'IA',
       eyebrow: 'Biblioteca personal',
-      headline: 'Lectura, memoria y conversación en un solo lugar.',
+      headline: 'Tu espacio para lectura, memoria y conversación.',
       intro:
-        'Entra en tu biblioteca, ajusta a Dona Flora y mantén cada colección aislada en su propio espacio.',
-      libraryBody: 'Markdown por usuario',
+        'Organiza tu biblioteca, conversa con Dona Flora y mantén todo en tu propio espacio.',
+      libraryBody: 'Colección propia por cuenta',
       libraryLabel: 'Colección',
       brandSubtitle: 'Biblioteca personal',
     },
@@ -552,14 +559,14 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       primaryNavigationLabel: '主导航',
     },
     shell: {
-      accountBody: '安全的会话与找回',
+      accountBody: '访问、找回与隐私',
       accountLabel: '账户',
-      aiBody: '已保存的偏好',
+      aiBody: '已保存的语气、侧重与语言',
       aiLabel: 'AI',
       eyebrow: '个人书库',
-      headline: '阅读、记忆与对话，汇聚一处。',
-      intro: '登录你的书库，调整 Dona Flora，让每个收藏空间彼此独立。',
-      libraryBody: '每位用户的 Markdown',
+      headline: '属于你的阅读、记忆与对话空间。',
+      intro: '整理书库，与 Dona Flora 交流，并把一切保留在你自己的空间里。',
+      libraryBody: '每个账户独立的收藏',
       libraryLabel: '收藏',
       brandSubtitle: '个人书库',
     },
@@ -678,9 +685,11 @@ const defaultCopy = APP_LANGUAGE_COPY[DEFAULT_APP_LANGUAGE]
 const AppLanguageContext = createContext<{
   copy: AppLanguageCopy
   locale: AppLanguage
+  setLocale: (locale: AppLanguage) => void
 }>({
   copy: defaultCopy,
   locale: DEFAULT_APP_LANGUAGE,
+  setLocale: () => undefined,
 })
 
 export function AppLanguageProvider({
@@ -690,13 +699,42 @@ export function AppLanguageProvider({
   children: ReactNode
   locale: string | null | undefined
 }) {
+  const pathname = usePathname()
   const normalizedLocale = normalizeAppLanguage(locale)
+  const [storedLocale, setStoredLocale] = useLocalStorage(
+    APP_LANGUAGE_STORAGE_KEY,
+    normalizedLocale,
+    SUPPORTED_APP_LANGUAGES,
+  )
+  const [activeLocale, setActiveLocale] = useState(normalizedLocale)
+  const isAuthRoute =
+    pathname === '/sign-in' ||
+    pathname === '/sign-up' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password' ||
+    pathname === '/verify-email'
+
+  useEffect(() => {
+    setActiveLocale(isAuthRoute ? storedLocale : normalizedLocale)
+  }, [isAuthRoute, normalizedLocale, storedLocale])
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    document.documentElement.lang = resolveHtmlLang(activeLocale)
+  }, [activeLocale])
 
   return (
     <AppLanguageContext.Provider
       value={{
-        copy: APP_LANGUAGE_COPY[normalizedLocale],
-        locale: normalizedLocale,
+        copy: APP_LANGUAGE_COPY[activeLocale],
+        locale: activeLocale,
+        setLocale: (nextLocale) => {
+          setStoredLocale(nextLocale)
+          setActiveLocale(nextLocale)
+        },
       }}
     >
       {children}

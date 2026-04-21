@@ -7,7 +7,7 @@ interface MarkdownContentProps {
 export async function MarkdownContent({ content }: MarkdownContentProps) {
   if (!content.trim()) {
     return (
-      <p className="text-sm text-zinc-500 italic">
+      <p className="text-sm italic text-muted-foreground">
         Nenhuma nota ainda. Clique em &apos;Editar notas&apos; para comecar.
       </p>
     )

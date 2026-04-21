@@ -13,13 +13,13 @@
 export function TypingDots() {
   return (
     <span
-      className="inline-flex items-center gap-1.5 py-2 px-1"
+      className="inline-flex items-center gap-1.5 px-1 py-2"
       aria-hidden="true"
     >
       {[0, 200, 400].map((delay) => (
         <span
           key={delay}
-          className="w-1.5 h-1.5 rounded-full bg-zinc-500 motion-safe:animate-pulse"
+          className="h-1.5 w-1.5 rounded-full bg-foreground/45 motion-safe:animate-pulse"
           style={{ animationDelay: `${delay}ms` }}
         />
       ))}

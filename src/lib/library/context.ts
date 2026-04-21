@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 import matter from 'gray-matter'
+import type { StorageContext } from '@/lib/storage/context'
 import { SAFE_MATTER_OPTIONS, getLibraryDir } from '@/lib/books/library-service'
 
 /**
@@ -14,8 +15,10 @@ import { SAFE_MATTER_OPTIONS, getLibraryDir } from '@/lib/books/library-service'
  * Malformed files are skipped with `console.warn` (never throws) — same contract as
  * `listBooks()` in `library-service.ts`.
  */
-export async function loadLibraryContext(): Promise<string> {
-  const dir = getLibraryDir()
+export async function loadLibraryContext(
+  context?: StorageContext,
+): Promise<string> {
+  const dir = getLibraryDir(context)
   let files: string[]
   try {
     files = await fs.readdir(dir)

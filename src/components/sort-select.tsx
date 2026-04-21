@@ -71,13 +71,13 @@ export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) 
   const dirLabel = dir === 'asc' ? 'Ordem crescente' : 'Ordem decrescente'
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <span className="sr-only md:not-sr-only text-xs text-muted-foreground">
+    <div className={cn('flex min-w-0 items-center gap-2', className)}>
+      <span className="sr-only md:not-sr-only text-xs uppercase tracking-[0.14em] text-muted-foreground">
         Ordenar por
       </span>
       <Select value={sort} onValueChange={handleKeyChange}>
         <SelectTrigger
-          className="h-8 w-48 rounded-md border-border bg-card/90 text-sm text-foreground shadow-mac-sm"
+          className="h-10 min-w-0 flex-1 sm:w-[15.5rem] sm:flex-none"
           aria-label="Ordenar por"
         >
           <SelectValue>{currentLabel}</SelectValue>
@@ -97,7 +97,7 @@ export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) 
         onClick={toggleDir}
         aria-label={dirLabel}
         title={dirLabel}
-        className="rounded-md border-border bg-card/90 shadow-mac-sm"
+        className="size-10"
       >
         <ArrowUpDown
           className={cn(

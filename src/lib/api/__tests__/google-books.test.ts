@@ -159,4 +159,16 @@ describe('searchGoogleBooks pagination', () => {
     expect(calledUrl).toMatch(/maxResults=10/)
     expect(calledUrl).toMatch(/startIndex=0/)
   })
+
+  it('adds langRestrict when a book-language filter is provided', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ items: [] }),
+    } as Response)
+
+    await searchGoogleBooks('fundacao', 20, 0, 'pt-BR')
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toMatch(/langRestrict=pt/)
+  })
 })

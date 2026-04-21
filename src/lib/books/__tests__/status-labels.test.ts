@@ -1,13 +1,13 @@
 import {
   STATUS_LABELS,
-  STATUS_OPTIONS,
+  getStatusOptions,
   getStatusLabel,
 } from '../status-labels'
 
 describe('status-labels', () => {
   describe('STATUS_LABELS', () => {
-    it('contains all 5 BookStatus values', () => {
-      expect(Object.keys(STATUS_LABELS).sort()).toEqual([
+    it('contains localized labels for all 5 BookStatus values in pt-BR', () => {
+      expect(Object.keys(STATUS_LABELS['pt-BR']).sort()).toEqual([
         'abandonado',
         'lendo',
         'lido',
@@ -17,11 +17,11 @@ describe('status-labels', () => {
     })
 
     it('maps each status to correct pt-BR label', () => {
-      expect(STATUS_LABELS['quero-ler']).toBe('Quero ler')
-      expect(STATUS_LABELS['lendo']).toBe('Lendo')
-      expect(STATUS_LABELS['lido']).toBe('Lido')
-      expect(STATUS_LABELS['quero-reler']).toBe('Quero reler')
-      expect(STATUS_LABELS['abandonado']).toBe('Abandonado')
+      expect(STATUS_LABELS['pt-BR']['quero-ler']).toBe('Quero ler')
+      expect(STATUS_LABELS['pt-BR']['lendo']).toBe('Lendo')
+      expect(STATUS_LABELS['pt-BR']['lido']).toBe('Lido')
+      expect(STATUS_LABELS['pt-BR']['quero-reler']).toBe('Quero reler')
+      expect(STATUS_LABELS['pt-BR']['abandonado']).toBe('Abandonado')
     })
   })
 
@@ -37,16 +37,18 @@ describe('status-labels', () => {
     })
   })
 
-  describe('STATUS_OPTIONS', () => {
+  describe('getStatusOptions', () => {
     it('preserves order for dropdown', () => {
-      expect(STATUS_OPTIONS.map((o) => o.value)).toEqual([
+      const statusOptions = getStatusOptions('pt-BR')
+
+      expect(statusOptions.map((o) => o.value)).toEqual([
         'quero-ler',
         'lendo',
         'lido',
         'quero-reler',
         'abandonado',
       ])
-      expect(STATUS_OPTIONS[0]).toEqual({
+      expect(statusOptions[0]).toEqual({
         value: 'quero-ler',
         label: 'Quero ler',
       })

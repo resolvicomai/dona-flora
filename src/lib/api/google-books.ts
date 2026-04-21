@@ -1,3 +1,8 @@
+import {
+  matchesBookLanguageFilter,
+  resolveGoogleBooksLanguageRestrict,
+} from '@/lib/books/language'
+
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes'
 
 interface GoogleBooksIndustryIdentifier {
@@ -45,7 +50,8 @@ function isIsbnQuery(q: string): boolean {
 export async function searchGoogleBooks(
   query: string,
   maxResults = 5,
-  startIndex = 0
+  startIndex = 0,
+  language?: string,
 ): Promise<BookSearchResult[]> {
   const q = isIsbnQuery(query)
     ? `isbn:${query.replace(/[-\s]/g, '')}`
@@ -55,6 +61,11 @@ export async function searchGoogleBooks(
     maxResults: String(maxResults),
     startIndex: String(startIndex),
   })
+  const langRestrict = resolveGoogleBooksLanguageRestrict(language)
+
+  if (langRestrict) {
+    params.set('langRestrict', langRestrict)
+  }
 
   const apiKey = process.env.GOOGLE_BOOKS_API_KEY
   if (apiKey) {
@@ -67,22 +78,24 @@ export async function searchGoogleBooks(
   }
 
   const data = (await res.json()) as GoogleBooksResponse
-  return (data.items ?? []).map((item) => {
-    const v = item.volumeInfo ?? {}
-    const isbn = v.industryIdentifiers?.find(
-      (id) => id.type === 'ISBN_13' || id.type === 'ISBN_10'
-    )
-    return {
-      title: v.title ?? '',
-      authors: v.authors ?? [],
-      isbn: isbn?.identifier,
-      synopsis: v.description,
-      cover: v.imageLinks?.thumbnail?.replace('http://', 'https://'),
-      genre: v.categories?.[0],
-      year: v.publishedDate
-        ? parseInt(v.publishedDate.slice(0, 4), 10) || undefined
-        : undefined,
-      language: v.language,
-    } satisfies BookSearchResult
-  })
+  return (data.items ?? [])
+    .map((item) => {
+      const v = item.volumeInfo ?? {}
+      const isbn = v.industryIdentifiers?.find(
+        (id) => id.type === 'ISBN_13' || id.type === 'ISBN_10'
+      )
+      return {
+        title: v.title ?? '',
+        authors: v.authors ?? [],
+        isbn: isbn?.identifier,
+        synopsis: v.description,
+        cover: v.imageLinks?.thumbnail?.replace('http://', 'https://'),
+        genre: v.categories?.[0],
+        year: v.publishedDate
+          ? parseInt(v.publishedDate.slice(0, 4), 10) || undefined
+          : undefined,
+        language: v.language,
+      } satisfies BookSearchResult
+    })
+    .filter((book) => matchesBookLanguageFilter(book.language, language))
 }

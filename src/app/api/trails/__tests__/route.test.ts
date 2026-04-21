@@ -4,6 +4,35 @@ jest.mock('@/lib/trails/store', () => ({
   saveTrail: jest.fn(),
 }))
 
+jest.mock('@/lib/auth/server', () => ({
+  requireVerifiedRequestSession: jest.fn(async () => ({
+    ok: true,
+    session: {
+      session: {
+        expiresAt: new Date('2026-04-20T00:00:00Z'),
+        id: 'session-1',
+        token: 'token-1',
+        userId: 'user-1',
+      },
+      user: {
+        email: 'owner@example.com',
+        emailVerified: true,
+        id: 'user-1',
+        name: 'Owner',
+        role: 'owner',
+      },
+    },
+  })),
+  getSessionStorageContext: jest.fn(() => ({
+    booksDir: '/tmp/books',
+    chatsDir: '/tmp/chats',
+    dataRoot: '/tmp',
+    trailsDir: '/tmp/trails',
+    userId: 'user-1',
+    userRoot: '/tmp/users/user-1',
+  })),
+}))
+
 // WR-06: trails route cross-checks book_refs against the known-slugs set.
 // Default mock returns a permissive set that contains every fixture slug
 // used in the happy-path tests; individual tests override as needed.
@@ -52,6 +81,13 @@ describe('POST /api/trails — happy path', () => {
     expect(mockedSaveTrail).toHaveBeenCalledWith({
       title: 'Minha Trilha',
       book_refs: ['o-hobbit', 'a-sociedade-do-anel'],
+    }, {
+      booksDir: '/tmp/books',
+      chatsDir: '/tmp/chats',
+      dataRoot: '/tmp',
+      trailsDir: '/tmp/trails',
+      userId: 'user-1',
+      userRoot: '/tmp/users/user-1',
     })
   })
 
@@ -71,6 +107,13 @@ describe('POST /api/trails — happy path', () => {
       goal: 'Ler fantasia clássica',
       book_refs: ['o-hobbit'],
       notes: 'Três livros, um por mês',
+    }, {
+      booksDir: '/tmp/books',
+      chatsDir: '/tmp/chats',
+      dataRoot: '/tmp',
+      trailsDir: '/tmp/trails',
+      userId: 'user-1',
+      userRoot: '/tmp/users/user-1',
     })
   })
 })

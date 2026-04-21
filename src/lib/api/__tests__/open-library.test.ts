@@ -86,6 +86,16 @@ describe('searchOpenLibrary', () => {
 
     await expect(searchOpenLibrary('Fundacao')).rejects.toThrow('[OpenLibrary] API error: 503')
   })
+
+  it('returns [] when Open Library rejects a short query with HTTP 422', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      status: 422,
+    } as Response)
+
+    const results = await searchOpenLibrary('abc')
+    expect(results).toEqual([])
+  })
 })
 
 describe('searchOpenLibrary pagination', () => {
@@ -125,5 +135,31 @@ describe('searchOpenLibrary pagination', () => {
     const calledUrl = String(fetchSpy.mock.calls[0][0])
     expect(calledUrl).toMatch(/limit=10/)
     expect(calledUrl).toMatch(/page=1/)
+  })
+
+  it('filters upstream results by the requested book language when provided', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        docs: [
+          { title: 'Duna', author_name: ['Frank Herbert'], language: ['eng'] },
+          { title: 'Fundação', author_name: ['Isaac Asimov'], language: ['por'] },
+        ],
+      }),
+    } as Response)
+
+    const results = await searchOpenLibrary('ficcao', 20, 1, 'en')
+
+    expect(results).toHaveLength(1)
+    expect(results[0].language).toBe('eng')
+  })
+
+  it('skips the upstream request entirely for queries shorter than three characters', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch')
+
+    const results = await searchOpenLibrary('cs')
+
+    expect(results).toEqual([])
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 })

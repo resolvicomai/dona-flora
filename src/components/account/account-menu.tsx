@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ChevronDown, LogOut, Settings2, UserRound } from 'lucide-react'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Popover,
@@ -23,9 +24,50 @@ function initialsFromName(name?: string | null, email?: string | null) {
     .join('')
 }
 
+const ACCOUNT_MENU_COPY = {
+  'pt-BR': {
+    emailLoading: 'Sessão carregando…',
+    menuLabel: 'Abrir menu da conta',
+    profile: 'Perfil',
+    settings: 'Ajustes da Dona Flora',
+    signOut: 'Sair',
+    title: 'Conta',
+    unnamed: 'Conta',
+  },
+  en: {
+    emailLoading: 'Loading session…',
+    menuLabel: 'Open account menu',
+    profile: 'Profile',
+    settings: 'Dona Flora settings',
+    signOut: 'Sign out',
+    title: 'Account',
+    unnamed: 'Account',
+  },
+  es: {
+    emailLoading: 'Cargando sesión…',
+    menuLabel: 'Abrir menú de la cuenta',
+    profile: 'Perfil',
+    settings: 'Ajustes de Dona Flora',
+    signOut: 'Cerrar sesión',
+    title: 'Cuenta',
+    unnamed: 'Cuenta',
+  },
+  'zh-CN': {
+    emailLoading: '正在加载会话…',
+    menuLabel: '打开账户菜单',
+    profile: '个人资料',
+    settings: 'Dona Flora 设置',
+    signOut: '退出登录',
+    title: '账户',
+    unnamed: '账户',
+  },
+} as const
+
 export function AccountMenu() {
   const router = useRouter()
+  const { locale } = useAppLanguage()
   const { data: session, isPending } = authClient.useSession()
+  const copy = ACCOUNT_MENU_COPY[locale]
 
   async function handleSignOut() {
     await authClient.signOut()
@@ -39,7 +81,7 @@ export function AccountMenu() {
     <Popover>
       <PopoverTrigger render={
         <Button
-          aria-label="Abrir menu da conta"
+          aria-label={copy.menuLabel}
           size="sm"
           variant="secondary"
           className="gap-2 pl-2.5"
@@ -49,17 +91,17 @@ export function AccountMenu() {
           {isPending ? '…' : initials}
         </span>
         <span className="hidden max-w-32 truncate sm:block">
-          {session?.user?.name ?? 'Conta'}
+          {session?.user?.name ?? copy.unnamed}
         </span>
         <ChevronDown className="h-4 w-4 text-muted-foreground" />
       </PopoverTrigger>
 
       <PopoverContent align="end" className="w-80">
         <PopoverHeader>
-          <p className="eyebrow">Conta</p>
+          <p className="eyebrow">{copy.title}</p>
           <PopoverTitle>{session?.user?.name ?? 'Dona Flora'}</PopoverTitle>
           <p className="text-sm text-muted-foreground">
-            {session?.user?.email ?? 'Sessão carregando…'}
+            {session?.user?.email ?? copy.emailLoading}
           </p>
         </PopoverHeader>
 
@@ -72,7 +114,7 @@ export function AccountMenu() {
             href="/profile"
           >
             <UserRound className="h-4 w-4" />
-            Perfil
+            {copy.profile}
           </Link>
           <Link
             className={cn(
@@ -82,7 +124,7 @@ export function AccountMenu() {
             href="/settings"
           >
             <Settings2 className="h-4 w-4" />
-            Settings da Dona Flora
+            {copy.settings}
           </Link>
           <Button
             className="justify-start rounded-[1.2rem]"
@@ -90,7 +132,7 @@ export function AccountMenu() {
             variant="ghost"
           >
             <LogOut className="h-4 w-4" />
-            Sair
+            {copy.signOut}
           </Button>
         </div>
       </PopoverContent>

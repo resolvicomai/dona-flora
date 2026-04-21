@@ -1,6 +1,8 @@
 import fs from 'fs/promises'
 import path from 'path'
 import matter from 'gray-matter'
+import type { StorageContext } from '@/lib/storage/context'
+import { getDataSubdirectory } from '@/lib/storage/data-root'
 import { SAFE_MATTER_OPTIONS } from '@/lib/books/library-service'
 import { ChatFrontmatterSchema, type ChatFrontmatter } from './schema'
 import { serializeTranscript, parseTranscript } from './serialize'
@@ -18,8 +20,12 @@ import type { LibrarianMessage, LibrarianMessagePart } from './types'
  * the contract of `writeBook(slug)`, which also trusts its slug parameter.
  */
 
-export function getChatsDir(): string {
-  return path.resolve(process.cwd(), process.env.CHATS_DIR ?? 'data/chats')
+export function getChatsDir(context?: StorageContext): string {
+  if (context) {
+    return context.chatsDir
+  }
+
+  return getDataSubdirectory('chats', process.env.CHATS_DIR)
 }
 
 /**
@@ -77,6 +83,7 @@ function normalizeIso(value: unknown): string | undefined {
 export interface SaveChatInput {
   chatId: string
   messages: LibrarianMessage[]
+  storageContext?: StorageContext
 }
 
 /**
@@ -85,8 +92,12 @@ export interface SaveChatInput {
  * On re-save of an existing conversation, `started_at` from the on-disk file is
  * preserved; `updated_at` always advances to the current wall-clock time.
  */
-export async function saveChat({ chatId, messages }: SaveChatInput): Promise<void> {
-  const dir = getChatsDir()
+export async function saveChat({
+  chatId,
+  messages,
+  storageContext,
+}: SaveChatInput): Promise<void> {
+  const dir = getChatsDir(storageContext)
   await fs.mkdir(dir, { recursive: true })
   const filepath = path.join(dir, `${chatId}.md`)
 
@@ -123,8 +134,11 @@ export async function saveChat({ chatId, messages }: SaveChatInput): Promise<voi
  * On schema-validation failure we warn but do not throw — the caller (a page
  * or API route) should treat this as a 404.
  */
-export async function loadChat(chatId: string): Promise<LibrarianMessage[] | null> {
-  const filepath = path.join(getChatsDir(), `${chatId}.md`)
+export async function loadChat(
+  chatId: string,
+  storageContext?: StorageContext,
+): Promise<LibrarianMessage[] | null> {
+  const filepath = path.join(getChatsDir(storageContext), `${chatId}.md`)
   let raw: string
   try {
     raw = await fs.readFile(filepath, 'utf-8')
@@ -168,8 +182,11 @@ export async function loadChat(chatId: string): Promise<LibrarianMessage[] | nul
  * `saveChat` — this function trusts its input, matching the contract of
  * the rest of the store.
  */
-export async function deleteChat(chatId: string): Promise<boolean> {
-  const file = path.join(getChatsDir(), `${chatId}.md`)
+export async function deleteChat(
+  chatId: string,
+  storageContext?: StorageContext,
+): Promise<boolean> {
+  const file = path.join(getChatsDir(storageContext), `${chatId}.md`)
   try {
     await fs.unlink(file)
     return true

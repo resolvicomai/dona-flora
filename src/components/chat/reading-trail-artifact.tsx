@@ -60,19 +60,19 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
   }
 
   return (
-    <div className="my-4 flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-mac-sm">
+    <div className="panel-solid my-4 flex flex-col gap-4 rounded-[1.75rem] p-4">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium text-card-foreground">
+        <h3 className="text-sm font-medium tracking-[-0.02em] text-card-foreground">
           Trilha de leitura sugerida
         </h3>
         {state === 'idle' && (
-          <Button size="sm" onClick={handleSave} className="shadow-mac-sm">
+          <Button size="sm" onClick={handleSave}>
             <BookmarkPlus className="mr-2 h-4 w-4" aria-hidden="true" />
             Salvar trilha
           </Button>
         )}
         {state === 'saving' && (
-          <Button size="sm" disabled aria-busy="true" className="shadow-mac-sm">
+          <Button size="sm" disabled aria-busy="true">
             <Loader2
               className="mr-2 h-4 w-4 motion-safe:animate-spin"
               aria-hidden="true"
@@ -81,7 +81,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
           </Button>
         )}
         {state === 'saved' && (
-          <span className="inline-flex items-center gap-2 rounded-full border border-success/20 bg-success/10 px-3 py-1 text-sm font-medium text-success">
+          <span className="inline-flex items-center gap-2 rounded-full border border-hairline bg-surface px-3 py-1 text-sm font-medium text-foreground">
             <Check className="h-4 w-4" aria-hidden="true" />
             Trilha salva
           </span>
@@ -100,7 +100,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
       <ol className="m-0 flex list-none flex-col gap-2 p-0">
         {slugs.map((slug, i) => (
           <li key={`${slug}-${i}`} className="flex items-start gap-3">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-medium text-secondary-foreground">
+            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-hairline bg-surface text-xs font-medium text-foreground">
               {i + 1}
             </span>
             <div className="min-w-0 flex-1">

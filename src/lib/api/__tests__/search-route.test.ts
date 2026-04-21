@@ -1,19 +1,22 @@
 import { NextRequest } from 'next/server'
 
 jest.mock('@/lib/auth/server', () => ({
-  getRequestSession: jest.fn(async () => ({
+  requireVerifiedRequestSession: jest.fn(async () => ({
+    ok: true,
     session: {
-      expiresAt: new Date('2026-04-20T00:00:00Z'),
-      id: 'session-1',
-      token: 'token-1',
-      userId: 'user-1',
-    },
-    user: {
-      email: 'owner@example.com',
-      emailVerified: true,
-      id: 'user-1',
-      name: 'Owner',
-      role: 'owner',
+      session: {
+        expiresAt: new Date('2026-04-20T00:00:00Z'),
+        id: 'session-1',
+        token: 'token-1',
+        userId: 'user-1',
+      },
+      user: {
+        email: 'owner@example.com',
+        emailVerified: true,
+        id: 'user-1',
+        name: 'Owner',
+        role: 'owner',
+      },
     },
   })),
 }))
@@ -85,6 +88,17 @@ describe('POST /api/books/search — resilient fallback', () => {
     expect(body[0].title).toBe('Rare Book')
     expect(body[0].language).toBe('en')
     expect(mockedSearchOpenLibrary).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns 200 with [] when both providers yield no matches', async () => {
+    mockedSearchGoogleBooks.mockResolvedValueOnce([])
+    mockedSearchOpenLibrary.mockResolvedValueOnce([])
+
+    const res = await POST(makeRequest('cs'))
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body).toEqual([])
   })
 
   it('falls back to Open Library when Google throws (503/429/missing key)', async () => {
@@ -200,5 +214,42 @@ describe('POST /api/books/search — pagination', () => {
     expect(res.status).toBe(400)
     expect(mockedSearchGoogleBooks).not.toHaveBeenCalled()
     expect(mockedSearchOpenLibrary).not.toHaveBeenCalled()
+  })
+
+  it('threads language to Google Books when a book-language filter is provided', async () => {
+    mockedSearchGoogleBooks.mockResolvedValueOnce([
+      { title: 'Dune', authors: ['Frank Herbert'], language: 'en' },
+    ])
+
+    const res = await POST(
+      makeRequestBody({ query: 'dune', language: 'en' }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith(
+      'dune',
+      expect.any(Number),
+      0,
+      'en',
+    )
+  })
+
+  it('threads language to Open Library on fallback when a book-language filter is provided', async () => {
+    mockedSearchGoogleBooks.mockResolvedValueOnce([])
+    mockedSearchOpenLibrary.mockResolvedValueOnce([
+      { title: 'Cem anos de soledad', authors: ['García Márquez'], language: 'es' },
+    ])
+
+    const res = await POST(
+      makeRequestBody({ query: 'garcia marquez', language: 'es' }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(mockedSearchOpenLibrary).toHaveBeenCalledWith(
+      'garcia marquez',
+      expect.any(Number),
+      1,
+      'es',
+    )
   })
 })

@@ -170,4 +170,20 @@ describe('Composer', () => {
     await user.keyboard('{Enter}')
     expect(onSubmit).toHaveBeenCalledTimes(1)
   })
+
+  test('composer participates in normal layout instead of using sticky positioning', () => {
+    const onSubmit = jest.fn()
+    const onStop = jest.fn()
+    const { container } = render(
+      <Harness
+        initialInput=""
+        onSubmit={onSubmit}
+        onStop={onStop}
+      />,
+    )
+
+    const form = container.querySelector('form')
+    expect(form).not.toBeNull()
+    expect(form?.className).not.toContain('sticky')
+  })
 })

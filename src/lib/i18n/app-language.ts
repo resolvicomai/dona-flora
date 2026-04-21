@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const SUPPORTED_APP_LANGUAGES = ['pt-BR', 'en', 'es', 'zh-CN'] as const
+export const APP_LANGUAGE_STORAGE_KEY = 'dona-flora:app-language'
 
 export const AppLanguageSchema = z.enum(SUPPORTED_APP_LANGUAGES)
 

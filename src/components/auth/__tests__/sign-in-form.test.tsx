@@ -9,6 +9,7 @@ import { AppLanguageProvider } from '@/components/app-shell/app-language-provide
 import { SignInForm } from '../sign-in-form'
 
 jest.mock('next/navigation', () => ({
+  usePathname: () => '/sign-in',
   useRouter: () => ({
     push: jest.fn(),
     refresh: jest.fn(),

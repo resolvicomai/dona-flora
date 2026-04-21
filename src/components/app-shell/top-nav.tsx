@@ -8,6 +8,7 @@ import { AccountMenu } from "@/components/account/account-menu"
 import { useAppLanguage } from "@/components/app-shell/app-language-provider"
 import { cn } from "@/lib/utils"
 
+import { AppLanguageSwitcher } from "./app-language-switcher"
 import { ThemeToggle } from "./theme-toggle"
 
 export function TopNav() {
@@ -66,6 +67,7 @@ export function TopNav() {
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <AddBookDialog />
             <ThemeToggle />
+            <AppLanguageSwitcher />
             <AccountMenu />
           </div>
         </div>

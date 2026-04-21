@@ -2,6 +2,10 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { Suspense } from 'react'
 import { listBooks } from '@/lib/books/library-service'
 import { listChats } from '@/lib/chats/list'
+import {
+  getSessionStorageContext,
+  requireVerifiedServerSession,
+} from '@/lib/auth/server'
 import { ChatShell } from '@/components/chat/chat-shell'
 import type { ChatBookMeta } from '@/components/chat/known-library-context'
 
@@ -22,8 +26,13 @@ export default async function ChatPage({
   searchParams: Promise<{ about?: string }>
 }) {
   noStore()
+  const session = await requireVerifiedServerSession()
+  const storageContext = getSessionStorageContext(session)
   const { about } = await searchParams
-  const [books, chats] = await Promise.all([listBooks(), listChats()])
+  const [books, chats] = await Promise.all([
+    listBooks(storageContext),
+    listChats(storageContext),
+  ])
 
   const knownBooks: ChatBookMeta[] = books
     .map((b) => ({

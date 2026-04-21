@@ -63,4 +63,37 @@ describe('user settings persistence', () => {
       closeDatabase(db)
     }
   })
+
+  it('preserves existing settings when a quick update changes only the app language', () => {
+    const db = openDatabase(path.join(tmpDir, 'app.sqlite'))
+    try {
+      ensureAppTables(db)
+
+      upsertUserSettingsRecord(db, 'user-1', {
+        tone: 'assertiva',
+        focus: 'memoria',
+        externalOpenness: 'somente-acervo',
+        responseStyle: 'concisa',
+        language: 'pt-BR',
+        additionalInstructions: 'Sempre use o acervo como ponto de partida.',
+      })
+
+      upsertUserSettingsRecord(db, 'user-1', {
+        language: 'en',
+      })
+
+      const settings = getUserSettingsRecord(db, 'user-1')
+
+      expect(settings.tone).toBe('assertiva')
+      expect(settings.focus).toBe('memoria')
+      expect(settings.externalOpenness).toBe('somente-acervo')
+      expect(settings.responseStyle).toBe('concisa')
+      expect(settings.language).toBe('en')
+      expect(settings.additionalInstructions).toBe(
+        'Sempre use o acervo como ponto de partida.',
+      )
+    } finally {
+      closeDatabase(db)
+    }
+  })
 })

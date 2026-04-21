@@ -41,7 +41,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     "system",
     THEME_PREFERENCES,
   )
-  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>("light")
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme())
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -52,8 +52,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const handleChange = (event: MediaQueryListEvent) => {
       setSystemTheme(event.matches ? "dark" : "light")
     }
-
-    setSystemTheme(mediaQuery.matches ? "dark" : "light")
 
     if (typeof mediaQuery.addEventListener === "function") {
       mediaQuery.addEventListener("change", handleChange)

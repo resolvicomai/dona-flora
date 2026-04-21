@@ -31,13 +31,13 @@ export function ViewToggle({ value, onChange, className }: ViewToggleProps) {
       }}
       aria-label="Modo de visualização"
       spacing={4}
-      className={cn('flex rounded-full border border-border bg-secondary p-1 shadow-mac-sm', className)}
+      className={cn('glass-pill flex rounded-full p-1', className)}
     >
       <ToggleGroupItem
         value="grid"
         aria-label="Visualizar em grade"
         className={cn(
-          'size-8 rounded-full border border-transparent bg-transparent text-muted-foreground transition-colors',
+          'size-9 rounded-full border border-transparent bg-transparent text-muted-foreground shadow-none transition-colors',
           'hover:text-foreground',
           'data-[pressed]:bg-primary data-[pressed]:text-primary-foreground data-[pressed]:shadow-mac-sm',
           'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
@@ -50,7 +50,7 @@ export function ViewToggle({ value, onChange, className }: ViewToggleProps) {
         value="list"
         aria-label="Visualizar em lista"
         className={cn(
-          'size-8 rounded-full border border-transparent bg-transparent text-muted-foreground transition-colors',
+          'size-9 rounded-full border border-transparent bg-transparent text-muted-foreground shadow-none transition-colors',
           'hover:text-foreground',
           'data-[pressed]:bg-primary data-[pressed]:text-primary-foreground data-[pressed]:shadow-mac-sm',
           'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',

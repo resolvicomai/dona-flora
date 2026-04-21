@@ -10,6 +10,12 @@ import {
 } from 'ai'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { z } from 'zod'
+import {
+  getSessionStorageContext,
+  requireVerifiedRequestSession,
+} from '@/lib/auth/server'
+import { getUserSettings } from '@/lib/auth/db'
+import { buildAISettingsDirective } from '@/lib/ai/settings'
 import { loadLibraryContext } from '@/lib/library/context'
 import { saveChat } from '@/lib/chats/store'
 import { buildSystemPrompt } from '@/lib/ai/system-prompt'
@@ -146,8 +152,10 @@ const ChatRequestSchema = z.object({
     .string()
     .min(1)
     .max(128)
-    // eslint-disable-next-line prettier/prettier
-    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/, 'chatId deve ser alfanumérico/hífen/underscore sem começar com traço'),
+    .regex(
+      /^[A-Za-z0-9][A-Za-z0-9_-]*$/,
+      'chatId deve ser alfanumérico/hífen/underscore sem começar com traço',
+    ),
   messages: z.array(InboundMessageSchema).min(1).max(MAX_MESSAGES),
   externalPreference: ExternalPreferenceSchema.nullish(),
 })
@@ -172,9 +180,20 @@ export async function POST(request: NextRequest) {
   const { chatId, messages, externalPreference } = parsed.data
 
   try {
-    const libraryContext = await loadLibraryContext()
+    const authResult = await requireVerifiedRequestSession(request)
+    if (!authResult.ok) {
+      return authResult.response
+    }
+    const session = authResult.session
+
+    const storageContext = getSessionStorageContext(session)
+    const [libraryContext, aiSettings] = await Promise.all([
+      loadLibraryContext(storageContext),
+      Promise.resolve(getUserSettings(session.user.id)),
+    ])
     const externalPreferenceDirective =
       buildExternalPreferenceDirective(externalPreference)
+    const aiSettingsDirective = buildAISettingsDirective(aiSettings)
 
     // AI SDK v6 contract (verified against installed @ai-sdk/provider-utils v6
     // types + @openrouter/ai-sdk-provider 2.x source — AI-SPEC §3 pitfall #4):
@@ -197,12 +216,22 @@ export async function POST(request: NextRequest) {
       role: 'system' as const,
       content: buildSystemPrompt(
         libraryContext,
-        externalPreferenceDirective,
+        {
+          aiSettingsDirective,
+          externalPreferenceDirective,
+        },
       ),
       providerOptions: {
         anthropic: { cacheControl: { type: 'ephemeral' } },
         openrouter: { cacheControl: { type: 'ephemeral' } },
       },
+    }
+
+    if (!process.env.OPENROUTER_API_KEY) {
+      return NextResponse.json(
+        { error: 'A Dona Flora ainda não está configurada para responder.' },
+        { status: 503 },
+      )
     }
 
     const openrouter = createOpenRouter({
@@ -236,6 +265,7 @@ export async function POST(request: NextRequest) {
           await saveChat({
             chatId,
             messages: finalMessages as unknown as LibrarianMessage[],
+            storageContext,
           })
         } catch (err) {
           console.error('[API] onFinish saveChat error:', err)

@@ -48,18 +48,24 @@ export interface ChatMainProps {
  * only `[0-9A-Fa-f-]`, which passes the Plan 03 Zod regex
  * `^[A-Za-z0-9][A-Za-z0-9_-]*$`.
  */
+function fallbackChatId() {
+  return `chat-${Math.random().toString(36).slice(2, 10)}`
+}
+
 function useStableChatId(chatId?: string): string {
-  const ref = useRef<string | null>(null)
-  if (ref.current === null) {
+  const [stableChatId] = useState(() => {
     if (chatId) {
-      ref.current = chatId
-    } else if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-      ref.current = crypto.randomUUID()
-    } else {
-      ref.current = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      return chatId
     }
-  }
-  return ref.current
+
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+      return crypto.randomUUID()
+    }
+
+    return fallbackChatId()
+  })
+
+  return stableChatId
 }
 
 export function ChatMain({
@@ -156,15 +162,15 @@ export function ChatMain({
   const title = messages.length === 0 ? 'Nova conversa' : 'Conversa'
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-background">
-      <header className="surface-blur sticky top-12 z-10 flex h-10 items-center gap-2 border-b border-border/80 px-4 md:px-6">
+    <div className="panel-solid flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[2rem]">
+      <header className="surface-blur z-10 flex min-h-14 shrink-0 items-center gap-2 border-b border-hairline px-4 md:px-6">
         <ChatSidebarDrawer
           trigger={
             <Button
-              variant="ghost"
+              variant="secondary"
               size="icon"
               aria-label="Abrir histórico de conversas"
-              className="h-8 w-8 min-h-[44px] min-w-[44px] rounded-md border border-border bg-background/80 text-foreground shadow-mac-sm backdrop-blur-xl hover:!bg-accent lg:hidden"
+              className="h-10 w-10 min-h-[44px] min-w-[44px] xl:hidden"
             >
               <Menu className="h-4 w-4" aria-hidden="true" />
             </Button>
@@ -172,9 +178,12 @@ export function ChatMain({
           chats={chats}
           activeChatId={effectiveChatId}
         />
-        <h2 className="truncate text-sm font-medium text-foreground">
-          {title}
-        </h2>
+        <div className="min-w-0">
+          <p className="eyebrow">Dona Flora</p>
+          <h2 className="truncate text-sm font-medium tracking-[-0.02em] text-foreground">
+            {title}
+          </h2>
+        </div>
       </header>
 
       {/* One-shot aria-live announcement when a new turn enters 'submitted'. */}
@@ -198,7 +207,7 @@ export function ChatMain({
         bookCount={bookCount}
       />
       {shouldShowExternalPreference ? (
-        <div className="px-3 md:px-6">
+        <div className="px-4 md:px-6">
           <ExternalPreferenceToggle
             value={externalPreference}
             onChange={setExternalPreference}

@@ -36,7 +36,8 @@ export function generateSlug(title: string): string {
  */
 export async function resolveSlugCollision(
   baseSlug: string,
-  existing?: Set<string> | string[]
+  existing?: Set<string> | string[],
+  directory?: string,
 ): Promise<string> {
   if (existing !== undefined) {
     const taken = existing instanceof Set ? existing : new Set(existing)
@@ -49,7 +50,7 @@ export async function resolveSlugCollision(
     return slug
   }
 
-  const dir = getLibraryDir()
+  const dir = directory ?? getLibraryDir()
   let slug = baseSlug
   let counter = 1
   while (true) {

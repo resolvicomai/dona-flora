@@ -46,10 +46,10 @@ export function FilterChip({
         aria-label={ariaLabel}
         title={ariaLabel}
         className={cn(
-          'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-medium tabular-nums transition-colors duration-[var(--motion-fast)] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'surface-transition inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-medium tabular-nums shadow-mac-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           isActive
-            ? 'border-transparent bg-primary text-primary-foreground shadow-mac-sm'
-            : 'border-border bg-background text-foreground hover:border-border/80 hover:bg-accent',
+            ? 'border-transparent bg-primary text-primary-foreground'
+            : 'border-hairline bg-surface-elevated text-foreground hover:bg-surface-strong',
           className,
         )}
       >
@@ -59,7 +59,7 @@ export function FilterChip({
       <PopoverContent
         align="start"
         sideOffset={10}
-        className={cn('w-64 p-3', contentClassName)}
+        className={cn('w-72', contentClassName)}
       >
         {children}
       </PopoverContent>

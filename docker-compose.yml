@@ -6,13 +6,15 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - LIBRARY_DIR=/data/books
+      - DATA_DIR=/data
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - BETTER_AUTH_URL=http://localhost:3000
     volumes:
-      - ./data/books:/data/books:ro
+      - ./data:/data
     user: "0:0"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/sign-in').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
       interval: 30s
       timeout: 3s
       start_period: 10s

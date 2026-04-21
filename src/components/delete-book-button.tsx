@@ -40,7 +40,7 @@ export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger render={
-        <Button variant="ghost" className="text-red-600 hover:text-red-500 hover:bg-red-950/20">
+        <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
           <Trash2 className="mr-2 h-4 w-4" />
           Excluir livro
         </Button>
@@ -58,7 +58,7 @@ export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
           <AlertDialogAction
             onClick={handleDelete}
             disabled={deleting}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            variant="destructive"
           >
             {deleting ? 'Excluindo...' : 'Excluir livro'}
           </AlertDialogAction>

@@ -11,7 +11,7 @@ interface StarRatingProps {
 
 export function StarRating({ value, onChange, readonly }: StarRatingProps) {
   return (
-    <div className="flex gap-1" role="group" aria-label="Avaliacao">
+    <div className="glass-pill inline-flex gap-1 rounded-full p-1.5" role="group" aria-label="Avaliacao">
       {[1, 2, 3, 4, 5].map((star) => (
         <button
           key={star}
@@ -20,16 +20,16 @@ export function StarRating({ value, onChange, readonly }: StarRatingProps) {
           onClick={() => onChange?.(star)}
           aria-label={`Nota ${star} de 5`}
           className={cn(
-            'min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors',
-            readonly ? 'cursor-default' : 'cursor-pointer hover:text-yellow-400'
+            'surface-transition flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full',
+            readonly ? 'cursor-default' : 'cursor-pointer hover:bg-foreground/[0.04]'
           )}
         >
           <Star
             className={cn(
               'h-5 w-5',
               star <= value
-                ? 'fill-yellow-400 text-yellow-400'
-                : 'text-zinc-600'
+                ? 'fill-foreground text-foreground'
+                : 'text-foreground/22'
             )}
           />
         </button>

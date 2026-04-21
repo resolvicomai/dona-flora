@@ -50,19 +50,22 @@ jest.mock('@/lib/library/context', () => ({
 }))
 
 jest.mock('@/lib/auth/server', () => ({
-  getRequestSession: jest.fn(async () => ({
+  requireVerifiedRequestSession: jest.fn(async () => ({
+    ok: true,
     session: {
-      expiresAt: new Date('2026-04-20T00:00:00Z'),
-      id: 'session-1',
-      token: 'token-1',
-      userId: 'user-1',
-    },
-    user: {
-      email: 'owner@example.com',
-      emailVerified: true,
-      id: 'user-1',
-      name: 'Owner',
-      role: 'owner',
+      session: {
+        expiresAt: new Date('2026-04-20T00:00:00Z'),
+        id: 'session-1',
+        token: 'token-1',
+        userId: 'user-1',
+      },
+      user: {
+        email: 'owner@example.com',
+        emailVerified: true,
+        id: 'user-1',
+        name: 'Owner',
+        role: 'owner',
+      },
     },
   })),
   getSessionStorageContext: jest.fn(() => ({

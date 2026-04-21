@@ -17,19 +17,19 @@ interface SearchInputProps {
  * NO internal debounce — Plan 02's `search-params.ts` applies `throttleMs: 150`
  * on the nuqs `q` parser, so every keystroke can flow straight up.
  *
- * Default placeholder (UI-SPEC Copywriting Contract): `Buscar por título, autor ou notas...`
+ * Default placeholder (UI-SPEC Copywriting Contract): `Buscar por título, autor ou notas…`
  * Width recipe (PATTERNS §search-input.tsx): `md:w-72` — mobile expands via parent `flex-1`.
  */
 export function SearchInput({
   value,
   onChange,
-  placeholder = 'Buscar por título, autor ou notas...',
+  placeholder = 'Buscar por título, autor ou notas…',
   className,
 }: SearchInputProps) {
   return (
-    <div className={cn('relative md:w-72', className)}>
+    <div className={cn('relative w-full', className)}>
       <Search
-        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
         aria-hidden="true"
       />
       <Input
@@ -37,7 +37,7 @@ export function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-label="Buscar na biblioteca"
-        className="h-8 rounded-md border-border bg-card/90 pl-9 shadow-mac-sm placeholder:text-muted-foreground"
+        className="h-11 rounded-full pl-11 pr-4"
       />
     </div>
   )

@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event"
 
 import { THEME_STORAGE_KEY } from "@/lib/theme"
 
+import { AppLanguageProvider } from "../app-language-provider"
 import { ThemeProvider, useTheme } from "../theme-provider"
 import { ThemeToggle } from "../theme-toggle"
 
@@ -37,10 +38,12 @@ function ThemeSnapshot() {
 
 function ThemeHarness() {
   return (
-    <ThemeProvider>
-      <ThemeToggle />
-      <ThemeSnapshot />
-    </ThemeProvider>
+    <AppLanguageProvider locale="pt-BR">
+      <ThemeProvider>
+        <ThemeToggle />
+        <ThemeSnapshot />
+      </ThemeProvider>
+    </AppLanguageProvider>
   )
 }
 

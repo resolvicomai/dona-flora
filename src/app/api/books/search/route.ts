@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireVerifiedRequestSession } from '@/lib/auth/server'
 import { searchGoogleBooks } from '@/lib/api/google-books'
 import { searchOpenLibrary } from '@/lib/api/open-library'
 import type { BookSearchResult } from '@/lib/api/google-books'
@@ -8,11 +9,17 @@ export const dynamic = 'force-dynamic'
 
 const SearchSchema = z.object({
   query: z.string().min(2),
+  language: z.string().trim().optional().default('all'),
   startIndex: z.coerce.number().int().nonnegative().optional().default(0),
   page: z.coerce.number().int().min(1).optional().default(1),
 })
 
 export async function POST(request: NextRequest) {
+  const authResult = await requireVerifiedRequestSession(request)
+  if (!authResult.ok) {
+    return authResult.response
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -33,14 +40,23 @@ export async function POST(request: NextRequest) {
   }
 
   const limit = 20
+  const requestedLanguage =
+    result.data.language === 'all' ? undefined : result.data.language
   let results: BookSearchResult[] = []
   let googleError: unknown = null
   try {
-    results = await searchGoogleBooks(
-      result.data.query,
-      limit,
-      result.data.startIndex
-    )
+    results = requestedLanguage
+      ? await searchGoogleBooks(
+          result.data.query,
+          limit,
+          result.data.startIndex,
+          requestedLanguage,
+        )
+      : await searchGoogleBooks(
+          result.data.query,
+          limit,
+          result.data.startIndex,
+        )
   } catch (err) {
     googleError = err
     console.warn(
@@ -51,11 +67,18 @@ export async function POST(request: NextRequest) {
 
   if (results.length === 0) {
     try {
-      results = await searchOpenLibrary(
-        result.data.query,
-        limit,
-        result.data.page
-      )
+      results = requestedLanguage
+        ? await searchOpenLibrary(
+            result.data.query,
+            limit,
+            result.data.page,
+            requestedLanguage,
+          )
+        : await searchOpenLibrary(
+            result.data.query,
+            limit,
+            result.data.page,
+          )
     } catch (err) {
       console.error(
         '[API] Both providers failed. Google error:',

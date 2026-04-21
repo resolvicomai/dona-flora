@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
+import { AppLanguageSwitcher } from '@/components/app-shell/app-language-switcher'
+import { ThemeToggle } from '@/components/app-shell/theme-toggle'
 
 interface AuthShellProps {
   children: ReactNode
@@ -36,31 +38,46 @@ export function AuthShell({
             : 'signIn'
 
   const shellCopy = copy.shell
-  const routeCopy = locale === 'pt-BR' ? null : authShellCopy[locale][route]
+  const routeCopy = authShellCopy[locale][route]
 
   return (
-    <div className="page-frame flex flex-1 items-center py-8 md:py-12">
-      <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(24rem,32rem)]">
-        <section className="panel-quiet hidden rounded-[2.2rem] p-8 lg:flex lg:min-h-[36rem] lg:flex-col lg:justify-between">
-          <div className="space-y-4">
-            <Link href="/" className="inline-flex items-center gap-3">
-              <span className="text-xl font-semibold tracking-[-0.05em] text-foreground">
-                Dona Flora
-              </span>
-              <span className="eyebrow">{shellCopy.brandSubtitle}</span>
-            </Link>
-            <div className="max-w-xl space-y-4">
-              <p className="eyebrow">{routeCopy?.eyebrow ?? eyebrow}</p>
+    <div className="page-frame flex flex-1 flex-col gap-4 py-6 md:gap-6 md:py-10">
+      <header className="mx-auto flex w-full justify-center">
+        <div className="surface-blur inline-flex max-w-full items-center justify-center gap-3 rounded-[1.6rem] border border-glass-border px-4 py-3 shadow-mac-md sm:px-5">
+          <Link href="/" className="inline-flex min-w-0 items-center gap-3">
+            <span className="truncate text-lg font-semibold tracking-[-0.05em] text-foreground sm:text-xl">
+              Dona Flora
+            </span>
+            <span className="eyebrow hidden sm:block">{shellCopy.brandSubtitle}</span>
+          </Link>
+
+          <span
+            aria-hidden="true"
+            className="hidden h-6 w-px bg-hairline sm:block"
+          />
+
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <AppLanguageSwitcher mode="local" />
+          </div>
+        </div>
+      </header>
+
+      <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(24rem,32rem)] lg:items-start">
+        <section className="panel-quiet hidden rounded-[2.2rem] p-8 lg:flex lg:self-start lg:flex-col lg:gap-10">
+          <div className="max-w-xl space-y-5">
+            <div className="space-y-4">
+              <p className="eyebrow">{shellCopy.eyebrow}</p>
               <h1 className="text-[clamp(3.25rem,6vw,5.8rem)] font-semibold leading-[0.92] tracking-[-0.1em] text-foreground">
-                {routeCopy?.title ?? title}
+                {shellCopy.headline}
               </h1>
-              <p className="max-w-lg text-base leading-8 text-muted-foreground">
-                {routeCopy?.description ?? description}
+              <p className="max-w-lg text-[0.98rem] leading-8 text-muted-foreground">
+                {shellCopy.intro}
               </p>
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[1.5rem] border border-hairline bg-surface px-4 py-4">
               <p className="eyebrow">{shellCopy.libraryLabel}</p>
               <p className="mt-2 text-sm text-foreground">{shellCopy.libraryBody}</p>
@@ -69,7 +86,7 @@ export function AuthShell({
               <p className="eyebrow">{shellCopy.aiLabel}</p>
               <p className="mt-2 text-sm text-foreground">{shellCopy.aiBody}</p>
             </div>
-            <div className="rounded-[1.5rem] border border-hairline bg-surface px-4 py-4">
+            <div className="rounded-[1.5rem] border border-hairline bg-surface px-4 py-4 sm:col-span-2">
               <p className="eyebrow">{shellCopy.accountLabel}</p>
               <p className="mt-2 text-sm text-foreground">{shellCopy.accountBody}</p>
             </div>
@@ -104,7 +121,7 @@ const authShellCopy = {
   en: {
     signIn: {
       description:
-        'Sign in to access your collection, your conversations, and Dona Flora’s saved settings.',
+        'Sign in to access your collection, your conversations, and Dona Flora’s saved preferences.',
       eyebrow: 'Sign in',
       footer:
         'First time here? Use the open sign-up flow and confirm your email to unlock the library.',
@@ -211,7 +228,7 @@ const authShellCopy = {
   'pt-BR': {
     signIn: {
       description:
-        'Entre para acessar seu acervo, suas conversas e as settings persistidas da Dona Flora.',
+        'Entre para acessar seu acervo, suas conversas e as preferencias salvas da Dona Flora.',
       eyebrow: 'Entrar',
       footer:
         'Primeiro acesso? Use o cadastro aberto e confirme seu email para liberar a biblioteca.',

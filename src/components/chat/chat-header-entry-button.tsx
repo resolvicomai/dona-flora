@@ -28,7 +28,7 @@ export function ChatHeaderEntryButton() {
       size="icon"
       aria-label="Conversar com a Dona Flora"
       render={<Link href="/chat" />}
-      className="h-10 w-10 min-h-[44px] min-w-[44px] rounded-md border border-border bg-background/80 text-foreground shadow-mac-sm backdrop-blur-xl hover:!bg-accent"
+      className="h-10 w-10 min-h-[44px] min-w-[44px]"
     >
       <Sparkles className="h-4 w-4" aria-hidden="true" />
     </Button>

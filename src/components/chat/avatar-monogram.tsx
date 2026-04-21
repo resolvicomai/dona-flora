@@ -21,11 +21,11 @@ export function AvatarMonogram({ className }: AvatarMonogramProps) {
       role="img"
       aria-label="Dona Flora"
       className={cn(
-        'flex items-center justify-center rounded-full bg-zinc-800 h-8 w-8 flex-shrink-0',
+        'glass-pill flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-glass-border bg-zinc-800/70 text-white',
         className,
       )}
     >
-      <span className="font-semibold text-zinc-100 text-sm" aria-hidden="true">
+      <span className="text-sm font-semibold tracking-[-0.03em]" aria-hidden="true">
         DF
       </span>
     </div>

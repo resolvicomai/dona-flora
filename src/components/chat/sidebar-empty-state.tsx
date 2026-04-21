@@ -9,12 +9,14 @@ import { MessagesSquare } from 'lucide-react'
  */
 export function SidebarEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-12 px-4 text-center">
-      <MessagesSquare className="h-16 w-16 text-zinc-700" aria-hidden="true" />
-      <h2 className="text-xl font-semibold text-zinc-100">
+    <div className="flex flex-col items-center justify-center gap-4 px-4 py-12 text-center">
+      <div className="glass-pill flex h-16 w-16 items-center justify-center rounded-full border border-glass-border text-muted-foreground">
+        <MessagesSquare className="h-7 w-7" aria-hidden="true" />
+      </div>
+      <h2 className="text-xl font-semibold tracking-[-0.04em] text-foreground">
         Nenhuma conversa ainda.
       </h2>
-      <p className="max-w-sm text-sm text-zinc-400">
+      <p className="max-w-sm text-sm leading-7 text-muted-foreground">
         Suas conversas com a Dona Flora aparecem aqui.
       </p>
     </div>

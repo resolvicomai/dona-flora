@@ -1,5 +1,6 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { auth, ensureAuthReady } from '@/lib/auth/auth'
 import type { AuthenticatedAppSession, UserProfile, UserRole } from '@/lib/auth/types'
@@ -77,14 +78,23 @@ export async function requireVerifiedServerSession() {
 export async function requireVerifiedRequestSession(request: Request | NextRequest) {
   const session = await getRequestSession(request)
   if (!session) {
-    return null
+    return {
+      ok: false as const,
+      response: NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 }),
+    }
   }
 
   if (!session.user.emailVerified) {
-    return null
+    return {
+      ok: false as const,
+      response: NextResponse.json({ error: 'Email nao verificado.' }, { status: 403 }),
+    }
   }
 
-  return session
+  return {
+    ok: true as const,
+    session,
+  }
 }
 
 export function getSessionStorageContext(session: AuthenticatedAppSession) {

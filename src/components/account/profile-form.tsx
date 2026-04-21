@@ -2,15 +2,121 @@
 
 import { startTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import type { UserProfile } from '@/lib/auth/types'
 import { authClient } from '@/lib/auth/client'
 
+const PROFILE_COPY = {
+  'pt-BR': {
+    account: 'Conta',
+    awaitingVerification: 'aguardando verificacao',
+    changePassword: 'Alterar senha',
+    currentPassword: 'Senha atual',
+    displayName: 'Nome de exibicao',
+    email: 'Email',
+    owner: 'Owner',
+    passwordMismatch: 'As senhas novas nao conferem.',
+    passwordSaveError: 'Nao foi possivel alterar a senha.',
+    passwordSaved: 'Senha atualizada com sucesso.',
+    pendingSave: 'Salvando…',
+    pendingVerification: 'email verificado',
+    profile: 'Perfil',
+    profileSaveError: 'Nao foi possivel atualizar o perfil.',
+    profileSaved: 'Perfil atualizado.',
+    saveProfile: 'Salvar perfil',
+    savingPassword: 'Atualizando…',
+    security: 'Seguranca',
+    title: 'Seu perfil',
+    updatePassword: 'Atualizar senha',
+    user: 'User',
+    newPassword: 'Nova senha',
+    confirmPassword: 'Confirmar nova senha',
+  },
+  en: {
+    account: 'Account',
+    awaitingVerification: 'verification pending',
+    changePassword: 'Change password',
+    currentPassword: 'Current password',
+    displayName: 'Display name',
+    email: 'Email',
+    owner: 'Owner',
+    passwordMismatch: 'The new passwords do not match.',
+    passwordSaveError: 'Could not change the password.',
+    passwordSaved: 'Password updated successfully.',
+    pendingSave: 'Saving…',
+    pendingVerification: 'email verified',
+    profile: 'Profile',
+    profileSaveError: 'Could not update the profile.',
+    profileSaved: 'Profile updated.',
+    saveProfile: 'Save profile',
+    savingPassword: 'Updating…',
+    security: 'Security',
+    title: 'Your profile',
+    updatePassword: 'Update password',
+    user: 'User',
+    newPassword: 'New password',
+    confirmPassword: 'Confirm new password',
+  },
+  es: {
+    account: 'Cuenta',
+    awaitingVerification: 'verificación pendiente',
+    changePassword: 'Cambiar contraseña',
+    currentPassword: 'Contraseña actual',
+    displayName: 'Nombre para mostrar',
+    email: 'Correo',
+    owner: 'Owner',
+    passwordMismatch: 'Las nuevas contraseñas no coinciden.',
+    passwordSaveError: 'No fue posible cambiar la contraseña.',
+    passwordSaved: 'Contraseña actualizada con éxito.',
+    pendingSave: 'Guardando…',
+    pendingVerification: 'correo verificado',
+    profile: 'Perfil',
+    profileSaveError: 'No fue posible actualizar el perfil.',
+    profileSaved: 'Perfil actualizado.',
+    saveProfile: 'Guardar perfil',
+    savingPassword: 'Actualizando…',
+    security: 'Seguridad',
+    title: 'Tu perfil',
+    updatePassword: 'Actualizar contraseña',
+    user: 'User',
+    newPassword: 'Nueva contraseña',
+    confirmPassword: 'Confirmar nueva contraseña',
+  },
+  'zh-CN': {
+    account: '账户',
+    awaitingVerification: '等待验证',
+    changePassword: '修改密码',
+    currentPassword: '当前密码',
+    displayName: '显示名称',
+    email: '邮箱',
+    owner: 'Owner',
+    passwordMismatch: '两次输入的新密码不一致。',
+    passwordSaveError: '无法修改密码。',
+    passwordSaved: '密码已成功更新。',
+    pendingSave: '正在保存…',
+    pendingVerification: '邮箱已验证',
+    profile: '个人资料',
+    profileSaveError: '无法更新个人资料。',
+    profileSaved: '个人资料已更新。',
+    saveProfile: '保存资料',
+    savingPassword: '正在更新…',
+    security: '安全',
+    title: '你的资料',
+    updatePassword: '更新密码',
+    user: 'User',
+    newPassword: '新密码',
+    confirmPassword: '确认新密码',
+  },
+} as const
+
 export function ProfileForm({ profile }: { profile: UserProfile }) {
   const router = useRouter()
+  const { locale } = useAppLanguage()
   const { refetch } = authClient.useSession()
+  const copy = PROFILE_COPY[locale]
   const [displayName, setDisplayName] = useState(profile.displayName)
   const [profileMessage, setProfileMessage] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
@@ -45,11 +151,11 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
 
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as { error?: string } | null
-      setProfileError(payload?.error ?? 'Nao foi possivel atualizar o perfil.')
+      setProfileError(payload?.error ?? copy.profileSaveError)
       return
     }
 
-    setProfileMessage('Perfil atualizado.')
+    setProfileMessage(copy.profileSaved)
     await refetch()
     startTransition(() => router.refresh())
   }
@@ -60,7 +166,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
     setPasswordMessage(null)
 
     if (newPassword !== confirmPassword) {
-      setPasswordError('As senhas novas nao conferem.')
+      setPasswordError(copy.passwordMismatch)
       return
     }
 
@@ -73,21 +179,21 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
     setIsChangingPassword(false)
 
     if (result.error) {
-      setPasswordError(result.error.message ?? 'Nao foi possivel alterar a senha.')
+      setPasswordError(result.error.message ?? copy.passwordSaveError)
       return
     }
 
     setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
-    setPasswordMessage('Senha atualizada com sucesso.')
+    setPasswordMessage(copy.passwordSaved)
   }
 
   return (
     <div className="page-frame flex flex-1 flex-col gap-6 pt-7 md:pt-9">
       <section className="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <div className="panel-quiet rounded-[2rem] p-6">
-          <p className="eyebrow">Conta</p>
+          <p className="eyebrow">{copy.account}</p>
           <div className="mt-5 flex h-20 w-20 items-center justify-center rounded-full border border-glass-border bg-foreground/[0.05] text-2xl font-semibold tracking-[-0.06em] text-foreground">
             {initials}
           </div>
@@ -96,17 +202,17 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
           </p>
           <p className="mt-2 text-sm text-muted-foreground">{profile.email}</p>
           <p className="mt-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            {profile.role === 'owner' ? 'Owner' : 'User'} •{' '}
-            {profile.emailVerified ? 'email verificado' : 'aguardando verificacao'}
+            {profile.role === 'owner' ? copy.owner : copy.user} •{' '}
+            {profile.emailVerified ? copy.pendingVerification : copy.awaitingVerification}
           </p>
         </div>
 
         <div className="grid gap-5">
           <form className="panel-solid rounded-[2rem] p-6" onSubmit={handleProfileSave}>
             <div className="space-y-2">
-              <p className="eyebrow">Perfil</p>
+              <p className="eyebrow">{copy.profile}</p>
               <h1 className="text-[clamp(2rem,4vw,3rem)] font-semibold leading-[0.95] tracking-[-0.08em] text-foreground">
-                Seu perfil
+                {copy.title}
               </h1>
             </div>
 
@@ -123,7 +229,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
             ) : null}
 
             <label className="mt-6 flex flex-col gap-2">
-              <span className="eyebrow">Nome de exibicao</span>
+              <span className="eyebrow">{copy.displayName}</span>
               <Input
                 onChange={(event) => setDisplayName(event.target.value)}
                 required
@@ -132,20 +238,20 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
             </label>
 
             <label className="mt-4 flex flex-col gap-2">
-              <span className="eyebrow">Email</span>
+              <span className="eyebrow">{copy.email}</span>
               <Input disabled readOnly value={profile.email} />
             </label>
 
             <Button className="mt-6" disabled={isSavingProfile} type="submit">
-              {isSavingProfile ? 'Salvando…' : 'Salvar perfil'}
+              {isSavingProfile ? copy.pendingSave : copy.saveProfile}
             </Button>
           </form>
 
           <form className="panel-solid rounded-[2rem] p-6" onSubmit={handlePasswordChange}>
             <div className="space-y-2">
-              <p className="eyebrow">Seguranca</p>
+              <p className="eyebrow">{copy.security}</p>
               <h2 className="text-2xl font-semibold tracking-[-0.06em] text-foreground">
-                Alterar senha
+                {copy.changePassword}
               </h2>
             </div>
 
@@ -163,7 +269,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-2 sm:col-span-2">
-                <span className="eyebrow">Senha atual</span>
+                <span className="eyebrow">{copy.currentPassword}</span>
                 <PasswordInput
                   autoComplete="current-password"
                   onChange={(event) => setCurrentPassword(event.target.value)}
@@ -172,7 +278,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                 />
               </label>
               <label className="flex flex-col gap-2">
-                <span className="eyebrow">Nova senha</span>
+                <span className="eyebrow">{copy.newPassword}</span>
                 <PasswordInput
                   autoComplete="new-password"
                   minLength={8}
@@ -182,7 +288,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                 />
               </label>
               <label className="flex flex-col gap-2">
-                <span className="eyebrow">Confirmar nova senha</span>
+                <span className="eyebrow">{copy.confirmPassword}</span>
                 <PasswordInput
                   autoComplete="new-password"
                   minLength={8}
@@ -194,7 +300,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
             </div>
 
             <Button className="mt-6" disabled={isChangingPassword} type="submit">
-              {isChangingPassword ? 'Atualizando…' : 'Atualizar senha'}
+              {isChangingPassword ? copy.savingPassword : copy.updatePassword}
             </Button>
           </form>
         </div>

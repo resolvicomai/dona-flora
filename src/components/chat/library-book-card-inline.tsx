@@ -46,19 +46,18 @@ export function LibraryBookCardInline({
       href={`/books/${slug}`}
       aria-label={`Abrir ${book.title} de ${book.author} — status ${book.status}`}
       className={cn(
-        'group flex min-h-[44px] items-center gap-3 rounded-md border border-border bg-background p-3 no-underline shadow-mac-sm surface-transition',
-        'hover:border-border/80 hover:shadow-mac-md focus-visible:outline-none focus-visible:ring-2',
+        'group surface-transition my-1 flex min-h-[44px] items-center gap-3 rounded-[1.35rem] border border-hairline bg-surface px-3.5 py-3 no-underline shadow-mac-sm',
+        'hover:bg-surface-elevated hover:shadow-mac-md focus-visible:outline-none focus-visible:ring-2',
         'focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-        'my-1',
         className,
       )}
     >
       <BookCover src={book.cover} alt={book.title} size="sm" />
       <div className="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
-        <p className="line-clamp-2 break-words text-sm font-medium text-foreground">
+        <p className="line-clamp-2 break-words text-sm font-medium tracking-[-0.02em] text-foreground">
           {book.title}
         </p>
-        <p className="line-clamp-1 break-words text-xs text-muted-foreground">
+        <p className="line-clamp-1 break-words text-sm text-muted-foreground">
           {book.author}
         </p>
         <div>

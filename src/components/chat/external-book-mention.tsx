@@ -36,17 +36,18 @@ export function ExternalBookMention({
       aria-label={`Livro fora do acervo: ${title} de ${author}`}
       title={reason}
       className={cn(
-        'relative flex w-full max-w-[75ch] min-h-14 flex-col gap-0.5 rounded-md border border-dashed border-border/60 bg-transparent px-3 py-2 pr-20 shadow-none',
+        'relative flex w-full max-w-[75ch] min-h-16 flex-col gap-1 rounded-[1.35rem] rounded-md-compat border border-dashed border-hairline bg-transparent px-3.5 py-3 pr-24 shadow-none',
         className,
       )}
     >
-      <span className="absolute top-2 right-3 inline-flex items-center rounded-full border border-warning/20 bg-warning/10 px-2 py-0.5 text-[10px] font-medium leading-none text-warning">
+      <span className="absolute top-3 right-3 inline-flex items-center rounded-full border border-hairline bg-surface px-2.5 py-1 text-[10px] font-medium leading-none tracking-[0.08em] text-muted-foreground uppercase">
         Fora do acervo
       </span>
-      <span className="line-clamp-1 text-sm font-medium text-foreground">
+      <span className="sr-only">externo</span>
+      <span className="line-clamp-1 text-sm font-medium tracking-[-0.02em] text-foreground">
         {title} — {author}
       </span>
-      <span className="text-xs text-muted-foreground line-clamp-1">
+      <span className="line-clamp-2 text-sm leading-6 text-muted-foreground">
         {reason}
       </span>
     </div>

@@ -134,7 +134,17 @@ export function upsertUserSettingsRecord(
   input: AISettingsInput,
 ): AISettings {
   ensureAppTables(db)
-  const settings = normalizeAISettings(input)
+  const currentSettings = getUserSettingsRecord(db, userId)
+  const settings = normalizeAISettings({
+    tone: input.tone ?? currentSettings.tone,
+    focus: input.focus ?? currentSettings.focus,
+    externalOpenness:
+      input.externalOpenness ?? currentSettings.externalOpenness,
+    responseStyle: input.responseStyle ?? currentSettings.responseStyle,
+    language: input.language ?? currentSettings.language,
+    additionalInstructions:
+      input.additionalInstructions ?? currentSettings.additionalInstructions,
+  })
   db.prepare(
     `
       INSERT INTO user_settings (

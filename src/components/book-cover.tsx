@@ -4,20 +4,22 @@ import { cn } from '@/lib/utils'
 interface BookCoverProps {
   src?: string
   alt: string
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'card'
   className?: string
 }
 
 const SIZES = {
-  sm: { width: 48, height: 72 },    // home page list item
-  md: { width: 128, height: 192 },  // mobile detail
-  lg: { width: 192, height: 288 },  // desktop detail
+  sm: { width: 56, height: 84 },
+  md: { width: 128, height: 192 },
+  lg: { width: 192, height: 288 },
+  card: { width: 168, height: 252 },
 }
 
-const INITIAL_SIZE: Record<'sm' | 'md' | 'lg', string> = {
+const INITIAL_SIZE: Record<'sm' | 'md' | 'lg' | 'card', string> = {
   sm: 'text-xl',
   md: 'text-2xl',
   lg: 'text-4xl',
+  card: 'text-4xl',
 }
 
 /**
@@ -33,7 +35,7 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-lg border border-border/60 bg-gradient-to-br from-secondary via-background to-muted shadow-mac-sm',
+          'flex items-center justify-center rounded-[1.35rem] border border-hairline bg-gradient-to-br from-surface via-surface-elevated to-surface-strong shadow-mac-sm',
           className,
         )}
         style={{ width, height }}
@@ -53,7 +55,7 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
       alt={`${alt} - capa`}
       width={width}
       height={height}
-      className={cn('rounded-lg object-cover shadow-mac-sm', className)}
+      className={cn('rounded-[1.35rem] border border-white/30 object-cover shadow-mac-sm', className)}
     />
   )
 }

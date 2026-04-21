@@ -22,7 +22,7 @@ export function FilterResetButton({
       onClick={onClick}
       aria-label="Limpar todos os filtros"
       className={cn(
-        'h-8 shrink-0 rounded-full border-border bg-background px-3 text-sm text-muted-foreground shadow-mac-sm hover:bg-accent hover:text-foreground',
+        'h-10 shrink-0 px-4 text-sm text-muted-foreground hover:text-foreground',
         className,
       )}
     >

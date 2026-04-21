@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 import matter from 'gray-matter'
+import type { StorageContext } from '@/lib/storage/context'
 import { SAFE_MATTER_OPTIONS } from '@/lib/books/library-service'
 import { ChatFrontmatterSchema, type ChatSummary } from './schema'
 import { getChatsDir } from './store'
@@ -31,8 +32,10 @@ const MAX_CONTENT_CHARS = 4000
  *
  * Uses `SAFE_MATTER_OPTIONS` (CVE-2025-65108 mitigation) on every parse.
  */
-export async function listChats(): Promise<ChatListEntry[]> {
-  const dir = getChatsDir()
+export async function listChats(
+  storageContext?: StorageContext,
+): Promise<ChatListEntry[]> {
+  const dir = getChatsDir(storageContext)
   let files: string[]
   try {
     files = await fs.readdir(dir)

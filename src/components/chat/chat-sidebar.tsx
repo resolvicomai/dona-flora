@@ -75,9 +75,9 @@ export function SidebarBody({ chats, activeChatId }: Props) {
   const filtered = useMemo(() => filterChats(chats, query), [chats, query])
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-3 p-3">
       {chats.length > 0 && (
-        <div className="relative px-3 pt-3">
+        <div className="relative">
           <Search
             className="pointer-events-none absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
@@ -88,7 +88,7 @@ export function SidebarBody({ chats, activeChatId }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Buscar conversas"
-            className="h-8 border-border bg-background/80 pl-8 text-sm shadow-mac-sm"
+            className="h-10 pl-10 text-sm"
           />
         </div>
       )}
@@ -99,7 +99,7 @@ export function SidebarBody({ chats, activeChatId }: Props) {
           Nenhuma conversa encontrada.
         </p>
       ) : (
-        <div className="flex flex-col gap-1 p-2 pt-0">
+        <div className="flex flex-col gap-1">
           {filtered.map((c) => (
             <ChatSidebarItem key={c.id} chat={c} active={c.id === activeChatId} />
           ))}
@@ -114,28 +114,33 @@ export function ChatSidebar({ chats, activeChatId }: Props) {
   return (
     <aside
       className={cn(
-        'sticky top-12 hidden h-[calc(100vh-3rem)] w-72 shrink-0 flex-col border-r border-border bg-card/90 backdrop-blur-xl lg:flex',
+        'panel-solid sticky top-[var(--app-nav-offset)] hidden h-[calc(100dvh-var(--app-nav-offset)-1.5rem)] min-h-0 shrink-0 overflow-hidden rounded-[2rem] xl:flex xl:w-[18rem] 2xl:w-[20rem] xl:flex-col',
       )}
     >
-      <header className="flex h-10 items-center justify-between gap-2 border-b border-border px-4">
-        <h2 className="text-base font-medium text-foreground">Conversas</h2>
+      <header className="flex items-center justify-between gap-2 border-b border-hairline px-4 py-4">
+        <div>
+          <p className="eyebrow">Chat</p>
+          <h2 className="mt-2 text-lg font-medium tracking-[-0.03em] text-foreground">
+            Conversas
+          </h2>
+        </div>
         <Button
           size="icon"
-          variant="ghost"
+          variant="secondary"
           aria-label="Nova conversa"
           onClick={newChat}
-          className="h-8 w-8 min-h-[44px] min-w-[44px] rounded-md border border-border bg-background/80 text-foreground shadow-mac-sm backdrop-blur-xl hover:!bg-accent"
+          className="h-10 w-10 min-h-[44px] min-w-[44px]"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
         </Button>
       </header>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <SidebarBody chats={chats} activeChatId={activeChatId} />
       </ScrollArea>
-      <footer className="border-t border-border p-3">
+      <footer className="border-t border-hairline p-3">
         <Link
           href="/"
-          className="inline-flex items-center rounded-md px-3 py-2 text-sm text-muted-foreground surface-transition hover:bg-accent hover:text-foreground"
+          className="inline-flex items-center rounded-full px-3 py-2 text-sm text-muted-foreground surface-transition hover:bg-foreground/[0.05] hover:text-foreground"
         >
           ← Biblioteca
         </Link>

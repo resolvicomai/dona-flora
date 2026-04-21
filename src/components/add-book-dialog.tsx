@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Loader2, Plus, Search } from 'lucide-react'
 
 import { BookCover } from '@/components/book-cover'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -26,9 +27,49 @@ import { BookLanguageBadge } from '@/components/book-language-badge'
 
 import type { BookSearchResult } from '@/lib/api/google-books'
 import { dedupeBooks } from '@/lib/api/dedupe'
-import { STATUS_OPTIONS, getStatusLabel } from '@/lib/books/status-labels'
+import {
+  normalizeBookLanguageFilter,
+  type BookLanguageFilter,
+} from '@/lib/books/language'
+import { getStatusLabel, getStatusOptions } from '@/lib/books/status-labels'
+import type { AppLanguage } from '@/lib/i18n/app-language'
 
 type Step = 'search' | 'results' | 'preview' | 'manual' | 'saving'
+
+const BOOK_LANGUAGE_FILTER_COPY: Record<
+  AppLanguage,
+  {
+    all: string
+    label: string
+  }
+> = {
+  'pt-BR': {
+    all: 'Todos',
+    label: 'Idioma do livro',
+  },
+  en: {
+    all: 'All',
+    label: 'Book language',
+  },
+  es: {
+    all: 'Todos',
+    label: 'Idioma del libro',
+  },
+  'zh-CN': {
+    all: '全部',
+    label: '图书语言',
+  },
+}
+
+const BOOK_LANGUAGE_FILTER_OPTIONS: Array<{
+  label: string
+  value: BookLanguageFilter
+}> = [
+  { label: 'PT-BR', value: 'pt-BR' },
+  { label: 'EN', value: 'en' },
+  { label: 'ES', value: 'es' },
+  { label: '中文', value: 'zh-CN' },
+]
 
 function formatAuthors(authors: string[]): string {
   if (authors.length === 0) return 'Autor desconhecido'
@@ -42,10 +83,14 @@ interface AddBookDialogProps {
 
 export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
   const router = useRouter()
+  const { locale } = useAppLanguage()
+  const filterCopy = BOOK_LANGUAGE_FILTER_COPY[locale]
+  const statusOptions = getStatusOptions(locale)
 
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>('search')
   const [query, setQuery] = useState('')
+  const [bookLanguage, setBookLanguage] = useState<BookLanguageFilter>('all')
   const [results, setResults] = useState<BookSearchResult[]>([])
   const [selected, setSelected] = useState<BookSearchResult | null>(null)
   const [searching, setSearching] = useState(false)
@@ -69,9 +114,44 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  function resetSearchResults() {
+    setResults([])
+    setNextStart(0)
+    setNextPage(1)
+    setHasMore(true)
+    setLoadingMore(false)
+    setLoadMoreError(null)
+  }
+
+  async function runSearch(nextQuery: string, nextLanguage: BookLanguageFilter) {
+    setSearching(true)
+    try {
+      const res = await fetch('/api/books/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: nextQuery,
+          ...(nextLanguage === 'all' ? {} : { language: nextLanguage }),
+        }),
+      })
+      if (!res.ok) throw new Error()
+      const data: BookSearchResult[] = await res.json()
+      setResults(data)
+      setStep(data.length > 0 ? 'results' : 'search')
+      setHasMore(data.length >= 20)
+      setNextStart(20)
+      setNextPage(2)
+    } catch {
+      setError('Erro ao buscar. Tente novamente.')
+    } finally {
+      setSearching(false)
+    }
+  }
+
   function resetDialog() {
     setStep('search')
     setQuery('')
+    setBookLanguage('all')
     setResults([])
     setSelected(null)
     setError(null)
@@ -97,12 +177,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
     setQuery(value)
     setError(null)
     setLoadMoreError(null)
-    // Reset pagination on every query change (RESEARCH Pitfall 7 + Anti-Pattern 9)
-    setResults([])
-    setNextStart(0)
-    setNextPage(1)
-    setHasMore(true)
-    setLoadingMore(false)
+    resetSearchResults()
 
     if (timerRef.current) clearTimeout(timerRef.current)
 
@@ -112,27 +187,27 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
     }
 
     timerRef.current = setTimeout(async () => {
-      setSearching(true)
-      try {
-        const res = await fetch('/api/books/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: value }),
-        })
-        if (!res.ok) throw new Error()
-        const data: BookSearchResult[] = await res.json()
-        setResults(data)
-        setStep(data.length > 0 ? 'results' : 'search')
-        // If initial page returned fewer than the per-page cap (20), no more pages.
-        setHasMore(data.length >= 20)
-        setNextStart(20)
-        setNextPage(2)
-      } catch {
-        setError('Erro ao buscar. Tente novamente.')
-      } finally {
-        setSearching(false)
-      }
+      await runSearch(value, bookLanguage)
     }, 400)
+  }
+
+  function handleBookLanguageChange(value: BookLanguageFilter) {
+    const nextLanguage = normalizeBookLanguageFilter(value)
+    setBookLanguage(nextLanguage)
+    setError(null)
+    setLoadMoreError(null)
+    resetSearchResults()
+
+    if (timerRef.current) clearTimeout(timerRef.current)
+
+    if (query.length < 3) {
+      setStep('search')
+      return
+    }
+
+    timerRef.current = setTimeout(async () => {
+      await runSearch(query, nextLanguage)
+    }, 200)
   }
 
   async function fetchMore() {
@@ -143,7 +218,12 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
       const res = await fetch('/api/books/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, startIndex: nextStart, page: nextPage }),
+        body: JSON.stringify({
+          query,
+          startIndex: nextStart,
+          page: nextPage,
+          ...(bookLanguage === 'all' ? {} : { language: bookLanguage }),
+        }),
       })
       if (!res.ok) throw new Error()
       const data: BookSearchResult[] = await res.json()
@@ -253,6 +333,45 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
         {/* Search step + Results step */}
         {(step === 'search' || step === 'results' || step === 'saving') && selected === null && (
           <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-[0.7rem] tracking-[0.16em] text-muted-foreground uppercase">
+                {filterCopy.label}
+              </Label>
+              <div
+                role="group"
+                aria-label={filterCopy.label}
+                className="flex flex-wrap gap-2"
+              >
+                <button
+                  type="button"
+                  aria-pressed={bookLanguage === 'all'}
+                  className={`surface-transition inline-flex h-9 items-center justify-center rounded-full border px-3 text-[0.76rem] font-medium tracking-[0.06em] ${
+                    bookLanguage === 'all'
+                      ? 'border-transparent bg-primary text-primary-foreground shadow-mac-sm'
+                      : 'border-hairline bg-surface-elevated text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground'
+                  }`}
+                  onClick={() => handleBookLanguageChange('all')}
+                >
+                  {filterCopy.all}
+                </button>
+                {BOOK_LANGUAGE_FILTER_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={bookLanguage === option.value}
+                    className={`surface-transition inline-flex h-9 items-center justify-center rounded-full border px-3 text-[0.76rem] font-medium tracking-[0.06em] ${
+                      bookLanguage === option.value
+                        ? 'border-transparent bg-primary text-primary-foreground shadow-mac-sm'
+                        : 'border-hairline bg-surface-elevated text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground'
+                    }`}
+                    onClick={() => handleBookLanguageChange(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Search input */}
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -366,10 +485,10 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
               <Label className="text-sm text-muted-foreground">Status</Label>
               <Select value={previewStatus} onValueChange={(v) => { if (v) setPreviewStatus(v) }}>
                 <SelectTrigger className="w-full">
-                  <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
+                  <SelectValue>{(v) => getStatusLabel(v, locale)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {STATUS_OPTIONS.map((opt) => (
+                  {statusOptions.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
                     </SelectItem>
@@ -460,10 +579,10 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
               <Label className="text-sm text-muted-foreground">Status</Label>
               <Select value={manualStatus} onValueChange={(v) => { if (v) setManualStatus(v) }}>
                 <SelectTrigger className="w-full">
-                  <SelectValue>{(v) => getStatusLabel(v)}</SelectValue>
+                  <SelectValue>{(v) => getStatusLabel(v, locale)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {STATUS_OPTIONS.map((opt) => (
+                  {statusOptions.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
                     </SelectItem>

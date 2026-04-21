@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { AppLanguageSchema, normalizeAppLanguage } from '@/lib/i18n/app-language'
+import {
+  AppLanguageSchema,
+  normalizeAppLanguage,
+  type AppLanguage,
+} from '@/lib/i18n/app-language'
 
 export const AISettingsSchema = z.object({
   tone: z.enum(['calorosa', 'analitica', 'assertiva']),
@@ -16,6 +20,11 @@ export type AISettingsInput = Partial<Omit<AISettings, 'language'>> & {
   language?: string | null
 }
 
+type Option<T extends string> = {
+  label: string
+  value: T
+}
+
 export const DEFAULT_AI_SETTINGS: AISettings = {
   tone: 'calorosa',
   focus: 'equilibrado',
@@ -25,29 +34,150 @@ export const DEFAULT_AI_SETTINGS: AISettings = {
   additionalInstructions: '',
 }
 
-export const AI_TONE_OPTIONS = [
-  { label: 'Calorosa', value: 'calorosa' },
-  { label: 'Analítica', value: 'analitica' },
-  { label: 'Assertiva', value: 'assertiva' },
+const AI_TONE_VALUES = ['calorosa', 'analitica', 'assertiva'] as const
+const AI_FOCUS_VALUES = ['equilibrado', 'memoria', 'descoberta'] as const
+const AI_EXTERNAL_OPENNESS_VALUES = [
+  'sob-demanda',
+  'aberta',
+  'somente-acervo',
 ] as const
+const AI_RESPONSE_STYLE_VALUES = ['conversa', 'concisa', 'profunda'] as const
 
-export const AI_FOCUS_OPTIONS = [
-  { label: 'Equilibrado', value: 'equilibrado' },
-  { label: 'Memória da sua biblioteca', value: 'memoria' },
-  { label: 'Descoberta e repertório', value: 'descoberta' },
-] as const
+const AI_OPTION_LABELS: Record<
+  AppLanguage,
+  {
+    externalOpenness: Record<AISettings['externalOpenness'], string>
+    focus: Record<AISettings['focus'], string>
+    responseStyle: Record<AISettings['responseStyle'], string>
+    tone: Record<AISettings['tone'], string>
+  }
+> = {
+  'pt-BR': {
+    tone: {
+      calorosa: 'Calorosa',
+      analitica: 'Analítica',
+      assertiva: 'Assertiva',
+    },
+    focus: {
+      equilibrado: 'Equilibrado',
+      memoria: 'Memória da sua biblioteca',
+      descoberta: 'Descoberta e repertório',
+    },
+    externalOpenness: {
+      'sob-demanda': 'Só quando fizer sentido',
+      aberta: 'Mais aberta a comparações',
+      'somente-acervo': 'Somente acervo por padrão',
+    },
+    responseStyle: {
+      conversa: 'Conversa natural',
+      concisa: 'Mais concisa',
+      profunda: 'Mais profunda',
+    },
+  },
+  en: {
+    tone: {
+      calorosa: 'Warm',
+      analitica: 'Analytical',
+      assertiva: 'Assertive',
+    },
+    focus: {
+      equilibrado: 'Balanced',
+      memoria: 'Your library memory',
+      descoberta: 'Discovery and repertoire',
+    },
+    externalOpenness: {
+      'sob-demanda': 'Only when it makes sense',
+      aberta: 'More open to comparisons',
+      'somente-acervo': 'Library only by default',
+    },
+    responseStyle: {
+      conversa: 'Natural conversation',
+      concisa: 'More concise',
+      profunda: 'More in depth',
+    },
+  },
+  es: {
+    tone: {
+      calorosa: 'Cálida',
+      analitica: 'Analítica',
+      assertiva: 'Asertiva',
+    },
+    focus: {
+      equilibrado: 'Equilibrado',
+      memoria: 'Memoria de tu biblioteca',
+      descoberta: 'Descubrimiento y repertorio',
+    },
+    externalOpenness: {
+      'sob-demanda': 'Solo cuando tenga sentido',
+      aberta: 'Más abierta a comparaciones',
+      'somente-acervo': 'Solo biblioteca por defecto',
+    },
+    responseStyle: {
+      conversa: 'Conversación natural',
+      concisa: 'Más concisa',
+      profunda: 'Más profunda',
+    },
+  },
+  'zh-CN': {
+    tone: {
+      calorosa: '温暖',
+      analitica: '分析型',
+      assertiva: '果断',
+    },
+    focus: {
+      equilibrado: '平衡',
+      memoria: '你的书库记忆',
+      descoberta: '发现与拓展',
+    },
+    externalOpenness: {
+      'sob-demanda': '仅在合适时',
+      aberta: '更开放地比较',
+      'somente-acervo': '默认只看书库',
+    },
+    responseStyle: {
+      conversa: '自然对话',
+      concisa: '更简洁',
+      profunda: '更深入',
+    },
+  },
+}
 
-export const AI_EXTERNAL_OPENNESS_OPTIONS = [
-  { label: 'Só quando fizer sentido', value: 'sob-demanda' },
-  { label: 'Mais aberta a comparações', value: 'aberta' },
-  { label: 'Somente acervo por padrão', value: 'somente-acervo' },
-] as const
+function buildOptions<T extends string>(
+  values: readonly T[],
+  labels: Record<T, string>,
+): Array<Option<T>> {
+  return values.map((value) => ({
+    label: labels[value],
+    value,
+  }))
+}
 
-export const AI_RESPONSE_STYLE_OPTIONS = [
-  { label: 'Conversa natural', value: 'conversa' },
-  { label: 'Mais concisa', value: 'concisa' },
-  { label: 'Mais profunda', value: 'profunda' },
-] as const
+export function getAIToneOptions(locale: AppLanguage = 'pt-BR') {
+  return buildOptions(AI_TONE_VALUES, AI_OPTION_LABELS[locale].tone)
+}
+
+export function getAIFocusOptions(locale: AppLanguage = 'pt-BR') {
+  return buildOptions(AI_FOCUS_VALUES, AI_OPTION_LABELS[locale].focus)
+}
+
+export function getAIExternalOpennessOptions(locale: AppLanguage = 'pt-BR') {
+  return buildOptions(
+    AI_EXTERNAL_OPENNESS_VALUES,
+    AI_OPTION_LABELS[locale].externalOpenness,
+  )
+}
+
+export function getAIResponseStyleOptions(locale: AppLanguage = 'pt-BR') {
+  return buildOptions(
+    AI_RESPONSE_STYLE_VALUES,
+    AI_OPTION_LABELS[locale].responseStyle,
+  )
+}
+
+export const AI_TONE_OPTIONS = getAIToneOptions()
+export const AI_FOCUS_OPTIONS = getAIFocusOptions()
+export const AI_EXTERNAL_OPENNESS_OPTIONS = getAIExternalOpennessOptions()
+export const AI_RESPONSE_STYLE_OPTIONS = getAIResponseStyleOptions()
 
 export const AI_LANGUAGE_OPTIONS = [
   { label: 'Português (Brasil)', value: 'pt-BR' },

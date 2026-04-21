@@ -1,5 +1,6 @@
 import type { BookSearchResult } from './google-books'
 import { stripDiacritics, dedupeKey } from './dedupe'
+import { matchesBookLanguageFilter } from '@/lib/books/language'
 
 const OPEN_LIBRARY_API = 'https://openlibrary.org/search.json'
 
@@ -17,6 +18,12 @@ async function fetchOnce(
   const res = await fetch(`${OPEN_LIBRARY_API}?${params}`, {
     headers: { 'User-Agent': 'DonaFlora/1.0 (personal book catalog)' },
   })
+  // Open Library rejects very short queries (e.g. "cs") with HTTP 422.
+  // Treat that provider-level validation as "no matches here" so the app
+  // can keep the search surface calm instead of surfacing a hard error.
+  if (res.status === 422) {
+    return []
+  }
   if (!res.ok) {
     throw new Error(`[OpenLibrary] API error: ${res.status}`)
   }
@@ -46,8 +53,13 @@ async function fetchOnce(
 export async function searchOpenLibrary(
   query: string,
   limit = 5,
-  page = 1
+  page = 1,
+  language?: string,
 ): Promise<BookSearchResult[]> {
+  if (query.trim().length < 3) {
+    return []
+  }
+
   const stripped = stripDiacritics(query)
   const variants = stripped === query ? [query] : [query, stripped]
 
@@ -71,6 +83,8 @@ export async function searchOpenLibrary(
   const seen = new Set<string>()
   const merged: BookSearchResult[] = []
   for (const book of successes) {
+    if (!matchesBookLanguageFilter(book.language, language)) continue
+
     const key = dedupeKey(book)
     if (seen.has(key)) continue
     seen.add(key)

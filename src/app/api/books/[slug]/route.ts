@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import {
+  getSessionStorageContext,
+  requireVerifiedRequestSession,
+} from '@/lib/auth/server'
 import { BookStatusEnum } from '@/lib/books/schema'
 import { updateBook, deleteBook } from '@/lib/books/library-service'
 
@@ -23,6 +27,12 @@ export async function PUT(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const authResult = await requireVerifiedRequestSession(request)
+    if (!authResult.ok) {
+      return authResult.response
+    }
+    const session = authResult.session
+
     const { slug } = await params
     const body = await request.json()
     const result = UpdateBookSchema.safeParse(body)
@@ -36,7 +46,11 @@ export async function PUT(
     for (const [k, v] of Object.entries(result.data)) {
       if (v !== undefined && v !== null) updates[k] = v
     }
-    await updateBook(slug, updates as Parameters<typeof updateBook>[1])
+    await updateBook(
+      slug,
+      updates as Parameters<typeof updateBook>[1],
+      getSessionStorageContext(session),
+    )
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[API] PUT /api/books/[slug] error:', err)
@@ -52,8 +66,14 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const authResult = await requireVerifiedRequestSession(_request)
+    if (!authResult.ok) {
+      return authResult.response
+    }
+    const session = authResult.session
+
     const { slug } = await params
-    await deleteBook(slug)
+    await deleteBook(slug, getSessionStorageContext(session))
     return new NextResponse(null, { status: 204 })
   } catch (err) {
     console.error('[API] DELETE /api/books/[slug] error:', err)

@@ -17,7 +17,7 @@ export function SegmentedRouteToggle() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="inline-flex h-8 items-center rounded-full bg-secondary p-0.5"
+      className="glass-pill grid h-11 w-full grid-cols-2 items-center gap-1 rounded-full p-1 md:inline-flex md:w-auto"
     >
       {ROUTES.map((route) => {
         const isActive = route.key === activeKey
@@ -28,10 +28,10 @@ export function SegmentedRouteToggle() {
             href={route.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "surface-transition inline-flex h-7 items-center rounded-full px-3 text-sm font-medium",
+              "surface-transition inline-flex h-9 items-center justify-center truncate rounded-full px-3 text-[0.84rem] font-medium tracking-[-0.02em] md:px-4 md:text-sm",
               isActive
-                ? "shadow-mac-sm bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-primary text-primary-foreground shadow-mac-sm"
+                : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
             )}
           >
             {route.label}

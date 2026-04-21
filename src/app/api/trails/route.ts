@@ -1,6 +1,10 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import {
+  getSessionStorageContext,
+  requireVerifiedRequestSession,
+} from '@/lib/auth/server'
 import { saveTrail } from '@/lib/trails/store'
 import { loadKnownSlugs } from '@/lib/library/slug-set'
 
@@ -46,6 +50,13 @@ const CreateTrailSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  const authResult = await requireVerifiedRequestSession(request)
+  if (!authResult.ok) {
+    return authResult.response
+  }
+  const session = authResult.session
+
+  const storageContext = getSessionStorageContext(session)
   let body: unknown
   try {
     body = await request.json()
@@ -63,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 
   // WR-06: reject refs that pass the kebab regex but don't exist on disk.
-  const knownSlugs = await loadKnownSlugs()
+  const knownSlugs = await loadKnownSlugs(storageContext)
   const unknownRefs = parsed.data.book_refs.filter((s) => !knownSlugs.has(s))
   if (unknownRefs.length > 0) {
     return NextResponse.json(
@@ -78,7 +89,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { slug } = await saveTrail(parsed.data)
+    const { slug } = await saveTrail(parsed.data, storageContext)
     return NextResponse.json({ slug }, { status: 201 })
   } catch (err) {
     console.error('[API] POST /api/trails error:', err)
