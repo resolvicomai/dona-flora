@@ -7,7 +7,7 @@ Comece por:
 - `context.ts`: monta o contexto compacto usado pela IA.
 - `slug-set.ts`: carrega slugs conhecidos para validar referências.
 - `watch.ts`: refresh automático opcional para edições no Obsidian.
-- `index.ts`: relatório de prontidão da biblioteca.
+- `readiness.ts`: relatório de prontidão da biblioteca.
 
 Princípios:
 
