@@ -47,3 +47,6 @@ AGENTS.md
 
 # Runtime library/chat/trail data stays local
 data/
+
+# Local smoke-test clones
+/*-teste/
