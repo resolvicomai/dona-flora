@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dona-flora-docker-dev-secret-change-me}
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?defina BETTER_AUTH_SECRET antes de usar docker compose}"
       BETTER_AUTH_URL: http://localhost:3000
       DATA_DIR: /data
       DONA_FLORA_LIBRARY_WATCH: "0"

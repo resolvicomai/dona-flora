@@ -251,6 +251,7 @@ A migração não roda automaticamente para evitar reescrever acervos sem inten�
 ## Docker
 
 ```bash
+export BETTER_AUTH_SECRET="$(openssl rand -base64 32)"
 docker compose up --build
 ```
 
@@ -263,7 +264,7 @@ Copie `.env.example` para `.env.local` e ajuste só o que precisar.
 | Variável | Obrigatória | Descrição |
 | --- | --- | --- |
 | `BETTER_AUTH_URL` | Sim | URL local/pública do app |
-| `BETTER_AUTH_SECRET` | Recomendado | Segredo para sessão e criptografia local |
+| `BETTER_AUTH_SECRET` | Produção: sim | Segredo para sessão e criptografia local. Obrigatório se você configurar chaves externas |
 | `DATA_DIR` | Não | Pasta de SQLite, chats, trilhas e cache |
 | `LIBRARY_DIR` | Não | Fallback inicial para livros antes da UI |
 | `GOOGLE_BOOKS_API_KEY` | Não | Chave opcional para Google Books |
@@ -319,7 +320,7 @@ Antes de publicar ou fazer fork, confira:
 - não envie instruções locais de agente, como `AGENTS.md`;
 - não coloque chave de API em issue, print ou README.
 
-As chaves opcionais são criptografadas localmente com segredo derivado de `BETTER_AUTH_SECRET`. Em desenvolvimento sem secret configurado, o app usa um fallback local, mas para uso real você deve definir o secret.
+As chaves opcionais são criptografadas localmente com segredo derivado de `BETTER_AUTH_SECRET`. Em desenvolvimento sem chaves externas configuradas, o app consegue usar um fallback local. Para qualquer uso real, especialmente com tokens de provider, defina um secret forte.
 
 ## Status Do Projeto
 
