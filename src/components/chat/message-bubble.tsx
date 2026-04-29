@@ -1,5 +1,6 @@
 'use client'
 
+import { Fragment } from 'react'
 import { AvatarMonogram } from './avatar-monogram'
 import { MessageText } from './message-text'
 import { LibraryBookCardInline } from './library-book-card-inline'
@@ -20,6 +21,85 @@ interface MessageBubbleProps {
 // threading the full provider union through the component.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LooseMessagePart = any
+
+type PseudoToolSegment =
+  | { type: 'text'; text: string }
+  | { type: 'library-card'; slug: string }
+  | { type: 'external-book'; title: string; author: string; reason: string }
+
+const PSEUDO_TOOL_CALL_REGEX =
+  /\[?\s*(?:chama\s+)?(render_library_book_card|render_external_book_mention)\(\{([^{}]*)\}\)\s*\]?/g
+
+function readQuotedField(input: string, field: string) {
+  const match = new RegExp(`${field}\\s*:\\s*(['"])(.*?)\\1`).exec(input)
+  return match?.[2]?.trim()
+}
+
+function splitPseudoToolCalls(text: string): PseudoToolSegment[] {
+  const segments: PseudoToolSegment[] = []
+  let cursor = 0
+
+  for (const match of text.matchAll(PSEUDO_TOOL_CALL_REGEX)) {
+    const index = match.index ?? 0
+    if (index > cursor) {
+      segments.push({ type: 'text', text: text.slice(cursor, index) })
+    }
+
+    const toolName = match[1]
+    const args = match[2] ?? ''
+
+    if (toolName === 'render_library_book_card') {
+      const slug = readQuotedField(args, 'slug')
+      if (slug) {
+        segments.push({ type: 'library-card', slug })
+      }
+    }
+
+    if (toolName === 'render_external_book_mention') {
+      const title = readQuotedField(args, 'title')
+      const author = readQuotedField(args, 'author')
+      const reason = readQuotedField(args, 'reason')
+      if (title && author && reason) {
+        segments.push({ type: 'external-book', title, author, reason })
+      }
+    }
+
+    cursor = index + match[0].length
+  }
+
+  if (cursor < text.length) {
+    segments.push({ type: 'text', text: text.slice(cursor) })
+  }
+
+  return segments.length > 0 ? segments : [{ type: 'text', text }]
+}
+
+function renderTextWithPseudoTools(text: string, keyPrefix: string) {
+  return splitPseudoToolCalls(text).map((segment, index) => {
+    const key = `${keyPrefix}-${index}`
+
+    if (segment.type === 'library-card') {
+      return <LibraryBookCardInline key={key} slug={segment.slug} className="my-2" />
+    }
+
+    if (segment.type === 'external-book') {
+      return (
+        <ExternalBookMention
+          key={key}
+          title={segment.title}
+          author={segment.author}
+          reason={segment.reason}
+        />
+      )
+    }
+
+    if (segment.text.trim().length === 0) {
+      return null
+    }
+
+    return <MessageText key={key} text={segment.text} />
+  })
+}
 
 /**
  * AI-04 trail detection heuristic (UI-D11): scan the message parts for a run
@@ -77,7 +157,8 @@ function detectTrail(
  *    BEFORE mounting the card). Unknown slugs render the D-14 neutral span
  *    directly so the card component never mounts with an invalid slug.
  *  - `'tool-render_external_book_mention'` → <ExternalBookMention />
- *  - unknown part types → null in prod; console.warn in dev (AI-SPEC pitfall #3).
+ *  - unknown part types → null. The AI SDK can emit transient stream parts
+ *    that do not map to visible UI, so this renderer stays quiet during UAT.
  *
  * Alignment / palette: user bubbles right-aligned with the primary accent;
  * assistant bubbles left-aligned with AvatarMonogram and card/secondary surfaces
@@ -105,7 +186,7 @@ export function MessageBubble({
       .join('')
     return (
       <div data-role="user" className="my-3 flex justify-end">
-        <div className="max-w-[75ch] rounded-[1.6rem] rounded-br-[0.6rem] bg-primary px-4 py-3 whitespace-pre-wrap break-words text-primary-foreground shadow-mac-sm">
+        <div className="chat-user-bubble max-w-[62ch] rounded-lg rounded-br-sm px-4 py-3 whitespace-pre-wrap break-words shadow-mac-sm">
           {text}
         </div>
       </div>
@@ -126,23 +207,20 @@ export function MessageBubble({
   const trail = detectTrail(parts, knownSlugs)
 
   return (
-    <div
-      data-role="assistant"
-      className="my-4 flex flex-col items-start gap-0"
-    >
+    <div data-role="assistant" className="my-4 flex flex-col items-start gap-0">
       <div className="flex justify-start gap-3">
         <AvatarMonogram />
-        <div className="panel-solid min-w-0 max-w-[75ch] break-words rounded-[1.6rem] rounded-bl-[0.6rem] px-4 py-3 text-card-foreground">
+        <div className="chat-assistant-panel min-w-0 max-w-[68ch] break-words rounded-bl-sm px-4 py-4">
           {parts.map((part, i) => {
             switch (part.type) {
               case 'text':
                 return (
-                  <span key={i}>
-                    <MessageText text={part.text as string} />
+                  <Fragment key={i}>
+                    {renderTextWithPseudoTools(part.text as string, `text-${i}`)}
                     {isLastAssistantStreaming && i === lastTextIndex ? (
                       <StreamingCursor />
                     ) : null}
-                  </span>
+                  </Fragment>
                 )
 
               case 'tool-render_library_book_card': {
@@ -152,7 +230,7 @@ export function MessageBubble({
                   return (
                     <div
                       key={i}
-                      className="my-1 h-16 w-64 rounded-[1.25rem] border border-hairline bg-surface motion-safe:animate-pulse"
+                      className="my-1 h-16 w-64 rounded-md border border-hairline bg-surface motion-safe:animate-pulse"
                       aria-hidden="true"
                     />
                   )
@@ -184,9 +262,6 @@ export function MessageBubble({
               }
 
               default:
-                if (process.env.NODE_ENV !== 'production') {
-                  console.warn('[MessageBubble] unknown part', part)
-                }
                 return null
             }
           })}

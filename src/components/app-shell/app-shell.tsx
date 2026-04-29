@@ -14,14 +14,21 @@ export function AppShell({ children }: { children: ReactNode }) {
     pathname === "/forgot-password" ||
     pathname === "/reset-password" ||
     pathname === "/verify-email"
+  const isChatRoute = pathname === "/chat" || pathname.startsWith("/chat/")
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div
+      className={cn(
+        "relative flex min-h-screen flex-col",
+        isChatRoute && "h-dvh overflow-hidden",
+      )}
+    >
       {isAuthRoute ? null : <TopNav />}
       <main
         className={cn(
           "flex min-h-0 flex-1 flex-col",
-          isAuthRoute ? "pb-0" : "pb-10",
+          isAuthRoute || isChatRoute ? "pb-0" : "pb-10",
+          isChatRoute && "overflow-hidden",
         )}
       >
         {children}

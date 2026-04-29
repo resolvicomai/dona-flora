@@ -6,12 +6,15 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATA_DIR=/data
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
-      - BETTER_AUTH_URL=http://localhost:3000
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dona-flora-docker-dev-secret-change-me}
+      BETTER_AUTH_URL: http://localhost:3000
+      DATA_DIR: /data
+      DONA_FLORA_LIBRARY_WATCH: "0"
+      GOOGLE_BOOKS_API_KEY: ${GOOGLE_BOOKS_API_KEY:-}
+      LIBRARY_DIR: /data/books
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
     volumes:
-      - ./data:/data
-    user: "0:0"
+      - dona-flora-data:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/sign-in').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
@@ -19,3 +22,6 @@ services:
       timeout: 3s
       start_period: 10s
       retries: 3
+
+volumes:
+  dona-flora-data:

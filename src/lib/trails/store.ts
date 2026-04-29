@@ -2,6 +2,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import matter from 'gray-matter'
 import type { StorageContext } from '@/lib/storage/context'
+import { SAFE_MATTER_OPTIONS } from '@/lib/books/library-service'
 import { getDataSubdirectory } from '@/lib/storage/data-root'
 import { generateSlug, resolveSlugCollision } from '@/lib/books/slug'
 import { TrailFrontmatterSchema, type TrailFrontmatter } from './schema'
@@ -34,6 +35,14 @@ export interface SaveTrailInput {
 export interface SaveTrailResult {
   slug: string
 }
+
+export type TrailRecord = TrailFrontmatter & {
+  slug: string
+  _filename: string
+  _notes: string
+}
+
+const TRAIL_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 /**
  * Writes a trail to `data/trails/{slug}.md`.
@@ -82,4 +91,139 @@ export async function saveTrail(
   await fs.writeFile(path.join(dir, `${slug}.md`), file, 'utf-8')
 
   return { slug }
+}
+
+function normalizeTrailDataForParse(data: Record<string, unknown>) {
+  const normalized = { ...data }
+
+  if (normalized.created_at instanceof Date) {
+    normalized.created_at = normalized.created_at.toISOString()
+  }
+
+  return normalized
+}
+
+async function readTrailFile(
+  dir: string,
+  filename: string,
+): Promise<TrailRecord | null> {
+  if (!filename.endsWith('.md')) return null
+
+  const filepath = path.join(dir, filename)
+  const raw = await fs.readFile(filepath, 'utf-8')
+  const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
+  const parsed = TrailFrontmatterSchema.parse(
+    normalizeTrailDataForParse(data as Record<string, unknown>),
+  )
+
+  return {
+    ...parsed,
+    slug: filename.replace(/\.md$/, ''),
+    _filename: filename,
+    _notes: content,
+  }
+}
+
+export async function listTrails(
+  context?: StorageContext,
+): Promise<TrailRecord[]> {
+  const dir = getTrailsDir(context)
+
+  try {
+    await fs.mkdir(dir, { recursive: true })
+    const files = await fs.readdir(dir)
+    const trails = await Promise.all(
+      files
+        .filter((file) => file.endsWith('.md'))
+        .map((file) => readTrailFile(dir, file).catch(() => null)),
+    )
+
+    return trails
+      .filter((trail): trail is TrailRecord => trail !== null)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+  } catch {
+    return []
+  }
+}
+
+export async function getTrail(
+  slug: string,
+  context?: StorageContext,
+): Promise<TrailRecord | null> {
+  if (!TRAIL_SLUG_RE.test(slug)) {
+    return null
+  }
+
+  const dir = getTrailsDir(context)
+
+  try {
+    return await readTrailFile(dir, `${slug}.md`)
+  } catch {
+    return null
+  }
+}
+
+export interface UpdateTrailInput {
+  slug: string
+  title?: string
+  goal?: string
+  notes?: string
+  context?: StorageContext
+}
+
+export async function updateTrail({
+  context,
+  goal,
+  notes,
+  slug,
+  title,
+}: UpdateTrailInput): Promise<TrailRecord | null> {
+  if (!TRAIL_SLUG_RE.test(slug)) {
+    return null
+  }
+
+  const current = await getTrail(slug, context)
+  if (!current) {
+    return null
+  }
+
+  const dir = getTrailsDir(context)
+  const next: TrailFrontmatter = TrailFrontmatterSchema.parse({
+    title: title ?? current.title,
+    goal: goal ?? current.goal,
+    created_at: current.created_at,
+    book_refs: current.book_refs,
+    notes: notes ?? current.notes,
+  })
+  const body = notes ?? current._notes
+  const file = matter.stringify(body, next)
+  await fs.writeFile(path.join(dir, `${slug}.md`), file, 'utf-8')
+
+  return {
+    ...next,
+    slug,
+    _filename: `${slug}.md`,
+    _notes: body,
+  }
+}
+
+export async function deleteTrail(
+  slug: string,
+  context?: StorageContext,
+): Promise<boolean> {
+  if (!TRAIL_SLUG_RE.test(slug)) {
+    return false
+  }
+
+  const dir = getTrailsDir(context)
+
+  try {
+    await fs.rm(path.join(dir, `${slug}.md`))
+    return true
+  } catch (err) {
+    if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
+      return false
+    }
+    throw err
+  }
 }

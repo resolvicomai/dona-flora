@@ -1,40 +1,38 @@
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import type { BookStatus } from '@/lib/books/schema'
+import type { AppLanguage } from '@/lib/i18n/app-language'
+import { getStatusLabel } from '@/lib/books/status-labels'
 
-const STATUS_CONFIG: Record<BookStatus, { label: string; className: string }> = {
+const STATUS_CONFIG: Record<BookStatus, { className: string }> = {
   'quero-ler': {
-    label: 'Quero ler',
-    className: 'border-hairline bg-surface text-foreground',
+    className: 'border-hairline-strong bg-surface text-foreground',
   },
   'lendo': {
-    label: 'Lendo',
-    className: 'border-transparent bg-foreground/[0.08] text-foreground',
+    className: 'border-hairline-strong bg-foreground/[0.1] text-foreground',
   },
   'lido': {
-    label: 'Lido',
-    className: 'border-transparent bg-primary text-primary-foreground shadow-mac-sm',
+    className: 'border-transparent bg-primary text-primary-foreground shadow-none',
   },
   'quero-reler': {
-    label: 'Quero reler',
-    className: 'border-hairline bg-surface-strong text-foreground',
+    className: 'border-hairline-strong bg-surface-strong text-foreground',
   },
   'abandonado': {
-    label: 'Abandonado',
-    className: 'border-hairline bg-transparent text-muted-foreground',
+    className: 'border-hairline bg-transparent text-foreground/72',
   },
 }
 
 interface StatusBadgeProps {
   status: BookStatus
   className?: string
+  locale?: AppLanguage
 }
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
+export function StatusBadge({ status, className, locale = 'pt-BR' }: StatusBadgeProps) {
   const config = STATUS_CONFIG[status]
   return (
     <Badge variant="secondary" className={cn(config.className, className)}>
-      {config.label}
+      {getStatusLabel(status, locale)}
     </Badge>
   )
 }

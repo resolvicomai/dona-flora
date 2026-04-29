@@ -3,6 +3,14 @@ import path from 'path'
 import matter from 'gray-matter'
 import type { StorageContext } from '@/lib/storage/context'
 import { SAFE_MATTER_OPTIONS, getLibraryDir } from '@/lib/books/library-service'
+import { getBookAuthorsDisplay } from '@/lib/books/authors'
+import { parseHighlights } from '@/lib/books/highlights'
+
+const MAX_HIGHLIGHTS_PER_BOOK = 5
+
+function truncate(value: string, maxLength: number) {
+  return value.length <= maxLength ? value : `${value.slice(0, maxLength - 1)}…`
+}
 
 /**
  * Reads every `.md` file in `data/books` (or `process.env.LIBRARY_DIR`), parses its
@@ -36,15 +44,42 @@ export async function loadLibraryContext(
       const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
       const slug = file.replace(/\.md$/, '')
       const notesTrim = (content ?? '').trim()
+      const highlights = parseHighlights(content ?? '').slice(
+        0,
+        MAX_HIGHLIGHTS_PER_BOOK,
+      )
       const parts: (string | null)[] = [
-        `### ${data.title} — ${data.author}`,
+        `### ${data.title} — ${getBookAuthorsDisplay(
+          data.author as string | string[] | undefined,
+        )}`,
         `slug: ${slug}`,
         `status: ${data.status}`,
         data.rating != null ? `rating: ${data.rating}/5` : null,
+        typeof data.subtitle === 'string' && data.subtitle.trim()
+          ? `subtitle: ${data.subtitle}`
+          : null,
         typeof data.genre === 'string' && data.genre.trim()
           ? `genre: ${data.genre}`
           : null,
+        typeof data.publisher === 'string' && data.publisher.trim()
+          ? `publisher: ${data.publisher}`
+          : null,
+        Array.isArray(data.tags) && data.tags.length > 0
+          ? `tags: ${data.tags.join(', ')}`
+          : null,
         notesTrim ? `notes: ${notesTrim.slice(0, 400)}` : null,
+        highlights.length > 0
+          ? `highlights:\n${highlights
+              .map((highlight) => {
+                const page =
+                  highlight.page != null ? `p.${highlight.page}: ` : ''
+                const note = highlight.note
+                  ? ` — ${truncate(highlight.note, 160)}`
+                  : ''
+                return `- ${page}"${truncate(highlight.quote, 240)}"${note}`
+              })
+              .join('\n')}`
+          : null,
       ]
       entries.push(parts.filter((p): p is string => p !== null).join('\n'))
     } catch (err) {

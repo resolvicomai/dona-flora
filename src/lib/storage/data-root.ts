@@ -3,7 +3,7 @@ import path from 'path'
 function getRuntimeRoot() {
   const cwd = process.cwd()
   if (cwd.endsWith(path.join('.next', 'standalone'))) {
-    return path.resolve(cwd, '..', '..')
+    return path.resolve(/* turbopackIgnore: true */ cwd, '..', '..')
   }
 
   return cwd
@@ -14,7 +14,7 @@ export function resolveRuntimePath(target: string) {
     return target
   }
 
-  return path.resolve(getRuntimeRoot(), target)
+  return path.resolve(/* turbopackIgnore: true */ getRuntimeRoot(), target)
 }
 
 export function getDataRoot(dataRoot?: string) {
@@ -26,5 +26,5 @@ export function getDataSubdirectory(subdirectory: string, directDir?: string) {
     return resolveRuntimePath(directDir)
   }
 
-  return path.join(getDataRoot(), subdirectory)
+  return path.join(/* turbopackIgnore: true */ getDataRoot(), subdirectory)
 }

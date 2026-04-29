@@ -4,7 +4,6 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
   type ReactNode,
 } from 'react'
 import { usePathname } from 'next/navigation'
@@ -31,6 +30,7 @@ export type AppLanguageCopy = {
     homeAriaLabel: string
     library: string
     primaryNavigationLabel: string
+    trails: string
   }
   shell: {
     accountBody: string
@@ -157,6 +157,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       homeAriaLabel: 'Dona Flora — ir para a biblioteca',
       library: 'Biblioteca',
       primaryNavigationLabel: 'Navegação principal',
+      trails: 'Trilhas',
     },
     shell: {
       accountBody: 'Acesso, recuperação e privacidade',
@@ -173,32 +174,32 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
     },
     auth: {
       common: {
-        emailLabel: 'Email',
-        emailPlaceholder: 'voce@exemplo.com',
+        emailLabel: 'Usuário',
+        emailPlaceholder: 'leitor-local',
         nameLabel: 'Nome',
-        namePlaceholder: 'Como voce quer aparecer',
+        namePlaceholder: 'Como você quer aparecer',
         passwordLabel: 'Senha',
         passwordPlaceholder: 'Sua senha',
       },
       forgotPassword: {
-        emailLabel: 'Email',
-        emailPlaceholder: 'voce@exemplo.com',
-        error: 'Nao foi possivel enviar o link.',
+        emailLabel: 'Usuário',
+        emailPlaceholder: 'leitor-local',
+        error: 'Não foi possível gerar o link.',
         link: 'Esqueci minha senha',
         localLinkNote:
-          'Como este ambiente esta sem provedor de email externo, o link local ja esta pronto.',
-        localLinkTitle: 'Abrir link local de redefinicao',
-        sending: 'Enviando…',
-        success: 'Se esse email existir, enviamos um link seguro de redefinicao.',
-        submit: 'Enviar link de redefinicao',
+          'Link local pronto. Ele vale só para esta instalação da Dona Flora.',
+        localLinkTitle: 'Abrir link local de redefinição',
+        sending: 'Gerando…',
+        success: 'Se esse usuário existir, o link de redefinição fica pronto aqui.',
+        submit: 'Gerar link de redefinição',
       },
       resetPassword: {
         confirmPasswordLabel: 'Confirmar nova senha',
         confirmPasswordPlaceholder: 'Repita a nova senha',
-        error: 'Nao foi possivel redefinir a senha.',
-        invalidLink: 'O link de redefinicao esta incompleto ou expirou.',
+        error: 'Não foi possível redefinir a senha.',
+        invalidLink: 'O link de redefinição está incompleto ou expirou.',
         link: 'Pedir um novo link',
-        mismatch: 'As senhas nao conferem.',
+        mismatch: 'As senhas não conferem.',
         newPasswordLabel: 'Nova senha',
         newPasswordPlaceholder: 'Escolha uma nova senha',
         submit: 'Salvar nova senha',
@@ -206,50 +207,50 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       },
       signIn: {
         createAccount: 'Criar conta',
-        emailLabel: 'Email',
-        emailPlaceholder: 'voce@exemplo.com',
-        error: 'Nao foi possivel entrar.',
+        emailLabel: 'Usuário',
+        emailPlaceholder: 'leitor-local',
+        error: 'Não foi possível entrar.',
         forgotPassword: 'Esqueci minha senha',
         passwordLabel: 'Senha',
         passwordPlaceholder: 'Sua senha',
         resetComplete:
-          'Senha redefinida. Agora voce ja pode entrar com a nova credencial.',
+          'Senha redefinida. Agora você já pode entrar com a nova credencial.',
         signIn: 'Entrar',
         signingIn: 'Entrando…',
       },
       signUp: {
         accountLink: 'Entrar',
-        accountPrompt: 'Ja tem conta?',
+        accountPrompt: 'Já tem conta?',
         confirmPasswordLabel: 'Confirmar senha',
         confirmPasswordPlaceholder: 'Repita a senha',
         creatingAccount: 'Criando conta…',
-        emailLabel: 'Email',
-        emailPlaceholder: 'voce@exemplo.com',
-        error: 'Nao foi possivel criar a conta.',
+        emailLabel: 'Usuário',
+        emailPlaceholder: 'leitor-local',
+        error: 'Não foi possível criar a conta.',
         nameLabel: 'Nome',
-        namePlaceholder: 'Como voce quer aparecer',
+        namePlaceholder: 'Como você quer aparecer',
         passwordLabel: 'Senha',
-        passwordPlaceholder: 'Minimo de 8 caracteres',
-        passwordMismatch: 'As senhas nao conferem.',
+        passwordPlaceholder: 'Mínimo de 8 caracteres',
+        passwordMismatch: 'As senhas não conferem.',
         submit: 'Criar conta',
       },
       verifyEmail: {
         createAnotherAccount: 'Criar outra conta',
         backToSignIn: 'Voltar para entrar',
-        emailLabel: 'Email',
-        emailPlaceholder: 'voce@exemplo.com',
-        errorPrefix: 'Nao foi possivel verificar o email',
+        emailLabel: 'Usuário',
+        emailPlaceholder: 'leitor-local',
+        errorPrefix: 'Não foi possível validar a conta',
         goToLibrary: 'Ir para a biblioteca',
-        info: 'Abra o link enviado para o seu email. Se precisar, voce pode reenviar a verificacao abaixo.',
+        info: 'Este app usa acesso local. Se esta tela aparecer, gere o link local abaixo e continue.',
         localLinkNote:
-          'Neste ambiente local, voce pode continuar por aqui sem depender de email externo.',
-        localLinkTitle: 'Abrir link local de verificacao',
+          'Link local pronto. Ele vale só para esta instalação da Dona Flora.',
+        localLinkTitle: 'Abrir link local',
         otherAccount: 'Entrar em outra conta',
-        preparingLocalLink: 'Preparando o link local de verificacao…',
-        resend: 'Reenviar verificacao',
-        resending: 'Reenviando…',
-        resendSubtitle: 'Reenviamos o link de verificacao para o seu email.',
-        verified: 'Email confirmado com sucesso. Sua biblioteca ja esta pronta.',
+        preparingLocalLink: 'Preparando o link local…',
+        resend: 'Gerar link local',
+        resending: 'Gerando…',
+        resendSubtitle: 'Link local gerado.',
+        verified: 'Conta local validada. Sua biblioteca já está pronta.',
       },
     },
     settings: {
@@ -257,11 +258,11 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       appLanguageLabel: 'Idioma do app',
       description:
         'Essas preferências entram no prompt-base da Dona Flora e moldam o jeito como ela conversa com você em toda nova sessão.',
-      error: 'Nao foi possivel salvar as settings.',
+      error: 'Não foi possível salvar as preferências.',
       externalOpennessLabel: 'Abertura a livros externos',
       focusLabel: 'Foco',
       save: 'Salvar preferências',
-      saved: 'Settings salvas.',
+      saved: 'Preferências salvas.',
       saving: 'Salvando…',
       subtitle: 'Dona Flora',
       title: 'Preferências da bibliotecária',
@@ -291,6 +292,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       homeAriaLabel: 'Dona Flora - go to the library',
       library: 'Library',
       primaryNavigationLabel: 'Primary navigation',
+      trails: 'Trails',
     },
     shell: {
       accountBody: 'Access, recovery, and privacy',
@@ -307,24 +309,24 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
     },
     auth: {
       common: {
-        emailLabel: 'Email',
-        emailPlaceholder: 'you@example.com',
+        emailLabel: 'Username',
+        emailPlaceholder: 'local-reader',
         nameLabel: 'Name',
         namePlaceholder: 'How you want to appear',
         passwordLabel: 'Password',
         passwordPlaceholder: 'Your password',
       },
       forgotPassword: {
-        emailLabel: 'Email',
-        emailPlaceholder: 'you@example.com',
-        error: 'We could not send the link.',
+        emailLabel: 'Username',
+        emailPlaceholder: 'local-reader',
+        error: 'We could not create the link.',
         link: 'Forgot password?',
         localLinkNote:
-          'This environment does not have an external email provider, so the local link is ready.',
+          'Local link ready. It only works in this Dona Flora installation.',
         localLinkTitle: 'Open local reset link',
-        sending: 'Sending…',
-        success: 'If this email exists, we sent a secure reset link.',
-        submit: 'Send reset link',
+        sending: 'Creating…',
+        success: 'If this username exists, the reset link is ready here.',
+        submit: 'Create reset link',
       },
       resetPassword: {
         confirmPasswordLabel: 'Confirm new password',
@@ -340,8 +342,8 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       },
       signIn: {
         createAccount: 'Create account',
-        emailLabel: 'Email',
-        emailPlaceholder: 'you@example.com',
+        emailLabel: 'Username',
+        emailPlaceholder: 'local-reader',
         error: 'We could not sign you in.',
         forgotPassword: 'Forgot password?',
         passwordLabel: 'Password',
@@ -356,8 +358,8 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         confirmPasswordLabel: 'Confirm password',
         confirmPasswordPlaceholder: 'Repeat the password',
         creatingAccount: 'Creating account…',
-        emailLabel: 'Email',
-        emailPlaceholder: 'you@example.com',
+        emailLabel: 'Username',
+        emailPlaceholder: 'local-reader',
         error: 'We could not create the account.',
         nameLabel: 'Name',
         namePlaceholder: 'How you want to appear',
@@ -369,20 +371,20 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       verifyEmail: {
         createAnotherAccount: 'Create another account',
         backToSignIn: 'Back to sign in',
-        emailLabel: 'Email',
-        emailPlaceholder: 'you@example.com',
-        errorPrefix: 'We could not verify the email',
+        emailLabel: 'Username',
+        emailPlaceholder: 'local-reader',
+        errorPrefix: 'We could not validate the account',
         goToLibrary: 'Go to the library',
-        info: 'Open the link sent to your email. If needed, you can resend verification below.',
+        info: 'This app uses local access. If you see this screen, create the local link below and continue.',
         localLinkNote:
-          'In this local environment, you can continue here without an external email provider.',
-        localLinkTitle: 'Open local verification link',
+          'Local link ready. It only works in this Dona Flora installation.',
+        localLinkTitle: 'Open local link',
         otherAccount: 'Sign in to another account',
-        preparingLocalLink: 'Preparing local verification link…',
-        resend: 'Resend verification',
-        resending: 'Resending…',
-        resendSubtitle: 'We sent the verification link again to your email.',
-        verified: 'Email confirmed successfully. Your library is ready.',
+        preparingLocalLink: 'Preparing local link…',
+        resend: 'Create local link',
+        resending: 'Creating…',
+        resendSubtitle: 'Local link created.',
+        verified: 'Local account validated. Your library is ready.',
       },
     },
     settings: {
@@ -424,6 +426,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       homeAriaLabel: 'Dona Flora - ir a la biblioteca',
       library: 'Biblioteca',
       primaryNavigationLabel: 'Navegación principal',
+      trails: 'Rutas',
     },
     shell: {
       accountBody: 'Acceso, recuperación y privacidad',
@@ -440,24 +443,24 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
     },
     auth: {
       common: {
-        emailLabel: 'Correo electrónico',
-        emailPlaceholder: 'tu@ejemplo.com',
+        emailLabel: 'Usuario',
+        emailPlaceholder: 'lector-local',
         nameLabel: 'Nombre',
         namePlaceholder: 'Cómo quieres aparecer',
         passwordLabel: 'Contraseña',
         passwordPlaceholder: 'Tu contraseña',
       },
       forgotPassword: {
-        emailLabel: 'Correo electrónico',
-        emailPlaceholder: 'tu@ejemplo.com',
-        error: 'No pudimos enviar el enlace.',
+        emailLabel: 'Usuario',
+        emailPlaceholder: 'lector-local',
+        error: 'No pudimos crear el enlace.',
         link: '¿Olvidaste tu contraseña?',
         localLinkNote:
-          'Este entorno no tiene un proveedor de correo externo, así que el enlace local ya está listo.',
+          'Enlace local listo. Solo funciona en esta instalación de Dona Flora.',
         localLinkTitle: 'Abrir enlace local de restablecimiento',
-        sending: 'Enviando…',
-        success: 'Si este correo existe, enviamos un enlace seguro de restablecimiento.',
-        submit: 'Enviar enlace de restablecimiento',
+        sending: 'Creando…',
+        success: 'Si este usuario existe, el enlace de restablecimiento queda listo aquí.',
+        submit: 'Crear enlace de restablecimiento',
       },
       resetPassword: {
         confirmPasswordLabel: 'Confirmar nueva contraseña',
@@ -473,8 +476,8 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       },
       signIn: {
         createAccount: 'Crear cuenta',
-        emailLabel: 'Correo electrónico',
-        emailPlaceholder: 'tu@ejemplo.com',
+        emailLabel: 'Usuario',
+        emailPlaceholder: 'lector-local',
         error: 'No pudimos iniciar sesión.',
         forgotPassword: '¿Olvidaste tu contraseña?',
         passwordLabel: 'Contraseña',
@@ -489,8 +492,8 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         confirmPasswordLabel: 'Confirmar contraseña',
         confirmPasswordPlaceholder: 'Repite la contraseña',
         creatingAccount: 'Creando cuenta…',
-        emailLabel: 'Correo electrónico',
-        emailPlaceholder: 'tu@ejemplo.com',
+        emailLabel: 'Usuario',
+        emailPlaceholder: 'lector-local',
         error: 'No pudimos crear la cuenta.',
         nameLabel: 'Nombre',
         namePlaceholder: 'Cómo quieres aparecer',
@@ -502,20 +505,20 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       verifyEmail: {
         createAnotherAccount: 'Crear otra cuenta',
         backToSignIn: 'Volver a iniciar sesión',
-        emailLabel: 'Correo electrónico',
-        emailPlaceholder: 'tu@ejemplo.com',
-        errorPrefix: 'No pudimos verificar el correo',
+        emailLabel: 'Usuario',
+        emailPlaceholder: 'lector-local',
+        errorPrefix: 'No pudimos validar la cuenta',
         goToLibrary: 'Ir a la biblioteca',
-        info: 'Abre el enlace enviado a tu correo. Si lo necesitas, puedes reenviar la verificación abajo.',
+        info: 'Esta app usa acceso local. Si ves esta pantalla, crea el enlace local abajo y continúa.',
         localLinkNote:
-          'En este entorno local, puedes continuar aquí sin depender de un proveedor de correo externo.',
-        localLinkTitle: 'Abrir enlace local de verificación',
+          'Enlace local listo. Solo funciona en esta instalación de Dona Flora.',
+        localLinkTitle: 'Abrir enlace local',
         otherAccount: 'Entrar con otra cuenta',
-        preparingLocalLink: 'Preparando el enlace local de verificación…',
-        resend: 'Reenviar verificación',
-        resending: 'Reenviando…',
-        resendSubtitle: 'Reenviamos el enlace de verificación a tu correo.',
-        verified: 'Correo confirmado con éxito. Tu biblioteca ya está lista.',
+        preparingLocalLink: 'Preparando el enlace local…',
+        resend: 'Crear enlace local',
+        resending: 'Creando…',
+        resendSubtitle: 'Enlace local creado.',
+        verified: 'Cuenta local validada. Tu biblioteca ya está lista.',
       },
     },
     settings: {
@@ -557,6 +560,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       homeAriaLabel: 'Dona Flora - 前往书库',
       library: '书库',
       primaryNavigationLabel: '主导航',
+      trails: '路径',
     },
     shell: {
       accountBody: '访问、找回与隐私',
@@ -572,23 +576,23 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
     },
     auth: {
       common: {
-        emailLabel: '电子邮件',
-        emailPlaceholder: 'you@example.com',
+        emailLabel: '用户名',
+        emailPlaceholder: 'local-reader',
         nameLabel: '姓名',
         namePlaceholder: '你想如何显示',
         passwordLabel: '密码',
         passwordPlaceholder: '你的密码',
       },
       forgotPassword: {
-        emailLabel: '电子邮件',
-        emailPlaceholder: 'you@example.com',
-        error: '我们无法发送链接。',
+        emailLabel: '用户名',
+        emailPlaceholder: 'local-reader',
+        error: '我们无法创建链接。',
         link: '忘记密码？',
-        localLinkNote: '当前环境没有外部邮件服务，因此本地链接已准备好。',
+        localLinkNote: '本地链接已准备好，仅适用于此 Dona Flora 安装。',
         localLinkTitle: '打开本地重置链接',
-        sending: '发送中…',
-        success: '如果该邮箱存在，我们已发送安全的重置链接。',
-        submit: '发送重置链接',
+        sending: '创建中…',
+        success: '如果该用户名存在，重置链接会在这里准备好。',
+        submit: '创建重置链接',
       },
       resetPassword: {
         confirmPasswordLabel: '确认新密码',
@@ -604,8 +608,8 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       },
       signIn: {
         createAccount: '创建账户',
-        emailLabel: '电子邮件',
-        emailPlaceholder: 'you@example.com',
+        emailLabel: '用户名',
+        emailPlaceholder: 'local-reader',
         error: '我们无法登录。',
         forgotPassword: '忘记密码？',
         passwordLabel: '密码',
@@ -620,8 +624,8 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         confirmPasswordLabel: '确认密码',
         confirmPasswordPlaceholder: '重复密码',
         creatingAccount: '创建账户中…',
-        emailLabel: '电子邮件',
-        emailPlaceholder: 'you@example.com',
+        emailLabel: '用户名',
+        emailPlaceholder: 'local-reader',
         error: '我们无法创建账户。',
         nameLabel: '姓名',
         namePlaceholder: '你想如何显示',
@@ -633,19 +637,19 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       verifyEmail: {
         createAnotherAccount: '创建另一个账户',
         backToSignIn: '返回登录',
-        emailLabel: '电子邮件',
-        emailPlaceholder: 'you@example.com',
-        errorPrefix: '我们无法验证邮箱',
+        emailLabel: '用户名',
+        emailPlaceholder: 'local-reader',
+        errorPrefix: '我们无法验证账户',
         goToLibrary: '前往书库',
-        info: '打开发送到你邮箱的链接。如有需要，可在下方重新发送验证。',
-        localLinkNote: '在本地环境中，你无需外部邮件服务也可以继续。',
-        localLinkTitle: '打开本地验证链接',
+        info: '此应用使用本地访问。如果看到此页面，请在下方创建本地链接后继续。',
+        localLinkNote: '本地链接已准备好，仅适用于此 Dona Flora 安装。',
+        localLinkTitle: '打开本地链接',
         otherAccount: '切换到其他账户登录',
-        preparingLocalLink: '正在准备本地验证链接…',
-        resend: '重新发送验证',
-        resending: '重新发送中…',
-        resendSubtitle: '我们已再次向你的邮箱发送验证链接。',
-        verified: '邮箱验证成功。你的书库已准备好。',
+        preparingLocalLink: '正在准备本地链接…',
+        resend: '创建本地链接',
+        resending: '创建中…',
+        resendSubtitle: '本地链接已创建。',
+        verified: '本地账户已验证。你的书库已准备好。',
       },
     },
     settings: {
@@ -706,17 +710,13 @@ export function AppLanguageProvider({
     normalizedLocale,
     SUPPORTED_APP_LANGUAGES,
   )
-  const [activeLocale, setActiveLocale] = useState(normalizedLocale)
   const isAuthRoute =
     pathname === '/sign-in' ||
     pathname === '/sign-up' ||
     pathname === '/forgot-password' ||
     pathname === '/reset-password' ||
     pathname === '/verify-email'
-
-  useEffect(() => {
-    setActiveLocale(isAuthRoute ? storedLocale : normalizedLocale)
-  }, [isAuthRoute, normalizedLocale, storedLocale])
+  const activeLocale = isAuthRoute ? storedLocale : normalizedLocale
 
   useEffect(() => {
     if (typeof document === 'undefined') {
@@ -733,7 +733,6 @@ export function AppLanguageProvider({
         locale: activeLocale,
         setLocale: (nextLocale) => {
           setStoredLocale(nextLocale)
-          setActiveLocale(nextLocale)
         },
       }}
     >

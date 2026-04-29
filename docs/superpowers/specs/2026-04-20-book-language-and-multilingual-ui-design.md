@@ -154,8 +154,8 @@ Update search result rendering in the add-book flow so each result can show:
 
 Update:
 
-- [book-card.tsx](/Users/mauro/projects/Dona Flora/src/components/book-card.tsx)
-- [book-row.tsx](/Users/mauro/projects/Dona Flora/src/components/book-row.tsx)
+- `src/components/book-card.tsx`
+- `src/components/book-row.tsx`
 
 to render a compact language badge in the same metadata cluster as status and rating.
 
@@ -163,7 +163,7 @@ to render a compact language badge in the same metadata cluster as status and ra
 
 Update:
 
-- [page.tsx](/Users/mauro/projects/Dona Flora/src/app/books/[slug]/page.tsx)
+- `src/app/books/[slug]/page.tsx`
 
 to include language as a persisted metadata field.
 

@@ -3,8 +3,8 @@ import { NextRequest } from 'next/server'
 /**
  * Mock strategy (AI-SPEC §3 + Plan 04-03 <behavior>):
  *  - `ai` is mocked so `streamText` never reaches the network.
- *  - `@openrouter/ai-sdk-provider` is mocked so the factory returns a function
- *    that echoes `{ modelId }` for assertions.
+ *  - the per-user AI provider resolver is mocked so tests do not reach Ollama
+ *    or OpenRouter.
  *  - `loadLibraryContext` returns a fixed string ('FAKE LIBRARY') so we can
  *    assert the system prompt wraps it in <LIBRARY>...</LIBRARY>.
  *  - `saveChat` is a jest.fn so we can assert onFinish invoked it.
@@ -41,12 +41,27 @@ jest.mock('ai', () => ({
   generateId: jest.fn(() => 'generated-id'),
 }))
 
-jest.mock('@openrouter/ai-sdk-provider', () => ({
-  createOpenRouter: jest.fn(() => (modelId: string) => ({ modelId })),
-}))
+jest.mock('@/lib/ai/provider', () => {
+  class AIProviderConfigurationError extends Error {
+    status = 503
+  }
+
+  return {
+    AIProviderConfigurationError,
+    resolveChatModelForUser: jest.fn(async () => ({
+      model: { modelId: 'qwen3.6:27b' },
+      provider: 'ollama',
+      settings: {},
+    })),
+  }
+})
 
 jest.mock('@/lib/library/context', () => ({
   loadLibraryContext: jest.fn(async () => 'FAKE LIBRARY'),
+}))
+
+jest.mock('@/lib/chats/memory', () => ({
+  loadConversationMemoryContext: jest.fn(async () => 'FAKE CHAT MEMORY'),
 }))
 
 jest.mock('@/lib/auth/server', () => ({
@@ -85,9 +100,14 @@ jest.mock('@/lib/chats/store', () => ({
 // Import AFTER mocks are registered.
 import { POST } from '@/app/api/chat/route'
 import { saveChat } from '@/lib/chats/store'
+import {
+  AIProviderConfigurationError,
+  resolveChatModelForUser,
+} from '@/lib/ai/provider'
 
 const mockedSaveChat = saveChat as jest.MockedFunction<typeof saveChat>
-const originalOpenRouterApiKey = process.env.OPENROUTER_API_KEY
+const mockedResolveChatModelForUser =
+  resolveChatModelForUser as jest.MockedFunction<typeof resolveChatModelForUser>
 
 function makeRequest(body: unknown): NextRequest {
   return new NextRequest('http://localhost/api/chat', {
@@ -103,20 +123,15 @@ function validMessages() {
 }
 
 beforeEach(() => {
-  process.env.OPENROUTER_API_KEY = 'test-openrouter-key'
   capturedStreamTextArgs.value = undefined
   capturedToUIMessageStreamResponseOpts.value = undefined
   consumeStreamSpy.mockClear()
   mockedSaveChat.mockClear()
-})
-
-afterAll(() => {
-  if (originalOpenRouterApiKey === undefined) {
-    delete process.env.OPENROUTER_API_KEY
-    return
-  }
-
-  process.env.OPENROUTER_API_KEY = originalOpenRouterApiKey
+  mockedResolveChatModelForUser.mockResolvedValue({
+    model: { modelId: 'qwen3.6:27b' },
+    provider: 'ollama',
+    settings: {},
+  })
 })
 
 describe('POST /api/chat — validation', () => {
@@ -233,8 +248,12 @@ describe('POST /api/chat — validation', () => {
     expect(res.status).toBe(400)
   })
 
-  it('returns 503 when OpenRouter is not configured', async () => {
-    delete process.env.OPENROUTER_API_KEY
+  it('returns 503 when local provider is unavailable and no fallback is configured', async () => {
+    mockedResolveChatModelForUser.mockRejectedValueOnce(
+      new AIProviderConfigurationError(
+        'Ollama local não respondeu. Abra o Ollama ou habilite um fallback externo nas settings.',
+      ),
+    )
 
     const res = await POST(
       makeRequest({ chatId: 'abc123', messages: validMessages() })
@@ -242,13 +261,13 @@ describe('POST /api/chat — validation', () => {
 
     expect(res.status).toBe(503)
     await expect(res.json()).resolves.toMatchObject({
-      error: expect.stringMatching(/Dona Flora.*configurada/i),
+      error: expect.stringMatching(/Ollama local não respondeu/i),
     })
   })
 })
 
 describe('POST /api/chat — streamText wiring', () => {
-  it('invokes streamText with OpenRouter model id (default anthropic/claude-sonnet-4.6)', async () => {
+  it('invokes streamText with the resolved Ollama model id by default', async () => {
     const res = await POST(
       makeRequest({ chatId: 'abc-123', messages: validMessages() })
     )
@@ -256,10 +275,10 @@ describe('POST /api/chat — streamText wiring', () => {
     const args = capturedStreamTextArgs.value
     expect(args).toBeDefined()
     const model = args?.model as { modelId?: string }
-    expect(model.modelId).toBe('anthropic/claude-sonnet-4.6')
+    expect(model.modelId).toBe('qwen3.6:27b')
   })
 
-  it('passes buildSystemPrompt output via top-level `system` param with cacheControl ephemeral', async () => {
+  it('passes buildSystemPrompt output via top-level `system` param without external cache metadata for Ollama', async () => {
     await POST(
       makeRequest({ chatId: 'abc-123', messages: validMessages() })
     )
@@ -275,6 +294,9 @@ describe('POST /api/chat — streamText wiring', () => {
     expect(system).toBeDefined()
     expect(system.role).toBe('system')
     expect(system.content).toContain('<LIBRARY>\nFAKE LIBRARY\n</LIBRARY>')
+    expect(system.content).toContain(
+      '<CONVERSATION_MEMORY>\nFAKE CHAT MEMORY\n</CONVERSATION_MEMORY>'
+    )
     expect(system.content).toContain('Dona Flora')
     expect(system.content).toContain('Idioma da interface: pt-BR')
     expect(system.content).toContain(
@@ -283,18 +305,37 @@ describe('POST /api/chat — streamText wiring', () => {
     expect(system.content).toContain(
       'Você deve responder no idioma definido em <USER_PREFERENCES>'
     )
-    // Both provider keys carry the same cacheControl marker (CR-01 defense:
-    // OpenRouter's getCacheControl accepts either key; we set both so a
-    // future provider change that drops one still leaves caching active).
+    expect(system.providerOptions).toBeUndefined()
+    // user messages live in `messages`; the system prompt is NOT there.
+    const userMessages = args?.messages as Array<{ role: string }>
+    expect(userMessages.every((m) => m.role !== 'system')).toBe(true)
+  })
+
+  it('adds cacheControl metadata only when the resolved provider is OpenRouter', async () => {
+    mockedResolveChatModelForUser.mockResolvedValueOnce({
+      model: { modelId: 'anthropic/claude-sonnet-4.6' },
+      provider: 'openrouter',
+      settings: {},
+    })
+
+    await POST(
+      makeRequest({ chatId: 'abc-123', messages: validMessages() })
+    )
+
+    const args = capturedStreamTextArgs.value
+    const system = args?.system as {
+      providerOptions?: {
+        anthropic?: { cacheControl?: { type?: string } }
+        openrouter?: { cacheControl?: { type?: string } }
+      }
+    }
+
     expect(system.providerOptions?.anthropic?.cacheControl?.type).toBe(
       'ephemeral'
     )
     expect(system.providerOptions?.openrouter?.cacheControl?.type).toBe(
       'ephemeral'
     )
-    // user messages live in `messages`; the system prompt is NOT there.
-    const userMessages = args?.messages as Array<{ role: string }>
-    expect(userMessages.every((m) => m.role !== 'system')).toBe(true)
   })
 
   it('injects the validated external preference directive into the system prompt', async () => {
@@ -323,13 +364,13 @@ describe('POST /api/chat — streamText wiring', () => {
     )
   })
 
-  it('passes stopWhen (stepCountIs(4)), temperature 0.6, maxOutputTokens 1500', async () => {
+  it('passes stopWhen (stepCountIs(4)), temperature 0.6, maxOutputTokens 3000', async () => {
     await POST(
       makeRequest({ chatId: 'abc-123', messages: validMessages() })
     )
     const args = capturedStreamTextArgs.value
     expect(args?.temperature).toBe(0.6)
-    expect(args?.maxOutputTokens).toBe(1500)
+    expect(args?.maxOutputTokens).toBe(3000)
     const stopWhen = args?.stopWhen as { __stopWhen?: string; n?: number }
     expect(stopWhen.__stopWhen).toBe('stepCountIs')
     expect(stopWhen.n).toBe(4)

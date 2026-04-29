@@ -41,7 +41,8 @@ next-env.d.ts
 # planning artifacts (tracked separately)
 .planning/
 
-# Local Codex/Claude workspaces
+# Local agent workspaces/instructions
+AGENTS.md
 .claude/
 
 # Runtime library/chat/trail data stays local

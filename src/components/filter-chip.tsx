@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { cn } from '@/lib/utils'
 
 interface FilterChipProps {
@@ -24,11 +25,6 @@ function formatSelectionLabel(label: string, count?: number) {
   return `${label} · ${count}`
 }
 
-function formatAriaLabel(label: string, count?: number) {
-  if (!count) return `Filtrar por ${label.toLowerCase()}`
-  return `Filtrar por ${label.toLowerCase()}, ${count} selecionado${count === 1 ? '' : 's'}`
-}
-
 export function FilterChip({
   label,
   count,
@@ -37,7 +33,21 @@ export function FilterChip({
   className,
   contentClassName,
 }: FilterChipProps) {
-  const ariaLabel = formatAriaLabel(label, count)
+  const { locale } = useAppLanguage()
+  const ariaLabel = {
+    'pt-BR': !count
+      ? `Filtrar por ${label.toLowerCase()}`
+      : `Filtrar por ${label.toLowerCase()}, ${count} selecionado${count === 1 ? '' : 's'}`,
+    en: !count
+      ? `Filter by ${label.toLowerCase()}`
+      : `Filter by ${label.toLowerCase()}, ${count} selected`,
+    es: !count
+      ? `Filtrar por ${label.toLowerCase()}`
+      : `Filtrar por ${label.toLowerCase()}, ${count} seleccionado${count === 1 ? '' : 's'}`,
+    'zh-CN': !count
+      ? `按${label}筛选`
+      : `按${label}筛选，已选择 ${count} 项`,
+  }[locale]
 
   return (
     <Popover>
@@ -46,7 +56,7 @@ export function FilterChip({
         aria-label={ariaLabel}
         title={ariaLabel}
         className={cn(
-          'surface-transition inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-medium tabular-nums shadow-mac-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'surface-transition inline-flex h-10 shrink-0 items-center gap-1.5 rounded-md border px-3.5 text-sm font-medium tabular-nums shadow-none outline-none hover:-translate-y-px active:translate-y-px focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           isActive
             ? 'border-transparent bg-primary text-primary-foreground'
             : 'border-hairline bg-surface-elevated text-foreground hover:bg-surface-strong',

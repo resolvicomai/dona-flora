@@ -73,4 +73,44 @@ describe('AddBookDialog language filter', () => {
       query: 'tolkien',
     })
   })
+
+  test('shows the API search error detail when a filtered search fails', async () => {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+    ;(global.fetch as jest.Mock).mockImplementation(async (input) => {
+      if (input === '/api/books/search') {
+        return {
+          ok: false,
+          json: async () => ({
+            error: 'Google Books falhou; tente Todos ou outro idioma.',
+          }),
+        } as Response
+      }
+
+      return {
+        ok: true,
+        json: async () => ({ ok: true }),
+      } as Response
+    })
+
+    render(
+      <AppLanguageProvider locale="pt-BR">
+        <AddBookDialog />
+      </AppLanguageProvider>,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Adicionar livro' }))
+    await user.click(screen.getByRole('button', { name: 'PT-BR' }))
+    await user.type(
+      screen.getByPlaceholderText('Buscar por título ou ISBN…'),
+      'harry potter pedra',
+    )
+
+    await act(async () => {
+      jest.advanceTimersByTime(400)
+    })
+
+    expect(
+      await screen.findByText('Google Books falhou; tente Todos ou outro idioma.'),
+    ).toBeInTheDocument()
+  })
 })

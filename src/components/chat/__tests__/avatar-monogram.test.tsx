@@ -26,8 +26,8 @@ describe('AvatarMonogram', () => {
     render(<AvatarMonogram className="ring-2" />)
     const el = screen.getByLabelText('Dona Flora')
     // Base classes must still be present
-    expect(el.className).toMatch(/rounded-full/)
-    expect(el.className).toMatch(/bg-zinc-800/)
+    expect(el.className).toMatch(/rounded-md/)
+    expect(el.className).toMatch(/crt-screen/)
     // Merged custom class must also be present
     expect(el.className).toMatch(/ring-2/)
   })

@@ -79,11 +79,12 @@ describe('MessageBubble', () => {
     const msg = makeMessage('assistant', [
       { type: 'text', text: 'Olá, caro leitor.' },
     ])
-    renderWithLibrary(
+    const { container } = renderWithLibrary(
       <MessageBubble message={msg} isLastAssistantStreaming={false} />,
     )
     expect(screen.getByLabelText('Dona Flora')).toBeInTheDocument()
     expect(screen.getByText('Olá, caro leitor.')).toBeInTheDocument()
+    expect(container.querySelector('.prose-invert')).toBeNull()
   })
 
   test('renders LibraryBookCardInline for known slug tool-output', () => {
@@ -100,6 +101,23 @@ describe('MessageBubble', () => {
     )
     const link = screen.getByRole('link')
     expect(link).toHaveAttribute('href', '/books/real')
+  })
+
+  test('renders local-model pseudo tool text as a card instead of raw syntax', () => {
+    const msg = makeMessage('assistant', [
+      {
+        type: 'text',
+        text: "Comece por [chama render_library_book_card({ slug: 'real' })] e depois me conte.",
+      },
+    ])
+    renderWithLibrary(
+      <MessageBubble message={msg} isLastAssistantStreaming={false} />,
+    )
+
+    expect(screen.queryByText(/render_library_book_card/)).toBeNull()
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/books/real')
+    expect(screen.getByText(/Comece por/)).toBeInTheDocument()
+    expect(screen.getByText(/depois me conte/)).toBeInTheDocument()
   })
 
   test('renders neutral fallback for unknown slug tool-output (AI-08 layered guard)', () => {
@@ -176,9 +194,9 @@ describe('MessageBubble', () => {
     const { container } = renderWithLibrary(
       <MessageBubble message={msg} isLastAssistantStreaming={true} />,
     )
-    // Streaming cursor: a narrow aria-hidden inline span with bg-zinc-400
+    // Streaming cursor: a narrow aria-hidden inline span using the brand ink.
     const cursor = container.querySelector(
-      'span.inline-block.w-\\[2px\\].bg-zinc-400',
+      'span.inline-block.w-\\[2px\\].bg-primary',
     )
     expect(cursor).not.toBeNull()
   })

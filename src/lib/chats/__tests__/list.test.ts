@@ -72,6 +72,28 @@ describe('listChats', () => {
     expect(result.map((r) => r.id)).toEqual(['b', 'c', 'a'])
   })
 
+  it('keeps pinned conversations above recent unpinned ones', async () => {
+    await writeChatFile('old-pinned.md', {
+      id: 'old-pinned',
+      title: 'Fixada antiga',
+      started_at: '2026-04-17T09:00:00Z',
+      updated_at: '2026-04-17T09:00:00Z',
+      book_refs: [],
+      pinned: true,
+    })
+    await writeChatFile('new.md', {
+      id: 'new',
+      title: 'Recente',
+      started_at: '2026-04-17T11:00:00Z',
+      updated_at: '2026-04-17T12:00:00Z',
+      book_refs: [],
+    })
+
+    const result = await listChats()
+    expect(result.map((r) => r.id)).toEqual(['old-pinned', 'new'])
+    expect(result[0].pinned).toBe(true)
+  })
+
   it('skips malformed files with warn and still returns valid ones', async () => {
     await writeChatFile('good.md', {
       id: 'good',

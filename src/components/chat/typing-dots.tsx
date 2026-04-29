@@ -19,7 +19,7 @@ export function TypingDots() {
       {[0, 200, 400].map((delay) => (
         <span
           key={delay}
-          className="h-1.5 w-1.5 rounded-full bg-foreground/45 motion-safe:animate-pulse"
+          className="h-1.5 w-1.5 rounded-full bg-primary motion-safe:animate-pulse"
           style={{ animationDelay: `${delay}ms` }}
         />
       ))}

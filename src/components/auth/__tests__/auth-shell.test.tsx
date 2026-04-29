@@ -55,7 +55,7 @@ describe('AuthShell accessibility controls', () => {
           <AuthShell
             description="Entre para acessar seu acervo."
             eyebrow="Entrar"
-            title="Sua biblioteca espera por voce."
+            title="Sua biblioteca espera por você."
           >
             <div>Form</div>
           </AuthShell>
@@ -75,7 +75,7 @@ describe('AuthShell accessibility controls', () => {
     renderAuthShell()
 
     expect(screen.getByText('Seu espaço de leitura, memória e conversa.')).toBeInTheDocument()
-    expect(screen.getByText('Sua biblioteca espera por voce.')).toBeInTheDocument()
+    expect(screen.getByText('Sua biblioteca espera por você.')).toBeInTheDocument()
     expect(screen.getByText('Tom, foco e idioma salvos')).toBeInTheDocument()
     expect(screen.getAllByText('Entrar')).toHaveLength(1)
   })

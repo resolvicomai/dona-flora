@@ -6,19 +6,19 @@ interface LocalAuthLinkResponse {
 }
 
 export async function fetchLocalAuthLink({
-  email,
   kind,
+  login,
 }: {
-  email: string
   kind: AuthEmailKind
+  login: string
 }) {
-  if (!email) {
+  if (!login) {
     return null
   }
 
   const searchParams = new URLSearchParams({
-    email,
     kind,
+    login,
   })
 
   const response = await fetch(`/api/auth/dev-link?${searchParams.toString()}`, {

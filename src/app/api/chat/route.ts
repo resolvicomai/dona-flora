@@ -8,7 +8,6 @@ import {
   type UIMessage,
   type UIDataTypes,
 } from 'ai'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { z } from 'zod'
 import {
   getSessionStorageContext,
@@ -17,6 +16,7 @@ import {
 import { getUserSettings } from '@/lib/auth/db'
 import { buildAISettingsDirective } from '@/lib/ai/settings'
 import { loadLibraryContext } from '@/lib/library/context'
+import { loadConversationMemoryContext } from '@/lib/chats/memory'
 import { saveChat } from '@/lib/chats/store'
 import { buildSystemPrompt } from '@/lib/ai/system-prompt'
 import {
@@ -24,12 +24,16 @@ import {
   ExternalPreferenceSchema,
 } from '@/lib/ai/external-preference'
 import { librarianTools, type LibrarianTools } from '@/lib/ai/tools'
+import {
+  AIProviderConfigurationError,
+  resolveChatModelForUser,
+} from '@/lib/ai/provider'
 import type { LibrarianMessage } from '@/lib/chats/types'
 
 /**
  * POST /api/chat — Dona Flora streaming endpoint (AI-SPEC §3).
  *
- * Wires Vercel AI SDK v6 + OpenRouter to stream a pt-BR response, with
+ * Wires Vercel AI SDK v6 + a per-user model resolver to stream a pt-BR response, with
  * the static persona/rules header marked `cacheControl: ephemeral` and the
  * dynamic <LIBRARY> block appended. Two read-only UI tools render inline book
  * cards. `onFinish` persists the full conversation to `data/chats/{chatId}.md`
@@ -39,12 +43,13 @@ import type { LibrarianMessage } from '@/lib/chats/types'
  * Path traversal on `chatId` is closed here via a Zod regex BEFORE the value
  * ever reaches `saveChat` (threat T-04-09).
  *
- * Model routed via OpenRouter — default `anthropic/claude-sonnet-4.6`, override
- * via `OPENROUTER_MODEL` env var.
+ * Model resolved per user: local Ollama by default, or the provider selected
+ * in settings. OpenRouter fallback remains optional.
  */
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60 // AI-SPEC §3 — streaming can take a while
+const MAX_OUTPUT_TOKENS = 3000
 
 // Re-exported client types (Plan 06 client imports from this route).
 export type { LibrarianTools }
@@ -187,13 +192,15 @@ export async function POST(request: NextRequest) {
     const session = authResult.session
 
     const storageContext = getSessionStorageContext(session)
-    const [libraryContext, aiSettings] = await Promise.all([
+    const [libraryContext, conversationMemory, aiSettings] = await Promise.all([
       loadLibraryContext(storageContext),
+      loadConversationMemoryContext(storageContext, chatId),
       Promise.resolve(getUserSettings(session.user.id)),
     ])
     const externalPreferenceDirective =
       buildExternalPreferenceDirective(externalPreference)
     const aiSettingsDirective = buildAISettingsDirective(aiSettings)
+    const resolvedModel = await resolveChatModelForUser(session.user.id)
 
     // AI SDK v6 contract (verified against installed @ai-sdk/provider-utils v6
     // types + @openrouter/ai-sdk-provider 2.x source — AI-SPEC §3 pitfall #4):
@@ -218,37 +225,29 @@ export async function POST(request: NextRequest) {
         libraryContext,
         {
           aiSettingsDirective,
+          conversationMemory,
           externalPreferenceDirective,
         },
       ),
-      providerOptions: {
-        anthropic: { cacheControl: { type: 'ephemeral' } },
-        openrouter: { cacheControl: { type: 'ephemeral' } },
-      },
+      ...(resolvedModel.provider === 'openrouter'
+        ? {
+            providerOptions: {
+              anthropic: { cacheControl: { type: 'ephemeral' } },
+              openrouter: { cacheControl: { type: 'ephemeral' } },
+            },
+          }
+        : {}),
     }
-
-    if (!process.env.OPENROUTER_API_KEY) {
-      return NextResponse.json(
-        { error: 'A Dona Flora ainda não está configurada para responder.' },
-        { status: 503 },
-      )
-    }
-
-    const openrouter = createOpenRouter({
-      apiKey: process.env.OPENROUTER_API_KEY,
-    })
-    const modelId =
-      process.env.OPENROUTER_MODEL ?? 'anthropic/claude-sonnet-4.6'
 
     const result = streamText({
-      model: openrouter(modelId),
+      model: resolvedModel.model,
       system: systemMessage,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: await convertToModelMessages(messages as any),
       tools: librarianTools,
       stopWhen: stepCountIs(4),
       temperature: 0.6,
-      maxOutputTokens: 1500,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       providerOptions: { anthropic: { sendReasoning: false } },
     })
 
@@ -273,6 +272,10 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (err) {
+    if (err instanceof AIProviderConfigurationError) {
+      return NextResponse.json({ error: err.message }, { status: err.status })
+    }
+
     console.error('[API] POST /api/chat error:', err)
     return NextResponse.json(
       { error: 'Erro ao gerar resposta.' },

@@ -9,21 +9,78 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import type { SortKey, SortDir } from '@/lib/books/search-params'
+import type { AppLanguage } from '@/lib/i18n/app-language'
 import { cn } from '@/lib/utils'
 
-interface SortOption {
-  value: SortKey
-  label: string
-}
-
 /** Human-readable label for each sort key, in display order (UI-SPEC Copywriting). */
-export const SORT_OPTIONS: ReadonlyArray<SortOption> = [
-  { value: 'added_at', label: 'Adicionado recentemente' },
-  { value: 'title', label: 'Título' },
-  { value: 'author', label: 'Autor' },
-  { value: 'rating', label: 'Nota' },
+export const SORT_OPTIONS: ReadonlyArray<{ value: SortKey }> = [
+  { value: 'added_at' },
+  { value: 'title' },
+  { value: 'author' },
+  { value: 'rating' },
 ] as const
+
+const SORT_COPY: Record<
+  AppLanguage,
+  {
+    asc: string
+    desc: string
+    fallback: string
+    label: string
+    options: Record<SortKey, string>
+  }
+> = {
+  'pt-BR': {
+    asc: 'Ordem crescente',
+    desc: 'Ordem decrescente',
+    fallback: 'Ordenar',
+    label: 'Ordenar por',
+    options: {
+      added_at: 'Adicionado recentemente',
+      title: 'Título',
+      author: 'Autor',
+      rating: 'Nota',
+    },
+  },
+  en: {
+    asc: 'Ascending order',
+    desc: 'Descending order',
+    fallback: 'Sort',
+    label: 'Sort by',
+    options: {
+      added_at: 'Recently added',
+      title: 'Title',
+      author: 'Author',
+      rating: 'Rating',
+    },
+  },
+  es: {
+    asc: 'Orden ascendente',
+    desc: 'Orden descendente',
+    fallback: 'Ordenar',
+    label: 'Ordenar por',
+    options: {
+      added_at: 'Agregado recientemente',
+      title: 'Título',
+      author: 'Autor',
+      rating: 'Nota',
+    },
+  },
+  'zh-CN': {
+    asc: '升序',
+    desc: '降序',
+    fallback: '排序',
+    label: '排序方式',
+    options: {
+      added_at: '最近添加',
+      title: '标题',
+      author: '作者',
+      rating: '评分',
+    },
+  },
+}
 
 /**
  * Default sort direction per key (UI-SPEC §Specifics):
@@ -56,6 +113,9 @@ interface SortSelectProps {
  * visible on desktop (`md:not-sr-only`) to save row space.
  */
 export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) {
+  const { locale } = useAppLanguage()
+  const copy = SORT_COPY[locale]
+
   function handleKeyChange(v: string | null) {
     if (!v) return
     const next = v as SortKey
@@ -67,25 +127,26 @@ export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) 
   }
 
   const currentLabel =
-    SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Ordenar'
-  const dirLabel = dir === 'asc' ? 'Ordem crescente' : 'Ordem decrescente'
+    copy.options[SORT_OPTIONS.find((o) => o.value === sort)?.value ?? sort] ??
+    copy.fallback
+  const dirLabel = dir === 'asc' ? copy.asc : copy.desc
 
   return (
     <div className={cn('flex min-w-0 items-center gap-2', className)}>
-      <span className="sr-only md:not-sr-only text-xs uppercase tracking-[0.14em] text-muted-foreground">
-        Ordenar por
+      <span className="sr-only font-mono text-xs tracking-normal text-muted-foreground md:not-sr-only">
+        {copy.label}
       </span>
       <Select value={sort} onValueChange={handleKeyChange}>
         <SelectTrigger
           className="h-10 min-w-0 flex-1 sm:w-[15.5rem] sm:flex-none"
-          aria-label="Ordenar por"
+          aria-label={copy.label}
         >
           <SelectValue>{currentLabel}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {SORT_OPTIONS.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
+              {copy.options[opt.value]}
             </SelectItem>
           ))}
         </SelectContent>

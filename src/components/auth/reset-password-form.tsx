@@ -48,9 +48,9 @@ export function ResetPasswordForm({ token }: { token?: string }) {
   }
 
   if (!token) {
-      return (
+    return (
       <div className="space-y-4">
-        <div className="rounded-[1.4rem] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {copy.auth.resetPassword.invalidLink}
         </div>
         <Link className="text-sm text-foreground hover:opacity-80" href="/forgot-password">
@@ -63,7 +63,7 @@ export function ResetPasswordForm({ token }: { token?: string }) {
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       {error ? (
-        <div className="rounded-[1.4rem] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}

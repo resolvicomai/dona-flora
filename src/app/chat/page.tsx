@@ -8,6 +8,8 @@ import {
 } from '@/lib/auth/server'
 import { ChatShell } from '@/components/chat/chat-shell'
 import type { ChatBookMeta } from '@/components/chat/known-library-context'
+import { getBookAuthorsDisplay } from '@/lib/books/authors'
+import { getCoverRoute } from '@/lib/covers/url'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,8 +40,8 @@ export default async function ChatPage({
     .map((b) => ({
       slug: b._filename?.replace(/\.md$/, '') ?? '',
       title: b.title,
-      author: b.author,
-      cover: b.cover,
+      author: getBookAuthorsDisplay(b),
+      cover: getCoverRoute(b._filename) ?? b.cover,
       status: b.status,
     }))
     .filter((b) => b.slug !== '')

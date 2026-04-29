@@ -5,11 +5,13 @@ const MOCK_VALID_RESPONSE = {
   docs: [
     {
       title: 'Fundacao',
+      subtitle: 'O ciclo original',
       author_name: ['Isaac Asimov'],
       language: ['eng'],
       first_publish_year: 1951,
       cover_i: 8765432,
       isbn: ['9780553293357', '0553293354'],
+      publisher: ['Bantam'],
     },
   ],
 }
@@ -30,6 +32,11 @@ describe('searchOpenLibrary', () => {
     expect(results[0].authors).toEqual(['Isaac Asimov'])
     expect(results[0].year).toBe(1951)
     expect(results[0].isbn).toBe('9780553293357')
+    expect(results[0].isbn10).toBe('0553293354')
+    expect(results[0].isbn13).toBe('9780553293357')
+    expect(results[0].subtitle).toBe('O ciclo original')
+    expect(results[0].publisher).toBe('Bantam')
+    expect(results[0].source).toBe('open-library')
     expect(results[0].language).toBe('eng')
   })
 
@@ -112,6 +119,19 @@ describe('searchOpenLibrary pagination', () => {
     expect(calledUrl).toMatch(/limit=20/)
   })
 
+  it('uses Open Library ISBN search param for ISBN queries', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ docs: [] }),
+    } as Response)
+
+    await searchOpenLibrary('978-0-553-29335-7')
+
+    const calledUrl = String(fetchSpy.mock.calls[0][0])
+    expect(calledUrl).toContain('isbn=9780553293357')
+    expect(calledUrl).not.toContain('q=')
+  })
+
   it('defaults page to 1 when omitted', async () => {
     const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
@@ -152,6 +172,27 @@ describe('searchOpenLibrary pagination', () => {
 
     expect(results).toHaveLength(1)
     expect(results[0].language).toBe('eng')
+  })
+
+  it('matches a requested language even when Open Library does not list it first', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        docs: [
+          {
+            title: "Harry Potter and the Philosopher's Stone",
+            author_name: ['J.K. Rowling'],
+            language: ['eng', 'spa', 'por'],
+          },
+        ],
+      }),
+    } as Response)
+
+    const results = await searchOpenLibrary('harry potter pedra', 20, 1, 'pt-BR')
+
+    expect(results).toHaveLength(1)
+    expect(results[0].title).toBe("Harry Potter and the Philosopher's Stone")
+    expect(results[0].language).toBe('por')
   })
 
   it('skips the upstream request entirely for queries shorter than three characters', async () => {

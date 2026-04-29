@@ -101,7 +101,7 @@ function ThemeOptionButton({
       type="button"
       variant="secondary"
       className={cn(
-        "h-auto w-full justify-between rounded-[1.25rem] px-3 py-3 text-left shadow-none",
+        "h-auto w-full justify-between rounded-md px-3 py-3 text-left shadow-none",
         isSelected
           ? "border-hairline bg-foreground/[0.06] text-foreground"
           : "border-transparent bg-transparent text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",

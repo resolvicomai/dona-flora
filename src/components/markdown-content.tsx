@@ -8,7 +8,7 @@ export async function MarkdownContent({ content }: MarkdownContentProps) {
   if (!content.trim()) {
     return (
       <p className="text-sm italic text-muted-foreground">
-        Nenhuma nota ainda. Clique em &apos;Editar notas&apos; para comecar.
+        Nenhuma nota ainda. Clique em &apos;Editar notas&apos; para começar.
       </p>
     )
   }

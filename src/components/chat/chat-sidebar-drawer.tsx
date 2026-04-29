@@ -9,7 +9,9 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { SidebarBody, useNewChatHandler } from './chat-sidebar'
+import { getChatCopy } from './chat-language'
 import type { ChatListEntry } from '@/lib/chats/list'
 import type { ReactElement } from 'react'
 
@@ -32,6 +34,8 @@ interface Props {
 }
 
 export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
   const newChat = useNewChatHandler()
   return (
     <Sheet>
@@ -41,13 +45,13 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
         className="!gap-0 p-0"
       >
         <SheetHeader className="flex-row items-center justify-between border-b border-hairline !px-4 !py-4">
-          <SheetTitle className="text-lg font-medium tracking-[-0.03em] text-foreground">
-            Conversas
+          <SheetTitle className="text-lg font-medium text-foreground">
+            {copy.sidebar.title}
           </SheetTitle>
           <Button
             size="icon"
             variant="secondary"
-            aria-label="Nova conversa"
+            aria-label={copy.sidebar.newConversationAria}
             onClick={newChat}
             className="h-10 w-10 min-h-[44px] min-w-[44px]"
           >

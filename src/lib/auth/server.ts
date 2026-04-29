@@ -2,8 +2,10 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { auth, ensureAuthReady } from '@/lib/auth/auth'
+import { auth, ensureAuthReady, ensureLocalUserReady } from '@/lib/auth/auth'
+import { getUserLibrarySettings } from '@/lib/auth/db'
 import type { AuthenticatedAppSession, UserProfile, UserRole } from '@/lib/auth/types'
+import { authIdentifierToDisplayLogin } from '@/lib/auth/local-identity'
 import { createStorageContext } from '@/lib/storage/context'
 
 function normalizeRole(role: unknown): UserRole {
@@ -38,10 +40,29 @@ function toAuthenticatedSession(
   }
 }
 
+async function prepareLocalSession(
+  session: Awaited<ReturnType<typeof auth.api.getSession>>,
+) {
+  const authenticated = toAuthenticatedSession(session)
+  if (!authenticated) {
+    return null
+  }
+
+  const role = await ensureLocalUserReady(authenticated.user.id)
+  return {
+    ...authenticated,
+    user: {
+      ...authenticated.user,
+      emailVerified: true,
+      role,
+    },
+  }
+}
+
 export async function getServerSession() {
   await ensureAuthReady()
   const requestHeaders = await headers()
-  return toAuthenticatedSession(
+  return prepareLocalSession(
     await auth.api.getSession({
       headers: requestHeaders,
     }),
@@ -50,7 +71,7 @@ export async function getServerSession() {
 
 export async function getRequestSession(request: Request | NextRequest) {
   await ensureAuthReady()
-  return toAuthenticatedSession(
+  return prepareLocalSession(
     await auth.api.getSession({
       headers: request.headers,
     }),
@@ -67,12 +88,7 @@ export async function requireServerSession() {
 }
 
 export async function requireVerifiedServerSession() {
-  const session = await requireServerSession()
-  if (!session.user.emailVerified) {
-    redirect('/verify-email')
-  }
-
-  return session
+  return requireServerSession()
 }
 
 export async function requireVerifiedRequestSession(request: Request | NextRequest) {
@@ -80,14 +96,7 @@ export async function requireVerifiedRequestSession(request: Request | NextReque
   if (!session) {
     return {
       ok: false as const,
-      response: NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 }),
-    }
-  }
-
-  if (!session.user.emailVerified) {
-    return {
-      ok: false as const,
-      response: NextResponse.json({ error: 'Email nao verificado.' }, { status: 403 }),
+      response: NextResponse.json({ error: 'Não autenticado.' }, { status: 401 }),
     }
   }
 
@@ -98,7 +107,10 @@ export async function requireVerifiedRequestSession(request: Request | NextReque
 }
 
 export function getSessionStorageContext(session: AuthenticatedAppSession) {
-  return createStorageContext(session.user.id)
+  const librarySettings = getUserLibrarySettings(session.user.id)
+  return createStorageContext(session.user.id, undefined, {
+    booksDir: librarySettings.booksDir,
+  })
 }
 
 export function toUserProfile(session: AuthenticatedAppSession): UserProfile {
@@ -111,7 +123,7 @@ export function toUserProfile(session: AuthenticatedAppSession): UserProfile {
 
   return {
     displayName: name,
-    email: session.user.email,
+    email: authIdentifierToDisplayLogin(session.user.email),
     emailVerified: session.user.emailVerified,
     id: session.user.id,
     image: session.user.image ?? null,

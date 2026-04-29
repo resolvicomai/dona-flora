@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { authClient } from '@/lib/auth/client'
+import { loginToAuthIdentifier } from '@/lib/auth/local-identity'
 
 export function SignInForm({ resetComplete = false }: { resetComplete?: boolean }) {
   const router = useRouter()
   const { copy } = useAppLanguage()
-  const [email, setEmail] = useState('')
+  const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
@@ -23,7 +24,7 @@ export function SignInForm({ resetComplete = false }: { resetComplete?: boolean 
     setIsPending(true)
 
     const result = await authClient.signIn.email({
-      email,
+      email: loginToAuthIdentifier(usernameOrEmail),
       password,
       rememberMe: true,
     })
@@ -33,11 +34,6 @@ export function SignInForm({ resetComplete = false }: { resetComplete?: boolean 
     if (result.error) {
       const message = result.error.message ?? copy.auth.signIn.error
       setError(message)
-      if (message.toLowerCase().includes('verify')) {
-        startTransition(() => {
-          router.push(`/verify-email?email=${encodeURIComponent(email)}`)
-        })
-      }
       return
     }
 
@@ -50,13 +46,13 @@ export function SignInForm({ resetComplete = false }: { resetComplete?: boolean 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       {resetComplete ? (
-        <div className="rounded-[1.4rem] border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+        <div className="brand-inset px-4 py-3 text-sm text-foreground">
           {copy.auth.signIn.resetComplete}
         </div>
       ) : null}
 
       {error ? (
-        <div className="rounded-[1.4rem] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -64,14 +60,13 @@ export function SignInForm({ resetComplete = false }: { resetComplete?: boolean 
       <label className="flex flex-col gap-2">
         <span className="eyebrow">{copy.auth.signIn.emailLabel}</span>
         <Input
-          autoComplete="email"
-          name="email"
-          onChange={(event) => setEmail(event.target.value)}
+          autoComplete="username"
+          name="usernameOrEmail"
+          onChange={(event) => setUsernameOrEmail(event.target.value)}
           placeholder={copy.auth.signIn.emailPlaceholder}
           required
           spellCheck={false}
-          type="email"
-          value={email}
+          value={usernameOrEmail}
         />
       </label>
 
@@ -92,11 +87,11 @@ export function SignInForm({ resetComplete = false }: { resetComplete?: boolean 
       </Button>
 
       <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-        <Link className="hover:text-foreground" href="/forgot-password">
-          {copy.auth.signIn.forgotPassword}
-        </Link>
         <Link className="hover:text-foreground" href="/sign-up">
           {copy.auth.signIn.createAccount}
+        </Link>
+        <Link className="hover:text-foreground" href="/forgot-password">
+          {copy.auth.signIn.forgotPassword}
         </Link>
       </div>
     </form>

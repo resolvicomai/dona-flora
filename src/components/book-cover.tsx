@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
@@ -35,7 +36,7 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-[1.35rem] border border-hairline bg-gradient-to-br from-surface via-surface-elevated to-surface-strong shadow-mac-sm',
+          'brand-panel flex items-center justify-center',
           className,
         )}
         style={{ width, height }}
@@ -49,13 +50,28 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
     )
   }
 
+  if (src.startsWith('/api/')) {
+    return (
+      // Same-origin authenticated cover routes must be requested by the
+      // browser so cookies travel with the request; next/image optimizes
+      // server-side and would not reliably carry the user's session.
+      <img
+        src={src}
+        alt={`${alt} - capa`}
+        width={width}
+        height={height}
+        className={cn('rounded-md border border-hairline-strong object-cover shadow-mac-sm', className)}
+      />
+    )
+  }
+
   return (
     <Image
       src={src}
       alt={`${alt} - capa`}
       width={width}
       height={height}
-      className={cn('rounded-[1.35rem] border border-white/30 object-cover shadow-mac-sm', className)}
+      className={cn('rounded-md border border-hairline-strong object-cover shadow-mac-sm', className)}
     />
   )
 }

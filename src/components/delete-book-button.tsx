@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +24,44 @@ interface DeleteBookButtonProps {
 
 export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
   const router = useRouter()
+  const { locale } = useAppLanguage()
+  const copy = {
+    'pt-BR': {
+      action: 'Excluir livro',
+      cancel: 'Cancelar',
+      deleting: 'Excluindo...',
+      description: (name: string) =>
+        `O arquivo ${name} será removido permanentemente. Essa ação não pode ser desfeita.`,
+      error: 'Erro ao excluir livro.',
+      title: 'Excluir livro?',
+    },
+    en: {
+      action: 'Delete book',
+      cancel: 'Cancel',
+      deleting: 'Deleting...',
+      description: (name: string) =>
+        `The file ${name} will be permanently removed. This cannot be undone.`,
+      error: 'Could not delete the book.',
+      title: 'Delete book?',
+    },
+    es: {
+      action: 'Eliminar libro',
+      cancel: 'Cancelar',
+      deleting: 'Eliminando...',
+      description: (name: string) =>
+        `El archivo ${name} se eliminará permanentemente. Esta acción no se puede deshacer.`,
+      error: 'No se pudo eliminar el libro.',
+      title: '¿Eliminar libro?',
+    },
+    'zh-CN': {
+      action: '删除图书',
+      cancel: '取消',
+      deleting: '删除中...',
+      description: (name: string) => `文件 ${name} 将被永久删除。此操作无法撤销。`,
+      error: '无法删除图书。',
+      title: '删除图书？',
+    },
+  }[locale]
   const [deleting, setDeleting] = useState(false)
 
   async function handleDelete() {
@@ -33,7 +72,7 @@ export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
       router.push('/')
     } catch {
       setDeleting(false)
-      alert('Erro ao excluir livro.')
+      alert(copy.error)
     }
   }
 
@@ -42,25 +81,24 @@ export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
       <AlertDialogTrigger render={
         <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
           <Trash2 className="mr-2 h-4 w-4" />
-          Excluir livro
+          {copy.action}
         </Button>
       } />
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Excluir livro?</AlertDialogTitle>
+          <AlertDialogTitle>{copy.title}</AlertDialogTitle>
           <AlertDialogDescription>
-            O arquivo {filename} sera removido permanentemente. Essa acao nao
-            pode ser desfeita.
+            {copy.description(filename)}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={deleting}
             variant="destructive"
           >
-            {deleting ? 'Excluindo...' : 'Excluir livro'}
+            {deleting ? copy.deleting : copy.action}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,10 +1,13 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookmarkPlus, Check, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { LibraryBookCardInline } from './library-book-card-inline'
+import { getChatCopy } from './chat-language'
 
 interface Props {
   slugs: string[]
@@ -25,9 +28,8 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'error'
  * Save flow (UI-SPEC §Persistence point 3 + UI-D20):
  *   - idle: `Salvar trilha` button (BookmarkPlus icon)
  *   - saving: loading spinner, disabled button with aria-busy
- *   - saved: Check icon + "Trilha salva" chip visible for 3 seconds, then
- *     automatically returns to idle (the row simply becomes the idle button
- *     again — this is the "sumiço após 3s" contract in §UI-D20).
+ *   - saved: Check icon + "Trilha salva" plus a direct link to the saved trail
+ *     page, so the user has an obvious place to continue.
  *   - error: pt-BR error copy + retry button that invokes handleSave again.
  *
  * Persistence target: POST /api/trails (Plan 03). The route Zod-validates
@@ -37,38 +39,40 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'error'
  */
 export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
   const router = useRouter()
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
   const [state, setState] = useState<SaveState>('idle')
+  const [savedSlug, setSavedSlug] = useState<string | null>(null)
 
   async function handleSave() {
     setState('saving')
     try {
-      const title = suggestedTitle?.trim() || 'Trilha de leitura'
+      const title = suggestedTitle?.trim() || copy.trail.defaultTitle
       const res = await fetch('/api/trails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, book_refs: slugs }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const payload = (await res.json()) as { slug?: string }
+      setSavedSlug(payload.slug ?? null)
       setState('saved')
       router.refresh()
-      // Transient 3-second "Trilha salva" chip — reverts to idle without
-      // forcing the user to dismiss anything (UI-D20).
-      setTimeout(() => setState('idle'), 3000)
     } catch {
       setState('error')
     }
   }
 
   return (
-    <div className="panel-solid my-4 flex flex-col gap-4 rounded-[1.75rem] p-4">
+    <div className="brand-panel my-4 flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium tracking-[-0.02em] text-card-foreground">
-          Trilha de leitura sugerida
+        <h3 className="text-sm font-medium text-card-foreground">
+          {copy.trail.title}
         </h3>
         {state === 'idle' && (
           <Button size="sm" onClick={handleSave}>
             <BookmarkPlus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Salvar trilha
+            {copy.trail.save}
           </Button>
         )}
         {state === 'saving' && (
@@ -77,22 +81,33 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
               className="mr-2 h-4 w-4 motion-safe:animate-spin"
               aria-hidden="true"
             />
-            Salvando…
+            {copy.trail.saving}
           </Button>
         )}
         {state === 'saved' && (
-          <span className="inline-flex items-center gap-2 rounded-full border border-hairline bg-surface px-3 py-1 text-sm font-medium text-foreground">
-            <Check className="h-4 w-4" aria-hidden="true" />
-            Trilha salva
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="brand-chip inline-flex items-center gap-2 px-3 py-1 text-sm font-medium text-foreground">
+              <Check className="h-4 w-4" aria-hidden="true" />
+              {copy.trail.saved}
+            </span>
+            {savedSlug ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                render={<Link href={`/trails/${savedSlug}`} />}
+              >
+                {copy.trail.open}
+              </Button>
+            ) : null}
+          </div>
         )}
         {state === 'error' && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-destructive">
-              Não consegui salvar a trilha.
+              {copy.trail.error}
             </span>
             <Button size="sm" variant="secondary" onClick={handleSave}>
-              Tentar novamente
+              {copy.trail.retry}
             </Button>
           </div>
         )}
@@ -100,7 +115,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
       <ol className="m-0 flex list-none flex-col gap-2 p-0">
         {slugs.map((slug, i) => (
           <li key={`${slug}-${i}`} className="flex items-start gap-3">
-            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-hairline bg-surface text-xs font-medium text-foreground">
+            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md border border-hairline bg-surface font-mono text-xs font-medium text-foreground">
               {i + 1}
             </span>
             <div className="min-w-0 flex-1">

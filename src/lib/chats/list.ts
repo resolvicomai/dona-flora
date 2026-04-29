@@ -59,6 +59,8 @@ export async function listChats(
           data?.updated_at instanceof Date
             ? data.updated_at.toISOString()
             : data?.updated_at,
+        pinned: data?.pinned === true,
+        title_locked: data?.title_locked === true,
       }
       const parsed = ChatFrontmatterSchema.safeParse(normalized)
       if (parsed.success) {
@@ -80,5 +82,8 @@ export async function listChats(
     }
   }
 
-  return items.sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+  return items.sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
+    return b.updated_at.localeCompare(a.updated_at)
+  })
 }

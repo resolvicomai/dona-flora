@@ -59,7 +59,7 @@ export function AppLanguageSwitcher({
 
       router.refresh()
     } catch (error) {
-      console.error('[TopNav] Failed to update app language:', error)
+      void error
       setActiveLocale(previousLocale)
       setLocale(previousLocale)
     } finally {
@@ -71,7 +71,7 @@ export function AppLanguageSwitcher({
     <div
       role="group"
       aria-label={copy.settings.appLanguageLabel}
-      className="glass-pill inline-flex h-10 items-center gap-1 rounded-full p-1"
+      className="brand-chip inline-flex h-10 items-center gap-1 p-1"
     >
       {APP_LANGUAGE_SWITCH_OPTIONS.map((option) => {
         const isActive = option.value === activeLocale
@@ -86,7 +86,7 @@ export function AppLanguageSwitcher({
             type="button"
             aria-pressed={isActive}
             className={cn(
-              'surface-transition inline-flex h-8 min-w-9 items-center justify-center rounded-full px-2.5 text-[0.74rem] font-medium tracking-[0.06em] outline-none focus-visible:border focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50',
+              'surface-transition inline-flex h-8 min-w-9 items-center justify-center rounded-md px-2.5 font-mono text-[0.74rem] font-medium tracking-normal outline-none focus-visible:border focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50',
               isActive
                 ? 'bg-primary text-primary-foreground shadow-mac-sm'
                 : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground',

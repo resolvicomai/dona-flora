@@ -5,6 +5,7 @@ const MOCK_VALID_RESPONSE = {
     {
       volumeInfo: {
         title: 'Fundacao',
+        subtitle: 'O ciclo original',
         authors: ['Isaac Asimov'],
         description: 'Uma saga épica sobre o futuro da humanidade.',
         categories: ['Fiction'],
@@ -17,6 +18,7 @@ const MOCK_VALID_RESPONSE = {
         ],
         language: 'pt-BR',
         publishedDate: '2009',
+        publisher: 'Editora Teste',
       },
     },
   ],
@@ -37,7 +39,13 @@ describe('searchGoogleBooks', () => {
     expect(results[0].title).toBe('Fundacao')
     expect(results[0].authors).toEqual(['Isaac Asimov'])
     expect(results[0].isbn).toBe('9788576570509')
+    expect(results[0].isbn10).toBe('8576570505')
+    expect(results[0].isbn13).toBe('9788576570509')
+    expect(results[0].subtitle).toBe('O ciclo original')
+    expect(results[0].publisher).toBe('Editora Teste')
     expect(results[0].synopsis).toBe('Uma saga épica sobre o futuro da humanidade.')
+    expect(results[0].synopsisSource).toBe('Google Books')
+    expect(results[0].source).toBe('google-books')
     expect(results[0].genre).toBe('Fiction')
     expect(results[0].year).toBe(2009)
     expect(results[0].language).toBe('pt-BR')

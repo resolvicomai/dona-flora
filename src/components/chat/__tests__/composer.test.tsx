@@ -171,7 +171,7 @@ describe('Composer', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1)
   })
 
-  test('composer participates in normal layout instead of using sticky positioning', () => {
+  test('composer stays sticky at the bottom of the chat panel', () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
     const { container } = render(
@@ -184,6 +184,8 @@ describe('Composer', () => {
 
     const form = container.querySelector('form')
     expect(form).not.toBeNull()
-    expect(form?.className).not.toContain('sticky')
+    expect(form?.className).toContain('sticky')
+    expect(form?.className).toContain('bottom-0')
+    expect(form?.className).toContain('pb-[env(safe-area-inset-bottom)]')
   })
 })

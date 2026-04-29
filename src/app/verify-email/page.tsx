@@ -17,14 +17,14 @@ export default async function VerifyEmailPage({
 
   return (
     <AuthShell
-      description="Confirme seu email para liberar o acesso ao acervo e ao chat."
-      eyebrow="Verificacao"
-      title={verified === '1' ? 'Email confirmado.' : 'Confirme seu email'}
-      footer={<p>Se o link expirar, voce pode reenviar uma nova verificacao sem sair daqui.</p>}
+      description="Valide a conta local para continuar ao acervo e ao chat."
+      eyebrow="Acesso local"
+      title={verified === '1' ? 'Conta local validada.' : 'Valide a conta local'}
+      footer={<p>Se o link expirar, você pode gerar um novo link local sem sair daqui.</p>}
     >
       <VerifyEmailPanel
         key={`${email ?? session?.user.email ?? 'guest'}-${verified === '1' ? 'verified' : 'pending'}`}
-        email={email ?? session?.user.email}
+        loginIdentifier={email ?? session?.user.email}
         errorCode={error}
         verified={verified === '1' || Boolean(session?.user.emailVerified)}
       />

@@ -3,7 +3,7 @@ import path from 'path'
 import os from 'os'
 import matter from 'gray-matter'
 import { SAFE_MATTER_OPTIONS } from '@/lib/books/library-service'
-import { saveChat, loadChat } from '../store'
+import { saveChat, loadChat, updateChatMetadata } from '../store'
 import type { LibrarianMessage } from '../types'
 
 let tmpDir: string
@@ -150,6 +150,31 @@ describe('saveChat', () => {
     const { data } = matter(raw, SAFE_MATTER_OPTIONS)
     expect(data.title.length).toBeLessThanOrEqual(61) // 60 + ellipsis
     expect(data.title.endsWith('…')).toBe(true)
+  })
+
+  it('preserves renamed title and pinned state on later saves', async () => {
+    const msgs: LibrarianMessage[] = [mkText('user', 'Primeiro título')]
+    await saveChat({ chatId: 'custom', messages: msgs })
+
+    const updated = await updateChatMetadata({
+      chatId: 'custom',
+      title: 'Minha conversa importante',
+      pinned: true,
+    })
+    expect(updated?.title).toBe('Minha conversa importante')
+    expect(updated?.title_locked).toBe(true)
+    expect(updated?.pinned).toBe(true)
+
+    await saveChat({
+      chatId: 'custom',
+      messages: [...msgs, mkText('assistant', 'Continuação.')],
+    })
+
+    const raw = await fs.readFile(path.join(tmpDir, 'custom.md'), 'utf-8')
+    const { data } = matter(raw, SAFE_MATTER_OPTIONS)
+    expect(data.title).toBe('Minha conversa importante')
+    expect(data.title_locked).toBe(true)
+    expect(data.pinned).toBe(true)
   })
 })
 

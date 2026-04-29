@@ -5,7 +5,8 @@ export function stripDiacritics(s: string): string {
 }
 
 export function dedupeKey(b: BookSearchResult): string {
-  if (b.isbn) return `isbn:${b.isbn}`
+  const isbn = b.isbn13 ?? b.isbn10 ?? b.isbn
+  if (isbn) return `isbn:${isbn}`
   const title = stripDiacritics(b.title.toLowerCase()).replace(/\s+/g, ' ').trim()
   const author = stripDiacritics((b.authors[0] ?? '').toLowerCase()).trim()
   return `ta:${title}|${author}`

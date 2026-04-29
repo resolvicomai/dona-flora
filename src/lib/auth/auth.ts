@@ -69,7 +69,7 @@ const authOptions: BetterAuthOptions = {
   secret: getAuthSecret(),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: false,
     sendResetPassword: async ({ token, url, user }) => {
       await sendAuthEmail({
         email: user.email,
@@ -81,7 +81,7 @@ const authOptions: BetterAuthOptions = {
   },
   emailVerification: {
     autoSignInAfterVerification: true,
-    sendOnSignUp: true,
+    sendOnSignUp: false,
     sendVerificationEmail: async ({ token, url, user }) => {
       await sendAuthEmail({
         email: user.email,
@@ -89,34 +89,6 @@ const authOptions: BetterAuthOptions = {
         token,
         url,
       })
-    },
-    afterEmailVerification: async (user) => {
-      ensureAppTables(database)
-
-      const assignOwnerIfNeeded = database.transaction((userId: string) => {
-        const existingOwner = database
-          .prepare<{ role: UserRole }, { id: string }>(
-            `SELECT id FROM "user" WHERE role = @role LIMIT 1`,
-          )
-          .get({ role: 'owner' })
-
-        if (existingOwner) {
-          return existingOwner.id === userId
-        }
-
-        database
-          .prepare<{ role: UserRole; userId: string }>(
-            `UPDATE "user" SET role = @role WHERE id = @userId`,
-          )
-          .run({ role: 'owner', userId })
-
-        return true
-      })
-
-      const isOwner = assignOwnerIfNeeded(user.id)
-      if (isOwner) {
-        await claimLegacyDataForUser({ userId: user.id })
-      }
     },
   },
   plugins: [nextCookies()],
@@ -134,6 +106,37 @@ const authOptions: BetterAuthOptions = {
 }
 
 export const auth = betterAuth(authOptions)
+
+export async function ensureLocalUserReady(userId: string): Promise<UserRole> {
+  ensureAppTables(database)
+
+  const assignOwnerIfNeeded = database.transaction((currentUserId: string) => {
+    const existingOwner = database
+      .prepare<{ role: UserRole }, { id: string }>(
+        `SELECT id FROM "user" WHERE role = @role LIMIT 1`,
+      )
+      .get({ role: 'owner' })
+
+    if (existingOwner) {
+      return existingOwner.id === currentUserId ? 'owner' : 'user'
+    }
+
+    database
+      .prepare<{ role: UserRole; userId: string }>(
+        `UPDATE "user" SET role = @role WHERE id = @userId`,
+      )
+      .run({ role: 'owner', userId: currentUserId })
+
+    return 'owner'
+  })
+
+  const role = assignOwnerIfNeeded(userId)
+  if (role === 'owner') {
+    await claimLegacyDataForUser({ userId })
+  }
+
+  return role
+}
 
 let authReadyPromise: Promise<void> | null = null
 

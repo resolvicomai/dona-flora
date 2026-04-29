@@ -1,5 +1,8 @@
 import path from 'path'
+import fs from 'fs/promises'
+import os from 'os'
 import { loadLibraryContext } from '../context'
+import { createStorageContext } from '@/lib/storage/context'
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures/books')
 
@@ -20,6 +23,73 @@ describe('loadLibraryContext', () => {
     process.env.LIBRARY_DIR = path.join(__dirname, 'nonexistent-dir')
     const result = await loadLibraryContext()
     expect(result).toBe('')
+  })
+
+  it('loads Markdown context from a configured external books directory', async () => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dona-flora-library-context-'))
+    const booksDir = path.join(tmpDir, 'obsidian-livros')
+    await fs.mkdir(booksDir, { recursive: true })
+    await fs.writeFile(
+      path.join(booksDir, 'livro-local.md'),
+      [
+        '---',
+        'title: Livro Local',
+        'author: Autora',
+        'status: lendo',
+        'rating: 4',
+        '---',
+        'Notas vindas do Obsidian.',
+      ].join('\n'),
+      'utf-8',
+    )
+
+    try {
+      const context = createStorageContext('user-1', path.join(tmpDir, 'app'), {
+        booksDir,
+      })
+      const result = await loadLibraryContext(context)
+
+      expect(result).toContain('### Livro Local — Autora')
+      expect(result).toContain('notes: Notas vindas do Obsidian.')
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('includes compacted highlights in the AI context', async () => {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dona-flora-highlights-'))
+    const booksDir = path.join(tmpDir, 'livros')
+    await fs.mkdir(booksDir, { recursive: true })
+    await fs.writeFile(
+      path.join(booksDir, 'livro-com-highlights.md'),
+      [
+        '---',
+        'title: Livro com Highlights',
+        'author: Autora',
+        'status: lido',
+        'added_at: "2026-04-29"',
+        '---',
+        '',
+        'Notas gerais.',
+        '',
+        '## Highlights',
+        '',
+        '- p.12: "Uma frase importante" — lembrar disso',
+      ].join('\n'),
+      'utf-8',
+    )
+
+    try {
+      const context = createStorageContext('user-1', path.join(tmpDir, 'app'), {
+        booksDir,
+      })
+      const result = await loadLibraryContext(context)
+
+      expect(result).toContain('highlights:')
+      expect(result).toContain('- p.12: "Uma frase importante" — lembrar disso')
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true })
+    }
   })
 
   it('returns concatenated entries separated by blank lines', async () => {
@@ -61,7 +131,6 @@ describe('loadLibraryContext', () => {
   it('truncates notes body to 400 chars', async () => {
     // Temporarily add a long-notes fixture directory
     const longDir = path.join(__dirname, 'fixtures/long-notes')
-    const fs = await import('fs/promises')
     await fs.mkdir(longDir, { recursive: true })
     const longBody = 'x'.repeat(600)
     const filepath = path.join(longDir, 'livro-longo.md')

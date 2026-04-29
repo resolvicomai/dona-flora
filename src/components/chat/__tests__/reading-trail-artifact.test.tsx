@@ -127,7 +127,7 @@ describe('ReadingTrailArtifact', () => {
     expect(body.title.length).toBeGreaterThan(0)
   })
 
-  test("shows 'Trilha salva' for 3s after successful save, then reverts", async () => {
+  test("shows 'Trilha salva' and an open-trail link after successful save", async () => {
     renderWithLibrary(<ReadingTrailArtifact slugs={['a-um', 'b-dois']} />)
     const btn = screen.getByRole('button', { name: /Salvar trilha/i })
     await act(async () => {
@@ -136,14 +136,9 @@ describe('ReadingTrailArtifact', () => {
     await waitFor(() =>
       expect(screen.getByText('Trilha salva')).toBeInTheDocument(),
     )
-    // After 3s the chip should disappear and the idle button returns.
-    await act(async () => {
-      jest.advanceTimersByTime(3000)
-    })
-    expect(screen.queryByText('Trilha salva')).toBeNull()
     expect(
-      screen.getByRole('button', { name: /Salvar trilha/i }),
-    ).toBeInTheDocument()
+      screen.getByRole('link', { name: /Abrir trilha/i }),
+    ).toHaveAttribute('href', '/trails/trilha-1')
   })
 
   test('calls router.refresh() after a successful save', async () => {

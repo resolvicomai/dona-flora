@@ -4,22 +4,46 @@ import {
   getSessionStorageContext,
   requireVerifiedRequestSession,
 } from '@/lib/auth/server'
-import { BookStatusEnum } from '@/lib/books/schema'
+import {
+  BookStatusEnum,
+  DateOnlySchema,
+  ISBN10Schema,
+  ISBN13Schema,
+} from '@/lib/books/schema'
 import { writeBook } from '@/lib/books/library-service'
 
 export const dynamic = 'force-dynamic'
 
+const AuthorInputSchema = z.union([
+  z.string().min(1),
+  z.array(z.string().min(1)).min(1),
+])
+
 const CreateBookSchema = z.object({
   title: z.string().min(1),
-  author: z.string().min(1),
+  subtitle: z.string().optional(),
+  author: AuthorInputSchema,
+  translator: z.string().optional(),
   isbn: z.string().optional(),
+  isbn_10: ISBN10Schema.optional(),
+  isbn_13: ISBN13Schema.optional(),
+  publisher: z.string().optional(),
   synopsis: z.string().optional(),
+  synopsis_source: z.string().optional(),
   cover: z.string().url().optional(),
   genre: z.string().optional(),
   year: z.coerce.number().int().optional(),
   language: z.string().min(2).max(32).optional(),
+  series: z.string().optional(),
+  series_index: z.coerce.number().optional(),
   status: BookStatusEnum,
+  priority: z.coerce.number().int().min(1).max(5).optional(),
+  started_at: DateOnlySchema.optional(),
+  finished_at: DateOnlySchema.optional(),
+  progress: z.coerce.number().int().min(0).max(100).optional(),
+  current_page: z.coerce.number().int().nonnegative().optional(),
   rating: z.coerce.number().int().min(1).max(5).optional(),
+  tags: z.array(z.string()).optional(),
   notes: z.string().optional(),
 })
 

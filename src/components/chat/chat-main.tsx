@@ -6,6 +6,7 @@ import { Menu } from 'lucide-react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { Button } from '@/components/ui/button'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import {
   shouldOfferExternalPreference,
   type ExternalPreference,
@@ -14,6 +15,7 @@ import { ChatSidebarDrawer } from './chat-sidebar-drawer'
 import { ExternalPreferenceToggle } from './external-preference-toggle'
 import { MessageList } from './message-list'
 import { Composer } from './composer'
+import { getChatCopy } from './chat-language'
 import type { ChatListEntry } from '@/lib/chats/list'
 import type { LibrarianMessage } from '@/lib/chats/types'
 import type { LibrarianClientMessage } from '@/app/api/chat/route'
@@ -76,6 +78,8 @@ export function ChatMain({
   seedBook,
 }: ChatMainProps) {
   const router = useRouter()
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
   const effectiveChatId = useStableChatId(chatId)
   const [input, setInput] = useState('')
   const [externalPreference, setExternalPreference] = useState<ExternalPreference | null>(null)
@@ -113,6 +117,10 @@ export function ChatMain({
         // turns: the entry is already rendered and listChats() is O(N files).
         if (hasRefreshedSidebar.current) return
         hasRefreshedSidebar.current = true
+        if (!chatId) {
+          router.replace(`/chat/${effectiveChatId}`)
+          return
+        }
         router.refresh()
       },
     })
@@ -126,7 +134,7 @@ export function ChatMain({
     })
 
   // Deep-link seed: on first mount when ?about=slug was resolved to a
-  // `seedBook` server-side, pre-fill the composer in pt-BR without sending.
+  // `seedBook` server-side, pre-fill the composer in the active app language.
   // Strip the query param so refreshes don't re-apply the seed — but only
   // when we actually applied the seed; otherwise a stray re-render (WR-01)
   // would strip `?about` before the seed had a chance to take.
@@ -137,12 +145,12 @@ export function ChatMain({
     if ((messages?.length ?? 0) !== 0) return
 
     setInput(
-      `Conte-me mais sobre "${seedBook.title}" de ${seedBook.author}. O que você acha dessa minha escolha?`,
+      copy.main.seedBook(seedBook.title, seedBook.author),
     )
     seedApplied.current = true
     router.replace('/chat')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seedBook])
+  }, [copy, seedBook])
 
   useEffect(() => {
     externalPreferenceRef.current = externalPreference
@@ -159,17 +167,18 @@ export function ChatMain({
     setInput('')
   }
 
-  const title = messages.length === 0 ? 'Nova conversa' : 'Conversa'
+  const title =
+    messages.length === 0 ? copy.main.newConversation : copy.main.conversation
 
   return (
-    <div className="panel-solid flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[2rem]">
-      <header className="surface-blur z-10 flex min-h-14 shrink-0 items-center gap-2 border-b border-hairline px-4 md:px-6">
+    <div className="brand-window flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <header className="z-10 flex min-h-14 shrink-0 items-center gap-2 border-b border-hairline-strong bg-surface px-4 md:px-6">
         <ChatSidebarDrawer
           trigger={
             <Button
               variant="secondary"
               size="icon"
-              aria-label="Abrir histórico de conversas"
+              aria-label={copy.main.openHistoryAria}
               className="h-10 w-10 min-h-[44px] min-w-[44px] xl:hidden"
             >
               <Menu className="h-4 w-4" aria-hidden="true" />
@@ -179,16 +188,18 @@ export function ChatMain({
           activeChatId={effectiveChatId}
         />
         <div className="min-w-0">
-          <p className="eyebrow">Dona Flora</p>
-          <h2 className="truncate text-sm font-medium tracking-[-0.02em] text-foreground">
+          <p className="eyebrow">{copy.main.brandEyebrow}</p>
+          <h2 className="truncate text-sm font-medium text-foreground">
             {title}
           </h2>
         </div>
       </header>
 
-      {/* One-shot aria-live announcement when a new turn enters 'submitted'. */}
+      {/* One-shot aria-live announcement while a turn is pending first text. */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {status === 'submitted' ? 'Dona Flora está respondendo.' : ''}
+        {status === 'submitted' || status === 'streaming'
+          ? copy.main.responding
+          : ''}
       </div>
 
       <MessageList

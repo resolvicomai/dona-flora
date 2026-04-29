@@ -3,7 +3,7 @@ import path from 'path'
 import os from 'os'
 import matter from 'gray-matter'
 import { SAFE_MATTER_OPTIONS } from '@/lib/books/library-service'
-import { saveTrail } from '../store'
+import { getTrail, listTrails, saveTrail } from '../store'
 
 let tmpDir: string
 
@@ -129,5 +129,35 @@ describe('saveTrail', () => {
     const { data } = matter(raw, SAFE_MATTER_OPTIONS)
     expect(data.goal).toBe('')
     expect(data.notes).toBe('')
+  })
+
+  it('lists saved trails newest first', async () => {
+    await saveTrail({ title: 'Primeira Trilha', book_refs: ['a'] })
+    await new Promise((resolve) => setTimeout(resolve, 5))
+    await saveTrail({ title: 'Segunda Trilha', book_refs: ['b'] })
+
+    const trails = await listTrails()
+
+    expect(trails.map((trail) => trail.title)).toEqual([
+      'Segunda Trilha',
+      'Primeira Trilha',
+    ])
+    expect(trails[0].slug).toBe('segunda-trilha')
+  })
+
+  it('loads a single trail by slug', async () => {
+    const { slug } = await saveTrail({
+      title: 'Trilha Para Acompanhar',
+      goal: 'Ler em ordem',
+      book_refs: ['a', 'b'],
+      notes: 'Notas da trilha.',
+    })
+
+    const trail = await getTrail(slug)
+
+    expect(trail?.title).toBe('Trilha Para Acompanhar')
+    expect(trail?.goal).toBe('Ler em ordem')
+    expect(trail?.book_refs).toEqual(['a', 'b'])
+    expect(trail?._notes.trim()).toBe('Notas da trilha.')
   })
 })

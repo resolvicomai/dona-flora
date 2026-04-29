@@ -7,6 +7,10 @@ import { fetchLocalAuthLink } from '@/lib/auth/dev-link-client'
 import { Input } from '@/components/ui/input'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { authClient } from '@/lib/auth/client'
+import {
+  authIdentifierToDisplayLogin,
+  loginToAuthIdentifier,
+} from '@/lib/auth/local-identity'
 import { cn } from '@/lib/utils'
 
 function verificationCallbackURL() {
@@ -16,16 +20,18 @@ function verificationCallbackURL() {
 }
 
 export function VerifyEmailPanel({
-  email: initialEmail = '',
+  loginIdentifier: initialLoginIdentifier = '',
   errorCode,
   verified = false,
 }: {
-  email?: string
+  loginIdentifier?: string
   errorCode?: string
   verified?: boolean
 }) {
   const { copy } = useAppLanguage()
-  const [email, setEmail] = useState(initialEmail)
+  const [login, setLogin] = useState(
+    authIdentifierToDisplayLogin(initialLoginIdentifier),
+  )
   const [error, setError] = useState<string | null>(
     errorCode ? `${copy.auth.verifyEmail.errorPrefix} (${errorCode}).` : null,
   )
@@ -34,22 +40,22 @@ export function VerifyEmailPanel({
   )
   const [localLink, setLocalLink] = useState<string | null>(null)
   const [isLoadingLocalLink, setIsLoadingLocalLink] = useState(
-    Boolean(initialEmail) && !verified,
+    Boolean(initialLoginIdentifier) && !verified,
   )
   const [isPending, setIsPending] = useState(false)
 
   useEffect(() => {
     let isActive = true
 
-    if (!initialEmail || verified) {
+    if (!initialLoginIdentifier || verified) {
       return () => {
         isActive = false
       }
     }
 
     void fetchLocalAuthLink({
-      email: initialEmail,
       kind: 'verify-email',
+      login: initialLoginIdentifier,
     }).then((url) => {
       if (!isActive) {
         return
@@ -62,7 +68,7 @@ export function VerifyEmailPanel({
     return () => {
       isActive = false
     }
-  }, [initialEmail, verified])
+  }, [initialLoginIdentifier, verified])
 
   async function handleResend(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -72,7 +78,7 @@ export function VerifyEmailPanel({
 
     const result = await authClient.sendVerificationEmail({
       callbackURL: verificationCallbackURL(),
-      email,
+      email: loginToAuthIdentifier(login),
     })
 
     setIsPending(false)
@@ -85,8 +91,8 @@ export function VerifyEmailPanel({
     setInfo(copy.auth.verifyEmail.resendSubtitle)
     setIsLoadingLocalLink(true)
     const url = await fetchLocalAuthLink({
-      email,
       kind: 'verify-email',
+      login,
     })
     setLocalLink(url)
     setIsLoadingLocalLink(false)
@@ -95,13 +101,13 @@ export function VerifyEmailPanel({
   return (
     <div className="flex flex-col gap-4">
       {info ? (
-        <div className="rounded-[1.4rem] border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+        <div className="brand-inset px-4 py-3 text-sm text-foreground">
           {info}
         </div>
       ) : null}
 
       {error ? (
-        <div className="rounded-[1.4rem] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -125,7 +131,7 @@ export function VerifyEmailPanel({
           </p>
 
           {localLink ? (
-            <div className="rounded-[1.4rem] border border-border/60 bg-surface/70 px-4 py-3 text-sm text-muted-foreground">
+            <div className="brand-inset px-4 py-3 text-sm text-muted-foreground">
               {copy.auth.verifyEmail.localLinkNote}
               <div className="mt-3">
                 <a className={buttonVariants({ variant: 'outline' })} href={localLink}>
@@ -134,7 +140,7 @@ export function VerifyEmailPanel({
               </div>
             </div>
           ) : isLoadingLocalLink ? (
-            <div className="rounded-[1.4rem] border border-border/60 bg-surface/70 px-4 py-3 text-sm text-muted-foreground">
+            <div className="brand-inset px-4 py-3 text-sm text-muted-foreground">
               {copy.auth.verifyEmail.preparingLocalLink}
             </div>
           ) : null}
@@ -142,12 +148,13 @@ export function VerifyEmailPanel({
           <label className="flex flex-col gap-2">
             <span className="eyebrow">{copy.auth.verifyEmail.emailLabel}</span>
             <Input
-              autoComplete="email"
-              onChange={(event) => setEmail(event.target.value)}
+              autoComplete="username"
+              onChange={(event) => setLogin(event.target.value)}
               placeholder={copy.auth.verifyEmail.emailPlaceholder}
               required
-              type="email"
-              value={email}
+              spellCheck={false}
+              type="text"
+              value={login}
             />
           </label>
 

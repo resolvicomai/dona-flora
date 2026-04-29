@@ -4,6 +4,7 @@ import os from 'os'
 import { listBooks, getBook, SAFE_MATTER_OPTIONS, writeBook, updateBook, deleteBook } from '../library-service'
 import { BookSchema } from '../schema'
 import matter from 'gray-matter'
+import { createStorageContext } from '@/lib/storage/context'
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures')
 
@@ -42,7 +43,7 @@ describe('listBooks', () => {
     const books = await listBooks()
     const alquimista = books.find((b) => b.title === 'O Alquimista')
     expect(alquimista).toBeDefined()
-    expect(alquimista!.author).toBe('Paulo Coelho')
+    expect(alquimista!.author).toEqual(['Paulo Coelho'])
     expect(alquimista!._notes).toContain('cafe')
     expect(alquimista!._notes).toContain('coracao')
   })
@@ -51,7 +52,7 @@ describe('listBooks', () => {
     const books = await listBooks()
     const daodejing = books.find((b) => b.title === '道德经')
     expect(daodejing).toBeDefined()
-    expect(daodejing!.author).toBe('老子')
+    expect(daodejing!.author).toEqual(['老子'])
     expect(daodejing!._notes).toContain('道可道')
   })
 })
@@ -228,6 +229,22 @@ describe('updateBook', () => {
     expect(body.trim()).toBe('New notes.')
     expect(data.title).toBe('Notes Update')
   })
+
+  it('removes frontmatter keys when an update value is null', async () => {
+    const { slug } = await writeBook({
+      title: 'Clear Rating',
+      author: 'Author',
+      rating: 5,
+      status: 'lido',
+    })
+
+    await updateBook(slug, { rating: null })
+
+    const content = await fs.readFile(path.join(tmpDir, `${slug}.md`), 'utf-8')
+    const { data } = matter(content)
+    expect(data.rating).toBeUndefined()
+    expect(data.title).toBe('Clear Rating')
+  })
 })
 
 describe('deleteBook', () => {
@@ -256,6 +273,59 @@ describe('deleteBook', () => {
 
   it('throws an error when the book does not exist', async () => {
     await expect(deleteBook('nonexistent-slug')).rejects.toThrow()
+  })
+})
+
+describe('library service with external Obsidian books directory', () => {
+  let tmpDir: string
+  let booksDir: string
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dona-flora-obsidian-'))
+    booksDir = path.join(tmpDir, 'livros')
+    await fs.mkdir(booksDir, { recursive: true })
+  })
+
+  afterEach(async () => {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  })
+
+  it('lists, reads, writes, updates, and deletes books through the configured external folder', async () => {
+    const context = createStorageContext('user-1', path.join(tmpDir, 'app-data'), {
+      booksDir,
+    })
+
+    const { slug } = await writeBook(
+      {
+        title: 'Livro Obsidian',
+        author: 'Autora Local',
+        status: 'quero-ler',
+        notes: 'Notas no arquivo externo.',
+      },
+      context,
+    )
+    expect(slug).toBe('livro-obsidian')
+
+    await expect(
+      fs.readFile(path.join(booksDir, 'livro-obsidian.md'), 'utf-8'),
+    ).resolves.toContain('Notas no arquivo externo.')
+
+    const listed = await listBooks(context)
+    expect(listed).toHaveLength(1)
+    expect(listed[0].title).toBe('Livro Obsidian')
+
+    const book = await getBook(slug, context)
+    expect(book?.author).toEqual(['Autora Local'])
+
+    await updateBook(slug, { rating: 5, notes: 'Nota atualizada.' }, context)
+    const updated = await getBook(slug, context)
+    expect(updated?.rating).toBe(5)
+    expect(updated?._notes).toBe('Nota atualizada.')
+
+    await deleteBook(slug, context)
+    await expect(
+      fs.access(path.join(booksDir, 'livro-obsidian.md')),
+    ).rejects.toThrow()
   })
 })
 

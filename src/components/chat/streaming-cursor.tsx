@@ -8,7 +8,7 @@
 export function StreamingCursor() {
   return (
     <span
-      className="ml-[1px] inline-block h-[1em] w-[2px] animate-pulse bg-zinc-400 bg-foreground/55 align-baseline motion-reduce:animate-none"
+      className="ml-[1px] inline-block h-[1em] w-[2px] animate-pulse bg-primary align-baseline motion-reduce:animate-none"
       aria-hidden="true"
     />
   )

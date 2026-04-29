@@ -1,22 +1,32 @@
 {
   "name": "dona-flora",
   "version": "0.1.0",
-  "private": true,
+  "description": "Biblioteca pessoal local-first com IA e Markdown como fonte de verdade.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/resolvicomai/dona-flora.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "start:local": "node scripts/run-standalone-local.mjs",
     "lint": "eslint",
+    "migrate:isbn": "node scripts/migrate-isbn-frontmatter.mjs",
     "test": "jest"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.72",
+    "@ai-sdk/openai": "^3.0.54",
+    "@ai-sdk/openai-compatible": "^2.0.42",
     "@ai-sdk/react": "^3.0.170",
     "@base-ui/react": "^1.4.0",
     "@openrouter/ai-sdk-provider": "^2.8.0",
     "ai": "^6.0.168",
     "better-auth": "^1.6.5",
     "better-sqlite3": "^12.9.0",
+    "chokidar": "^5.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

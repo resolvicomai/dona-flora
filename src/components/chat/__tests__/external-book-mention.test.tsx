@@ -16,7 +16,7 @@ describe('ExternalBookMention', () => {
     render(<ExternalBookMention {...baseProps} />)
     const tag = screen.getByText('Fora do acervo')
     expect(tag).toBeInTheDocument()
-    expect(tag.className).toMatch(/rounded-full/)
+    expect(tag.className).toMatch(/rounded-md/)
   })
 
   test('renders title, author, and reason text', () => {

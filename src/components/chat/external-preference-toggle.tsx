@@ -37,13 +37,13 @@ export function ExternalPreferenceToggle({
   return (
     <div className="mb-3 flex flex-col gap-2" aria-live="polite">
       <span className="sr-only">Opções de preferência disponíveis.</span>
-      <span className="text-[0.72rem] uppercase tracking-[0.14em] text-muted-foreground">
+      <span className="eyebrow">
         Preferência de recomendação
       </span>
       <div
         role="radiogroup"
         aria-label="Preferência de recomendação"
-        className="glass-pill inline-flex w-fit items-center rounded-full p-1"
+        className="brand-chip inline-flex w-fit items-center p-1"
       >
         {OPTIONS.map((option) => {
           const isActive = value === option.value
@@ -56,7 +56,7 @@ export function ExternalPreferenceToggle({
               aria-checked={isActive}
               aria-label={option.ariaLabel}
               className={cn(
-                'surface-transition rounded-full px-3.5 py-2 text-xs font-medium',
+                'surface-transition rounded-md px-3.5 py-2 text-xs font-medium',
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground',

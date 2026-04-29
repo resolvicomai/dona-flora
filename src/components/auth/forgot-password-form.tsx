@@ -6,6 +6,7 @@ import { fetchLocalAuthLink } from '@/lib/auth/dev-link-client'
 import { Input } from '@/components/ui/input'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { authClient } from '@/lib/auth/client'
+import { loginToAuthIdentifier } from '@/lib/auth/local-identity'
 
 function resetRedirectURL() {
   const origin =
@@ -13,9 +14,9 @@ function resetRedirectURL() {
   return `${origin}/reset-password`
 }
 
-export function ForgotPasswordForm({ initialEmail = '' }: { initialEmail?: string }) {
+export function ForgotPasswordForm({ initialLogin = '' }: { initialLogin?: string }) {
   const { copy } = useAppLanguage()
-  const [email, setEmail] = useState(initialEmail)
+  const [usernameOrEmail, setUsernameOrEmail] = useState(initialLogin)
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
   const [localLink, setLocalLink] = useState<string | null>(null)
@@ -26,9 +27,10 @@ export function ForgotPasswordForm({ initialEmail = '' }: { initialEmail?: strin
     setError(null)
     setSuccess(null)
     setIsPending(true)
+    const authIdentifier = loginToAuthIdentifier(usernameOrEmail)
 
     const result = await authClient.requestPasswordReset({
-      email,
+      email: authIdentifier,
       redirectTo: resetRedirectURL(),
     })
 
@@ -41,8 +43,8 @@ export function ForgotPasswordForm({ initialEmail = '' }: { initialEmail?: strin
 
     setSuccess(copy.auth.forgotPassword.success)
     const nextLocalLink = await fetchLocalAuthLink({
-      email,
       kind: 'reset-password',
+      login: usernameOrEmail,
     })
     setLocalLink(nextLocalLink)
   }
@@ -50,23 +52,23 @@ export function ForgotPasswordForm({ initialEmail = '' }: { initialEmail?: strin
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       {error ? (
-        <div className="rounded-[1.4rem] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
 
       {success ? (
-        <div className="rounded-[1.4rem] border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+        <div className="brand-inset px-4 py-3 text-sm text-foreground">
           {success}
         </div>
       ) : null}
 
       {localLink ? (
-        <div className="rounded-[1.4rem] border border-border/60 bg-surface/70 px-4 py-3 text-sm text-muted-foreground">
+        <div className="brand-inset px-4 py-3 text-sm text-muted-foreground">
           {copy.auth.forgotPassword.localLinkNote}
           <div className="mt-3">
             <a
-              className="inline-flex h-10 items-center justify-center rounded-full border border-hairline bg-surface-elevated px-4 text-[0.84rem] font-medium text-foreground shadow-mac-sm transition hover:bg-surface-strong"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-hairline-strong bg-surface-elevated px-4 text-[0.84rem] font-medium text-foreground shadow-none transition hover:-translate-y-0.5 hover:bg-surface-strong"
               href={localLink}
             >
               {copy.auth.forgotPassword.localLinkTitle}
@@ -78,14 +80,14 @@ export function ForgotPasswordForm({ initialEmail = '' }: { initialEmail?: strin
       <label className="flex flex-col gap-2">
         <span className="eyebrow">{copy.auth.forgotPassword.emailLabel}</span>
         <Input
-          autoComplete="email"
-          name="email"
-          onChange={(event) => setEmail(event.target.value)}
+          autoComplete="username"
+          name="usernameOrEmail"
+          onChange={(event) => setUsernameOrEmail(event.target.value)}
           placeholder={copy.auth.forgotPassword.emailPlaceholder}
           required
           spellCheck={false}
-          type="email"
-          value={email}
+          type="text"
+          value={usernameOrEmail}
         />
       </label>
 

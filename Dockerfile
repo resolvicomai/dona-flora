@@ -17,6 +17,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
+ENV DATA_DIR=/data
 ENV LIBRARY_DIR=/data/books
 
 # Non-root user for security

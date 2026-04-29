@@ -1,9 +1,11 @@
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { AppLanguage } from '@/lib/i18n/app-language'
 
 interface RatingStarsProps {
   value: number
   className?: string
+  locale?: AppLanguage
   size?: 'sm' | 'md'
 }
 
@@ -15,11 +17,19 @@ const STAR_SIZE = {
 export function RatingStars({
   value,
   className,
+  locale = 'pt-BR',
   size = 'sm',
 }: RatingStarsProps) {
+  const ariaLabel = {
+    'pt-BR': `Nota: ${value} de 5`,
+    en: `Rating: ${value} out of 5`,
+    es: `Nota: ${value} de 5`,
+    'zh-CN': `评分：${value}/5`,
+  }[locale]
+
   return (
     <div
-      aria-label={`Nota: ${value} de 5`}
+      aria-label={ariaLabel}
       className={cn('inline-flex items-center gap-0.5', className)}
       role="img"
     >

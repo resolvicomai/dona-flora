@@ -4,7 +4,9 @@ import { useEffect, useRef } from 'react'
 import { SendHorizontal, Square } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { cn } from '@/lib/utils'
+import { getChatCopy } from './chat-language'
 
 interface ComposerProps {
   input: string
@@ -51,6 +53,8 @@ export function Composer({
   status,
   autoFocusOnMount,
 }: ComposerProps) {
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Height adjustment: auto → scrollHeight (capped at 192px ≈ max-h-48).
@@ -94,7 +98,7 @@ export function Composer({
         e.preventDefault()
         if (canSend) onSubmit()
       }}
-      className="z-10 shrink-0 border-t border-hairline surface-blur pb-[env(safe-area-inset-bottom)]"
+      className="sticky bottom-0 z-20 shrink-0 border-t border-hairline-strong bg-surface pb-[env(safe-area-inset-bottom)]"
     >
       <div className="mx-auto flex w-full max-w-4xl items-end gap-3 p-4 md:px-6">
         <Textarea
@@ -102,8 +106,8 @@ export function Composer({
           value={input}
           onChange={(e) => onInputChange(e.target.value)}
           onKeyDown={onKeyDown}
-          aria-label="Mensagem para a Dona Flora"
-          placeholder="Pergunte para a Dona Flora..."
+          aria-label={copy.composer.ariaLabel}
+          placeholder={copy.composer.placeholder}
           rows={1}
           // WR-03: aria-busy instead of disabled — lets IME compositions
           // (pt-BR accents, diacritics) complete without stealing focus.
@@ -111,7 +115,7 @@ export function Composer({
           // that the response is in flight.
           aria-busy={status === 'submitted'}
           className={cn(
-            '!min-h-14 max-h-48 flex-1 resize-none !rounded-[1.6rem] !border-hairline !bg-surface-elevated px-4 py-3 text-sm shadow-mac-sm placeholder:text-muted-foreground',
+            '!min-h-14 max-h-48 flex-1 resize-none !rounded-md !border-hairline-strong !bg-background/55 px-4 py-3 text-sm shadow-none placeholder:text-muted-foreground',
             status === 'submitted' && 'opacity-60',
           )}
         />
@@ -120,7 +124,7 @@ export function Composer({
             type="button"
             variant="secondary"
             size="icon"
-            aria-label="Parar de gerar resposta"
+            aria-label={copy.composer.stopAria}
             onClick={onStop}
             autoFocus
             className="h-11 w-11 min-h-[44px] min-w-[44px]"
@@ -131,7 +135,7 @@ export function Composer({
           <Button
             type="submit"
             size="icon"
-            aria-label="Enviar mensagem"
+            aria-label={copy.composer.sendAria}
             disabled={!canSend}
             className="h-11 w-11 min-h-[44px] min-w-[44px]"
           >

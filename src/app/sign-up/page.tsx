@@ -5,21 +5,17 @@ import { getServerSession } from '@/lib/auth/server'
 
 export default async function SignUpPage() {
   const session = await getServerSession()
-  if (session?.user.emailVerified) {
+  if (session) {
     redirect('/')
-  }
-
-  if (session?.user.email && !session.user.emailVerified) {
-    redirect(`/verify-email?email=${encodeURIComponent(session.user.email)}`)
   }
 
   return (
     <AuthShell
-      description="Crie sua conta para ganhar um espaco proprio, com livros, chats e trilhas isolados por usuario."
+      description="Crie sua conta para ganhar um espaço próprio, com livros, chats e trilhas isolados por usuário."
       eyebrow="Criar conta"
       title="Comece sua Dona Flora pessoal."
       footer={
-        <p>O cadastro e aberto, mas o acesso so libera depois da verificacao de email.</p>
+        <p>O cadastro é local: usuário e senha ficam neste app.</p>
       }
     >
       <SignUpForm />

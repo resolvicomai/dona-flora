@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
+import { getChatCopy } from './chat-language'
 
 interface Props {
   slug: string
@@ -28,14 +30,17 @@ interface Props {
  *     "Conversar sobre este livro" remains the primary affordance.
  */
 export function ConversarSobreLivroButton({ slug, titulo }: Props) {
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
+
   return (
     <Button
-      aria-label={`Conversar sobre ${titulo} com a Dona Flora`}
+      aria-label={copy.bookCta.aboutBookAria(titulo)}
       render={<Link href={`/chat?about=${encodeURIComponent(slug)}`} />}
       className="shadow-mac-sm"
     >
       <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
-      Conversar sobre este livro
+      {copy.bookCta.aboutBookLabel}
     </Button>
   )
 }

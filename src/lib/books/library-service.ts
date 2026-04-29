@@ -4,6 +4,7 @@ import matter from 'gray-matter'
 import type { StorageContext } from '@/lib/storage/context'
 import { getDataSubdirectory } from '@/lib/storage/data-root'
 import { BookSchema, type Book, type BookStatus } from './schema'
+import { splitLegacyISBN } from './isbn'
 import { generateSlug, resolveSlugCollision } from './slug'
 
 // CVE-2025-65108 mitigation: disable JavaScript engine in gray-matter.
@@ -27,6 +28,44 @@ export function getLibraryDir(context?: StorageContext): string {
   return getDataSubdirectory('books', process.env.LIBRARY_DIR)
 }
 
+async function normalizeBookDataForParse(
+  data: Record<string, unknown>,
+  filepath?: string,
+) {
+  const normalized = { ...data }
+
+  for (const dateKey of ['added_at', 'started_at', 'finished_at']) {
+    if (normalized[dateKey] instanceof Date) {
+      normalized[dateKey] = (normalized[dateKey] as Date)
+        .toISOString()
+        .split('T')[0]
+    }
+  }
+
+  if (
+    (!normalized.added_at ||
+      typeof normalized.added_at !== 'string' ||
+      Number.isNaN(Date.parse(normalized.added_at))) &&
+    filepath
+  ) {
+    const stat = await fs.stat(filepath)
+    normalized.added_at = stat.mtime.toISOString().split('T')[0]
+  }
+
+  const isbn = splitLegacyISBN({
+    isbn: typeof normalized.isbn === 'string' ? normalized.isbn : undefined,
+    isbn_10:
+      typeof normalized.isbn_10 === 'string' ? normalized.isbn_10 : undefined,
+    isbn_13:
+      typeof normalized.isbn_13 === 'string' ? normalized.isbn_13 : undefined,
+  })
+
+  return {
+    ...normalized,
+    ...isbn,
+  }
+}
+
 export async function listBooks(context?: StorageContext): Promise<Book[]> {
   const libraryDir = getLibraryDir(context)
   let files: string[]
@@ -46,26 +85,10 @@ export async function listBooks(context?: StorageContext): Promise<Book[]> {
     try {
       const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
 
-      // YAML auto-parses unquoted ISO dates into Date objects (Pitfall 6).
-      // Coerce back to "YYYY-MM-DD" string so Zod's z.string() accepts it.
-      if (data.added_at instanceof Date) {
-        data.added_at = data.added_at.toISOString().split('T')[0]
-      }
-
-      // Lazy backfill (D-22): if the file has no added_at, or the value is not
-      // a valid ISO-parseable string, fall back to file mtime. Never rewrite
-      // the .md file — idempotent and Obsidian-edit-safe.
-      if (
-        !data.added_at ||
-        typeof data.added_at !== 'string' ||
-        Number.isNaN(Date.parse(data.added_at))
-      ) {
-        const stat = await fs.stat(filepath)
-        data.added_at = stat.mtime.toISOString().split('T')[0]
-      }
+      const normalizedData = await normalizeBookDataForParse(data, filepath)
 
       const result = BookSchema.safeParse({
-        ...data,
+        ...normalizedData,
         _notes: content.trim(),
         _filename: filename,
       })
@@ -98,8 +121,9 @@ export async function getBook(
   try {
     const raw = await fs.readFile(filepath, 'utf-8')
     const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
+    const normalizedData = await normalizeBookDataForParse(data, filepath)
     const result = BookSchema.safeParse({
-      ...data,
+      ...normalizedData,
       _notes: content.trim(),
       _filename: filename,
     })
@@ -111,17 +135,35 @@ export async function getBook(
 
 export interface WriteBookInput {
   title: string
-  author: string
+  subtitle?: string
+  author: string | string[]
+  translator?: string
   isbn?: string
+  isbn_10?: string
+  isbn_13?: string
+  publisher?: string
   synopsis?: string
+  synopsis_source?: string
   cover?: string
   genre?: string
   year?: number
   language?: string
+  series?: string
+  series_index?: number
   status: BookStatus
+  priority?: number
+  started_at?: string
+  finished_at?: string
+  progress?: number
+  current_page?: number
   rating?: number
+  tags?: string[]
   notes?: string
 }
+
+export type BookUpdateInput = {
+  [Key in keyof WriteBookInput]?: WriteBookInput[Key] | null
+} & Record<string, unknown>
 
 export async function writeBook(
   input: WriteBookInput,
@@ -145,7 +187,7 @@ export async function writeBook(
 
 export async function updateBook(
   slug: string,
-  updates: Partial<WriteBookInput>,
+  updates: BookUpdateInput,
   context?: StorageContext,
 ): Promise<void> {
   const dir = getLibraryDir(context)
@@ -155,8 +197,15 @@ export async function updateBook(
   const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
 
   const { notes, ...frontmatterUpdates } = updates
-  const newData = { ...data, ...frontmatterUpdates }
-  const newContent = notes !== undefined ? notes : content
+  const newData = { ...data }
+  for (const [key, value] of Object.entries(frontmatterUpdates)) {
+    if (value === null) {
+      delete newData[key]
+      continue
+    }
+    newData[key] = value
+  }
+  const newContent = typeof notes === 'string' ? notes : content
 
   const output = matter.stringify(newContent, newData)
   await fs.writeFile(filepath, output, 'utf-8')

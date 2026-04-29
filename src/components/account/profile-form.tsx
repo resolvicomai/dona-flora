@@ -12,19 +12,19 @@ import { authClient } from '@/lib/auth/client'
 const PROFILE_COPY = {
   'pt-BR': {
     account: 'Conta',
-    awaitingVerification: 'aguardando verificacao',
+    awaitingVerification: 'sessao local',
     changePassword: 'Alterar senha',
     currentPassword: 'Senha atual',
     displayName: 'Nome de exibicao',
-    email: 'Email',
+    email: 'Usuario',
     owner: 'Owner',
-    passwordMismatch: 'As senhas novas nao conferem.',
-    passwordSaveError: 'Nao foi possivel alterar a senha.',
+    passwordMismatch: 'As senhas novas não conferem.',
+    passwordSaveError: 'Não foi possível alterar a senha.',
     passwordSaved: 'Senha atualizada com sucesso.',
     pendingSave: 'Salvando…',
-    pendingVerification: 'email verificado',
+    pendingVerification: 'conta local ativa',
     profile: 'Perfil',
-    profileSaveError: 'Nao foi possivel atualizar o perfil.',
+    profileSaveError: 'Não foi possível atualizar o perfil.',
     profileSaved: 'Perfil atualizado.',
     saveProfile: 'Salvar perfil',
     savingPassword: 'Atualizando…',
@@ -37,17 +37,17 @@ const PROFILE_COPY = {
   },
   en: {
     account: 'Account',
-    awaitingVerification: 'verification pending',
+    awaitingVerification: 'local session',
     changePassword: 'Change password',
     currentPassword: 'Current password',
     displayName: 'Display name',
-    email: 'Email',
+    email: 'Username',
     owner: 'Owner',
     passwordMismatch: 'The new passwords do not match.',
     passwordSaveError: 'Could not change the password.',
     passwordSaved: 'Password updated successfully.',
     pendingSave: 'Saving…',
-    pendingVerification: 'email verified',
+    pendingVerification: 'local account active',
     profile: 'Profile',
     profileSaveError: 'Could not update the profile.',
     profileSaved: 'Profile updated.',
@@ -62,17 +62,17 @@ const PROFILE_COPY = {
   },
   es: {
     account: 'Cuenta',
-    awaitingVerification: 'verificación pendiente',
+    awaitingVerification: 'sesión local',
     changePassword: 'Cambiar contraseña',
     currentPassword: 'Contraseña actual',
     displayName: 'Nombre para mostrar',
-    email: 'Correo',
+    email: 'Usuario',
     owner: 'Owner',
     passwordMismatch: 'Las nuevas contraseñas no coinciden.',
     passwordSaveError: 'No fue posible cambiar la contraseña.',
     passwordSaved: 'Contraseña actualizada con éxito.',
     pendingSave: 'Guardando…',
-    pendingVerification: 'correo verificado',
+    pendingVerification: 'cuenta local activa',
     profile: 'Perfil',
     profileSaveError: 'No fue posible actualizar el perfil.',
     profileSaved: 'Perfil actualizado.',
@@ -87,17 +87,17 @@ const PROFILE_COPY = {
   },
   'zh-CN': {
     account: '账户',
-    awaitingVerification: '等待验证',
+    awaitingVerification: '本地会话',
     changePassword: '修改密码',
     currentPassword: '当前密码',
     displayName: '显示名称',
-    email: '邮箱',
+    email: '用户名',
     owner: 'Owner',
     passwordMismatch: '两次输入的新密码不一致。',
     passwordSaveError: '无法修改密码。',
     passwordSaved: '密码已成功更新。',
     pendingSave: '正在保存…',
-    pendingVerification: '邮箱已验证',
+    pendingVerification: '本地账户已启用',
     profile: '个人资料',
     profileSaveError: '无法更新个人资料。',
     profileSaved: '个人资料已更新。',
@@ -190,40 +190,40 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
   }
 
   return (
-    <div className="page-frame flex flex-1 flex-col gap-6 pt-7 md:pt-9">
+    <div className="flex flex-1 flex-col gap-6">
       <section className="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <div className="panel-quiet rounded-[2rem] p-6">
+        <div className="brand-panel p-6">
           <p className="eyebrow">{copy.account}</p>
-          <div className="mt-5 flex h-20 w-20 items-center justify-center rounded-full border border-glass-border bg-foreground/[0.05] text-2xl font-semibold tracking-[-0.06em] text-foreground">
+          <div className="crt-screen mt-5 flex h-20 w-20 items-center justify-center rounded-lg font-mono text-2xl font-semibold tracking-normal">
             {initials}
           </div>
-          <p className="mt-4 text-xl font-semibold tracking-[-0.04em] text-foreground">
+          <p className="mt-4 text-xl font-semibold tracking-normal text-foreground">
             {displayName}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">{profile.email}</p>
-          <p className="mt-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mt-5 font-mono text-xs tracking-normal text-muted-foreground">
             {profile.role === 'owner' ? copy.owner : copy.user} •{' '}
             {profile.emailVerified ? copy.pendingVerification : copy.awaitingVerification}
           </p>
         </div>
 
         <div className="grid gap-5">
-          <form className="panel-solid rounded-[2rem] p-6" onSubmit={handleProfileSave}>
+          <form className="brand-window p-6" onSubmit={handleProfileSave}>
             <div className="space-y-2">
               <p className="eyebrow">{copy.profile}</p>
-              <h1 className="text-[clamp(2rem,4vw,3rem)] font-semibold leading-[0.95] tracking-[-0.08em] text-foreground">
+              <h1 className="text-[clamp(2rem,4vw,3rem)] font-semibold leading-none tracking-normal text-foreground">
                 {copy.title}
               </h1>
             </div>
 
             {profileMessage ? (
-              <div className="mt-4 rounded-[1.4rem] border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="brand-inset mt-4 px-4 py-3 text-sm text-foreground">
                 {profileMessage}
               </div>
             ) : null}
 
             {profileError ? (
-              <div className="mt-4 rounded-[1.4rem] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              <div className="mt-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {profileError}
               </div>
             ) : null}
@@ -247,22 +247,22 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
             </Button>
           </form>
 
-          <form className="panel-solid rounded-[2rem] p-6" onSubmit={handlePasswordChange}>
+          <form className="brand-window p-6" onSubmit={handlePasswordChange}>
             <div className="space-y-2">
               <p className="eyebrow">{copy.security}</p>
-              <h2 className="text-2xl font-semibold tracking-[-0.06em] text-foreground">
+              <h2 className="text-2xl font-semibold tracking-normal text-foreground">
                 {copy.changePassword}
               </h2>
             </div>
 
             {passwordMessage ? (
-              <div className="mt-4 rounded-[1.4rem] border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="brand-inset mt-4 px-4 py-3 text-sm text-foreground">
                 {passwordMessage}
               </div>
             ) : null}
 
             {passwordError ? (
-              <div className="mt-4 rounded-[1.4rem] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              <div className="mt-4 rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {passwordError}
               </div>
             ) : null}

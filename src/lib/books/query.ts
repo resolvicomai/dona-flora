@@ -1,5 +1,6 @@
 import Fuse, { type IFuseOptions } from 'fuse.js'
 import type { Book, BookStatus } from './schema'
+import { getBookAuthorsDisplay } from './authors'
 
 export interface FilterState {
   status: BookStatus[]
@@ -13,7 +14,12 @@ export interface FilterState {
 const FUSE_OPTIONS: IFuseOptions<Book> = {
   keys: [
     { name: 'title', weight: 3 },
+    { name: 'subtitle', weight: 2 },
     { name: 'author', weight: 2 },
+    { name: 'translator', weight: 1 },
+    { name: 'publisher', weight: 1 },
+    { name: 'series', weight: 1 },
+    { name: 'tags', weight: 1 },
     { name: '_notes', weight: 1 },
   ],
   threshold: 0.4,
@@ -115,7 +121,11 @@ export function applySort(
   const cmp: Record<FilterState['sort'], (a: Book, b: Book) => number> = {
     added_at: (a, b) => (a.added_at || '').localeCompare(b.added_at || '') * mul,
     title: (a, b) => a.title.localeCompare(b.title, 'pt-BR') * mul,
-    author: (a, b) => a.author.localeCompare(b.author, 'pt-BR') * mul,
+    author: (a, b) =>
+      getBookAuthorsDisplay(a).localeCompare(
+        getBookAuthorsDisplay(b),
+        'pt-BR',
+      ) * mul,
     rating: (a, b) => ((a.rating ?? 0) - (b.rating ?? 0)) * mul,
   }
   return [...books].sort(cmp[sort])

@@ -27,6 +27,8 @@ export const ChatFrontmatterSchema = z.object({
   started_at: z.string(),
   updated_at: z.string(),
   book_refs: z.array(z.string()).default([]),
+  pinned: z.boolean().default(false),
+  title_locked: z.boolean().default(false),
 })
 
 export type ChatFrontmatter = z.infer<typeof ChatFrontmatterSchema>

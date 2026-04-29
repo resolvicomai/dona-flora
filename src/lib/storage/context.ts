@@ -1,12 +1,13 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { getDataRoot } from '@/lib/storage/data-root'
+import { getDataRoot, resolveRuntimePath } from '@/lib/storage/data-root'
 
 export interface StorageContext {
   userId: string
   dataRoot: string
   userRoot: string
   booksDir: string
+  coversDir: string
   chatsDir: string
   trailsDir: string
 }
@@ -26,34 +27,51 @@ export interface ClaimLegacyDataForUserResult {
 const LEGACY_DIR_NAMES = ['books', 'chats', 'trails'] as const
 
 function getLegacyMigrationMarkerPath(dataRoot: string) {
-  return path.join(dataRoot, '.legacy-owner-claim.json')
+  return path.join(
+    /* turbopackIgnore: true */ dataRoot,
+    '.legacy-owner-claim.json',
+  )
 }
 
 function getBackupRoot(dataRoot: string, userId: string) {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-  return path.join(dataRoot, 'backups', `legacy-${userId}-${stamp}`)
+  return path.join(
+    /* turbopackIgnore: true */ dataRoot,
+    'backups',
+    `legacy-${userId}-${stamp}`,
+  )
 }
 
 export function createStorageContext(
   userId: string,
   dataRoot?: string,
+  overrides?: { booksDir?: string | null },
 ): StorageContext {
   const resolvedRoot = getDataRoot(dataRoot)
-  const userRoot = path.join(resolvedRoot, 'users', userId)
+  const userRoot = path.join(
+    /* turbopackIgnore: true */ resolvedRoot,
+    'users',
+    userId,
+  )
+  const booksDir = overrides?.booksDir
+    ? resolveRuntimePath(overrides.booksDir)
+    : path.join(/* turbopackIgnore: true */ userRoot, 'books')
 
   return {
     userId,
     dataRoot: resolvedRoot,
     userRoot,
-    booksDir: path.join(userRoot, 'books'),
-    chatsDir: path.join(userRoot, 'chats'),
-    trailsDir: path.join(userRoot, 'trails'),
+    booksDir,
+    coversDir: path.join(/* turbopackIgnore: true */ userRoot, 'covers-cache'),
+    chatsDir: path.join(/* turbopackIgnore: true */ userRoot, 'chats'),
+    trailsDir: path.join(/* turbopackIgnore: true */ userRoot, 'trails'),
   }
 }
 
 export async function ensureStorageContext(context: StorageContext) {
   await Promise.all([
     fs.mkdir(context.booksDir, { recursive: true }),
+    fs.mkdir(context.coversDir, { recursive: true }),
     fs.mkdir(context.chatsDir, { recursive: true }),
     fs.mkdir(context.trailsDir, { recursive: true }),
   ])
@@ -90,7 +108,9 @@ export async function claimLegacyDataForUser({
 
   for (const dirName of LEGACY_DIR_NAMES) {
     try {
-      const entries = await fs.readdir(path.join(resolvedRoot, dirName))
+      const entries = await fs.readdir(
+        path.join(/* turbopackIgnore: true */ resolvedRoot, dirName),
+      )
       if (entries.length > 0) {
         existingLegacyDirs.push(dirName)
       }
@@ -107,7 +127,10 @@ export async function claimLegacyDataForUser({
   }
 
   for (const dirName of existingLegacyDirs) {
-    const sourceDir = path.join(resolvedRoot, dirName)
+    const sourceDir = path.join(
+      /* turbopackIgnore: true */ resolvedRoot,
+      dirName,
+    )
     const targetDir =
       dirName === 'books'
         ? storageContext.booksDir
@@ -116,12 +139,19 @@ export async function claimLegacyDataForUser({
           : storageContext.trailsDir
 
     if (backupRoot) {
-      await fs.cp(sourceDir, path.join(backupRoot, dirName), { recursive: true })
+      await fs.cp(
+        sourceDir,
+        path.join(/* turbopackIgnore: true */ backupRoot, dirName),
+        { recursive: true },
+      )
     }
 
     const entries = await fs.readdir(sourceDir)
     for (const entry of entries) {
-      await fs.rename(path.join(sourceDir, entry), path.join(targetDir, entry))
+      await fs.rename(
+        path.join(/* turbopackIgnore: true */ sourceDir, entry),
+        path.join(/* turbopackIgnore: true */ targetDir, entry),
+      )
     }
 
     await fs.rm(sourceDir, { recursive: true, force: true })

@@ -2,6 +2,7 @@
 
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { cn } from '@/lib/utils'
 
 interface SearchInputProps {
@@ -23,9 +24,29 @@ interface SearchInputProps {
 export function SearchInput({
   value,
   onChange,
-  placeholder = 'Buscar por título, autor ou notas…',
+  placeholder,
   className,
 }: SearchInputProps) {
+  const { locale } = useAppLanguage()
+  const copy = {
+    'pt-BR': {
+      ariaLabel: 'Buscar na biblioteca',
+      placeholder: 'Buscar por título, autor ou notas…',
+    },
+    en: {
+      ariaLabel: 'Search the library',
+      placeholder: 'Search by title, author, or notes…',
+    },
+    es: {
+      ariaLabel: 'Buscar en la biblioteca',
+      placeholder: 'Buscar por título, autor o notas…',
+    },
+    'zh-CN': {
+      ariaLabel: '搜索书库',
+      placeholder: '按标题、作者或笔记搜索…',
+    },
+  }[locale]
+
   return (
     <div className={cn('relative w-full', className)}>
       <Search
@@ -35,9 +56,9 @@ export function SearchInput({
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        aria-label="Buscar na biblioteca"
-        className="h-11 rounded-full pl-11 pr-4"
+        placeholder={placeholder ?? copy.placeholder}
+        aria-label={copy.ariaLabel}
+        className="h-11 rounded-md pl-11 pr-4"
       />
     </div>
   )

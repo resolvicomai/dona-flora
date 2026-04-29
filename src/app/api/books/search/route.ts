@@ -4,6 +4,7 @@ import { requireVerifiedRequestSession } from '@/lib/auth/server'
 import { searchGoogleBooks } from '@/lib/api/google-books'
 import { searchOpenLibrary } from '@/lib/api/open-library'
 import type { BookSearchResult } from '@/lib/api/google-books'
+import { findAmazonCoverByISBN } from '@/lib/api/amazon-cover'
 
 export const dynamic = 'force-dynamic'
 
@@ -93,5 +94,28 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return NextResponse.json(results)
+  const enrichedResults = await Promise.all(
+    results.map(async (book) => {
+      if (book.cover) {
+        return book
+      }
+
+      const cover = await findAmazonCoverByISBN({
+        isbn10: book.isbn10,
+        isbn13: book.isbn13,
+      })
+
+      if (!cover) {
+        return book
+      }
+
+      return {
+        ...book,
+        cover,
+        coverSource: 'amazon' as const,
+      }
+    }),
+  )
+
+  return NextResponse.json(enrichedResults)
 }

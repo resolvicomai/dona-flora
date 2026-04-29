@@ -2,6 +2,7 @@ import {
   matchesBookLanguageFilter,
   resolveGoogleBooksLanguageRestrict,
 } from '@/lib/books/language'
+import { normalizeISBN } from '@/lib/books/isbn'
 
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes'
 
@@ -20,6 +21,8 @@ interface GoogleBooksVolumeInfo {
   industryIdentifiers?: GoogleBooksIndustryIdentifier[]
   language?: string
   publishedDate?: string
+  publisher?: string
+  subtitle?: string
   title?: string
 }
 
@@ -35,9 +38,16 @@ export interface BookSearchResult {
   title: string
   authors: string[]
   isbn?: string
+  isbn10?: string
+  isbn13?: string
+  subtitle?: string
+  publisher?: string
   synopsis?: string
+  synopsisSource?: string
   cover?: string
+  coverSource?: 'google-books' | 'open-library' | 'amazon'
   genre?: string
+  source: 'google-books' | 'open-library' | 'vision-import'
   year?: number
   language?: string
 }
@@ -81,16 +91,34 @@ export async function searchGoogleBooks(
   return (data.items ?? [])
     .map((item) => {
       const v = item.volumeInfo ?? {}
-      const isbn = v.industryIdentifiers?.find(
-        (id) => id.type === 'ISBN_13' || id.type === 'ISBN_10'
-      )
+      const normalizedIdentifiers =
+        v.industryIdentifiers
+          ?.map((id) => ({
+            ...id,
+            normalized: normalizeISBN(id.identifier),
+          }))
+          .filter((id) => id.normalized !== null) ?? []
+      const isbn13 = normalizedIdentifiers.find(
+        (id) => id.normalized?.kind === 'isbn_13',
+      )?.normalized?.value
+      const isbn10 = normalizedIdentifiers.find(
+        (id) => id.normalized?.kind === 'isbn_10',
+      )?.normalized?.value
+      const cover = v.imageLinks?.thumbnail?.replace('http://', 'https://')
       return {
         title: v.title ?? '',
         authors: v.authors ?? [],
-        isbn: isbn?.identifier,
+        isbn: isbn13 ?? isbn10,
+        isbn10,
+        isbn13,
+        subtitle: v.subtitle,
+        publisher: v.publisher,
         synopsis: v.description,
-        cover: v.imageLinks?.thumbnail?.replace('http://', 'https://'),
+        synopsisSource: v.description ? 'Google Books' : undefined,
+        cover,
+        coverSource: cover ? 'google-books' : undefined,
         genre: v.categories?.[0],
+        source: 'google-books',
         year: v.publishedDate
           ? parseInt(v.publishedDate.slice(0, 4), 10) || undefined
           : undefined,

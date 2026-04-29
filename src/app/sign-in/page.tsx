@@ -9,25 +9,20 @@ export default async function SignInPage({
   searchParams: Promise<{ reset?: string }>
 }) {
   const session = await getServerSession()
-  if (session?.user.emailVerified) {
+  if (session) {
     redirect('/')
-  }
-
-  if (session?.user.email && !session.user.emailVerified) {
-    redirect(`/verify-email?email=${encodeURIComponent(session.user.email)}`)
   }
 
   const { reset } = await searchParams
 
   return (
     <AuthShell
-      description="Entre para acessar seu acervo, suas conversas e as preferencias salvas da Dona Flora."
+      description="Entre para acessar seu acervo, suas conversas e as preferências salvas da Dona Flora."
       eyebrow="Entrar"
-      title="Sua biblioteca espera por voce."
+      title="Sua biblioteca espera por você."
       footer={
         <p>
-          Primeiro acesso? Use o cadastro aberto e confirme seu email para liberar
-          a biblioteca.
+          Primeiro acesso? Crie um usuário local e mantenha tudo nesta instalação.
         </p>
       }
     >

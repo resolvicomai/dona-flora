@@ -1,0 +1,8 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dona Flora">
+  <rect width="512" height="512" rx="74" fill="#f1e9d6"/>
+  <rect x="50" y="50" width="412" height="412" rx="54" fill="#e6ddc8" stroke="#1f1b16" stroke-width="26"/>
+  <rect x="146" y="112" width="220" height="286" rx="18" fill="#f1e9d6" stroke="#1f1b16" stroke-width="22"/>
+  <path d="M184 112h54v112l-27-20-27 20V112Z" fill="#245f51" stroke="#1f1b16" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M151 160h210" stroke="#1f1b16" stroke-width="18" stroke-linecap="round"/>
+  <text x="256" y="318" text-anchor="middle" font-family="IBM Plex Mono, SFMono-Regular, ui-monospace, monospace" font-size="116" font-weight="700" letter-spacing="-12" fill="#1f1b16">DF</text>
+</svg>

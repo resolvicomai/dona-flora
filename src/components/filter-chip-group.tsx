@@ -20,10 +20,10 @@ interface FilterChipGroupProps<T extends string> {
  * - `value` is always an array; `onValueChange` always receives `Value[]`.
  * - Active state uses `data-[pressed]` data attribute from the Toggle primitive.
  *
- * Styling tokens (UI-SPEC §Color):
- * - Inactive: `border-zinc-700 text-zinc-300 bg-transparent`
- * - Active  : `bg-zinc-100 text-zinc-900 border-transparent` (accent inverted)
- * - Focus   : `focus-visible:ring-2 focus-visible:ring-zinc-400` over zinc-950 offset
+ * Styling follows the brand tokens:
+ * - Inactive: transparent surface with hairline border
+ * - Active  : primary action fill
+ * - Focus   : visible ink ring over the cream canvas
  *
  * Touch targets: `min-h-[44px]` on mobile; `md:min-h-9` (36px) on desktop.
  */
@@ -48,10 +48,10 @@ export function FilterChipGroup<T extends string>({
           key={opt.value}
           value={opt.value}
           className={cn(
-            'min-h-[44px] md:min-h-9 rounded-full border border-zinc-700 bg-transparent px-3 text-xs text-zinc-300',
-            'hover:border-zinc-500',
-            'data-[pressed]:bg-zinc-100 data-[pressed]:text-zinc-900 data-[pressed]:border-transparent',
-            'focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
+            'min-h-[44px] rounded-md border border-hairline bg-transparent px-3 text-xs text-muted-foreground md:min-h-9',
+            'hover:border-foreground hover:text-foreground',
+            'data-[pressed]:border-transparent data-[pressed]:bg-primary data-[pressed]:text-primary-foreground',
+            'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
             'transition-colors flex items-center gap-1.5',
           )}
         >

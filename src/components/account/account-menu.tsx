@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { authClient } from '@/lib/auth/client'
+import { authIdentifierToDisplayLogin } from '@/lib/auth/local-identity'
 import { cn } from '@/lib/utils'
 
 function initialsFromName(name?: string | null, email?: string | null) {
@@ -68,6 +69,9 @@ export function AccountMenu() {
   const { locale } = useAppLanguage()
   const { data: session, isPending } = authClient.useSession()
   const copy = ACCOUNT_MENU_COPY[locale]
+  const displayLogin = session?.user?.email
+    ? authIdentifierToDisplayLogin(session.user.email)
+    : null
 
   async function handleSignOut() {
     await authClient.signOut()
@@ -75,7 +79,7 @@ export function AccountMenu() {
     router.refresh()
   }
 
-  const initials = initialsFromName(session?.user?.name, session?.user?.email)
+  const initials = initialsFromName(session?.user?.name, displayLogin)
 
   return (
     <Popover>
@@ -87,7 +91,7 @@ export function AccountMenu() {
           className="gap-2 pl-2.5"
         />
       }>
-        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-glass-border bg-foreground/[0.06] text-[0.72rem] font-semibold tracking-[0.08em] text-foreground">
+        <span className="crt-screen flex h-7 w-7 items-center justify-center rounded-md font-mono text-[0.72rem] font-semibold tracking-normal">
           {isPending ? '…' : initials}
         </span>
         <span className="hidden max-w-32 truncate sm:block">
@@ -101,7 +105,7 @@ export function AccountMenu() {
           <p className="eyebrow">{copy.title}</p>
           <PopoverTitle>{session?.user?.name ?? 'Dona Flora'}</PopoverTitle>
           <p className="text-sm text-muted-foreground">
-            {session?.user?.email ?? copy.emailLoading}
+            {displayLogin ?? copy.emailLoading}
           </p>
         </PopoverHeader>
 
@@ -109,7 +113,7 @@ export function AccountMenu() {
           <Link
             className={cn(
               buttonVariants({ variant: 'ghost' }),
-              'justify-start rounded-[1.2rem]',
+              'justify-start rounded-md',
             )}
             href="/profile"
           >
@@ -119,7 +123,7 @@ export function AccountMenu() {
           <Link
             className={cn(
               buttonVariants({ variant: 'ghost' }),
-              'justify-start rounded-[1.2rem]',
+              'justify-start rounded-md',
             )}
             href="/settings"
           >
@@ -127,7 +131,7 @@ export function AccountMenu() {
             {copy.settings}
           </Link>
           <Button
-            className="justify-start rounded-[1.2rem]"
+            className="justify-start rounded-md"
             onClick={handleSignOut}
             variant="ghost"
           >

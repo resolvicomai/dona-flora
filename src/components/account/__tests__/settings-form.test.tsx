@@ -29,6 +29,24 @@ describe('SettingsForm', () => {
     render(
       <AppLanguageProvider locale="en">
         <SettingsForm
+          initialAIProviderSettings={{
+            anthropicModel: 'claude-sonnet-4-6',
+            compatibleBaseUrl: 'http://127.0.0.1:1234/v1',
+            compatibleModel: 'local-model',
+            fallbackApiKeyConfigured: false,
+            fallbackEnabled: false,
+            fallbackModel: 'anthropic/claude-sonnet-4.6',
+            fallbackProvider: 'openrouter',
+            ollamaBaseUrl: 'http://127.0.0.1:11434/v1',
+            ollamaModel: 'qwen3.6:27b',
+            openaiModel: 'gpt-4.1-mini',
+            openrouterModel: 'anthropic/claude-sonnet-4.6',
+            primaryApiKeyConfigured: false,
+            primaryProvider: 'ollama',
+            visionEnabled: false,
+            visionModel: 'anthropic/claude-sonnet-4.6',
+          }}
+          initialLibrarySettings={{ booksDir: null }}
           initialSettings={{
             additionalInstructions: '',
             externalOpenness: 'sob-demanda',

@@ -16,13 +16,13 @@ interface MessageTextProps {
  * We deliberately do NOT include rehype-raw; any HTML embedded in the stream
  * gets dropped before it reaches the DOM.
  *
- * Typography: wrapped in `prose prose-invert prose-sm max-w-none break-words`
- * per UI-SPEC §Typography. h1 and h2 are downgraded to h3 (assistant responses
- * must not own h1/h2 on the page — those belong to the page shell).
+ * Typography: wrapped in the chat markdown class so assistant responses stay
+ * compact and readable inside a conversation bubble. h1 and h2 are downgraded
+ * to h3 (assistant responses must not own h1/h2 on the page).
  */
 export function MessageText({ text }: MessageTextProps) {
   return (
-    <div className="prose prose-invert prose-sm max-w-none break-words">
+    <div className="chat-markdown max-w-none break-words">
       <ReactMarkdown
         rehypePlugins={[rehypeSanitize]}
         components={{

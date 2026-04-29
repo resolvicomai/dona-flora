@@ -86,6 +86,13 @@ export interface SaveChatInput {
   storageContext?: StorageContext
 }
 
+export interface UpdateChatMetadataInput {
+  chatId: string
+  title?: string
+  pinned?: boolean
+  storageContext?: StorageContext
+}
+
 /**
  * Persists a conversation as `data/chats/{chatId}.md` (Obsidian-editable).
  *
@@ -102,29 +109,84 @@ export async function saveChat({
   const filepath = path.join(dir, `${chatId}.md`)
 
   // Preserve existing started_at if the file already exists.
-  let existingStartedAt: string | undefined
+  let existing: Partial<ChatFrontmatter> = {}
   try {
     const raw = await fs.readFile(filepath, 'utf-8')
     const { data } = matter(raw, SAFE_MATTER_OPTIONS)
-    existingStartedAt = normalizeIso(data?.started_at)
+    const normalized = normalizeChatFrontmatter(data)
+    const parsed = ChatFrontmatterSchema.safeParse(normalized)
+    if (parsed.success) {
+      existing = parsed.data
+    } else {
+      existing.started_at = normalizeIso(data?.started_at)
+    }
   } catch {
     // new conversation — not an error
   }
 
   const nowIso = new Date().toISOString()
   const firstMessageCreatedAt = normalizeIso(messages[0]?.metadata?.createdAt)
+  const derivedTitle = deriveTitle(messages)
+  const title =
+    existing.title_locked && existing.title
+      ? existing.title
+      : derivedTitle
 
   const fm: ChatFrontmatter = {
     id: chatId,
-    title: deriveTitle(messages),
-    started_at: existingStartedAt ?? firstMessageCreatedAt ?? nowIso,
+    title,
+    started_at: existing.started_at ?? firstMessageCreatedAt ?? nowIso,
     updated_at: nowIso,
     book_refs: extractBookRefs(messages),
+    pinned: existing.pinned ?? false,
+    title_locked: existing.title_locked ?? false,
   }
 
   const body = serializeTranscript(messages)
   const file = matter.stringify(body, fm)
   await fs.writeFile(filepath, file, 'utf-8')
+}
+
+/**
+ * Updates sidebar-facing chat metadata while preserving the Markdown transcript.
+ *
+ * A renamed title sets `title_locked` so future `saveChat()` calls do not
+ * overwrite the user's label with the first prompt again.
+ */
+export async function updateChatMetadata({
+  chatId,
+  title,
+  pinned,
+  storageContext,
+}: UpdateChatMetadataInput): Promise<ChatFrontmatter | null> {
+  const filepath = path.join(getChatsDir(storageContext), `${chatId}.md`)
+  let raw: string
+  try {
+    raw = await fs.readFile(filepath, 'utf-8')
+  } catch {
+    return null
+  }
+
+  const parsedFile = matter(raw, SAFE_MATTER_OPTIONS)
+  const normalized = normalizeChatFrontmatter(parsedFile.data)
+  const parsed = ChatFrontmatterSchema.safeParse(normalized)
+  if (!parsed.success) {
+    return null
+  }
+
+  const nowIso = new Date().toISOString()
+  const next: ChatFrontmatter = {
+    ...parsed.data,
+    ...(title !== undefined
+      ? { title: title.trim(), title_locked: true }
+      : {}),
+    ...(pinned !== undefined ? { pinned } : {}),
+    updated_at: nowIso,
+  }
+
+  const file = matter.stringify(parsedFile.content, next)
+  await fs.writeFile(filepath, file, 'utf-8')
+  return next
 }
 
 /**
@@ -148,11 +210,7 @@ export async function loadChat(
 
   try {
     const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
-    const normalized = {
-      ...data,
-      started_at: normalizeIso(data?.started_at),
-      updated_at: normalizeIso(data?.updated_at),
-    }
+    const normalized = normalizeChatFrontmatter(data)
     const parsed = ChatFrontmatterSchema.safeParse(normalized)
     if (!parsed.success) {
       console.warn(
@@ -170,6 +228,16 @@ export async function loadChat(
       err instanceof Error ? err.message : err
     )
     return null
+  }
+}
+
+function normalizeChatFrontmatter(data: Record<string, unknown>) {
+  return {
+    ...data,
+    started_at: normalizeIso(data?.started_at),
+    updated_at: normalizeIso(data?.updated_at),
+    pinned: data?.pinned === true,
+    title_locked: data?.title_locked === true,
   }
 }
 

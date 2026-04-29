@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
+import { getChatCopy } from './chat-language'
 
 /**
  * Sparkles ghost button rendered in the app header (home and other library
@@ -22,11 +24,14 @@ import { Button } from '@/components/ui/button'
  * provider without affecting this component's contract.
  */
 export function ChatHeaderEntryButton() {
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
+
   return (
     <Button
       variant="ghost"
       size="icon"
-      aria-label="Conversar com a Dona Flora"
+      aria-label={copy.bookCta.headerAria}
       render={<Link href="/chat" />}
       className="h-10 w-10 min-h-[44px] min-w-[44px]"
     >

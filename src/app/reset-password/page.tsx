@@ -13,7 +13,7 @@ export default async function ResetPasswordPage({
       description="Escolha uma nova senha e volte para a biblioteca."
       eyebrow="Nova senha"
       title="Atualize sua credencial"
-      footer={<p>Por seguranca, o link de redefinicao tem validade limitada.</p>}
+      footer={<p>Por segurança, o link de redefinição tem validade limitada.</p>}
     >
       <ResetPasswordForm token={token} />
     </AuthShell>

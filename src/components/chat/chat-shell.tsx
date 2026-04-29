@@ -55,9 +55,9 @@ export function ChatShell({
 
   return (
     <KnownLibraryProvider books={knownBooks}>
-      <div className="page-frame flex min-h-0 flex-1 gap-3 pt-7 md:gap-4 md:pt-8">
+      <div className="page-frame flex h-full min-h-0 flex-1 gap-3 py-3 md:gap-4 md:py-4">
         <ChatSidebar chats={chats} activeChatId={chatId} />
-        <section className="flex min-w-0 flex-1 flex-col">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col">
           <ChatMain
             chatId={chatId}
             initialMessages={initialMessages}

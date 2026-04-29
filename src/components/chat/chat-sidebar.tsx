@@ -7,8 +7,10 @@ import { Plus, Search } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { ChatSidebarItem } from './chat-sidebar-item'
 import { SidebarEmptyState } from './sidebar-empty-state'
+import { getChatCopy } from './chat-language'
 import type { ChatListEntry } from '@/lib/chats/list'
 import { cn } from '@/lib/utils'
 
@@ -71,6 +73,8 @@ function filterChats(chats: ChatListEntry[], query: string): ChatListEntry[] {
 }
 
 export function SidebarBody({ chats, activeChatId }: Props) {
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
   const [query, setQuery] = useState('')
   const filtered = useMemo(() => filterChats(chats, query), [chats, query])
 
@@ -84,10 +88,10 @@ export function SidebarBody({ chats, activeChatId }: Props) {
           />
           <Input
             type="search"
-            placeholder="Buscar conversas…"
+            placeholder={copy.sidebar.searchPlaceholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Buscar conversas"
+            aria-label={copy.sidebar.searchAria}
             className="h-10 pl-10 text-sm"
           />
         </div>
@@ -96,7 +100,7 @@ export function SidebarBody({ chats, activeChatId }: Props) {
         <SidebarEmptyState />
       ) : filtered.length === 0 ? (
         <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-          Nenhuma conversa encontrada.
+          {copy.sidebar.noResults}
         </p>
       ) : (
         <div className="flex flex-col gap-1">
@@ -110,24 +114,26 @@ export function SidebarBody({ chats, activeChatId }: Props) {
 }
 
 export function ChatSidebar({ chats, activeChatId }: Props) {
+  const { locale } = useAppLanguage()
+  const copy = getChatCopy(locale)
   const newChat = useNewChatHandler()
   return (
     <aside
       className={cn(
-        'panel-solid sticky top-[var(--app-nav-offset)] hidden h-[calc(100dvh-var(--app-nav-offset)-1.5rem)] min-h-0 shrink-0 overflow-hidden rounded-[2rem] xl:flex xl:w-[18rem] 2xl:w-[20rem] xl:flex-col',
+        'brand-window hidden h-full min-h-0 shrink-0 overflow-hidden xl:flex xl:w-[18rem] xl:flex-col 2xl:w-[20rem]',
       )}
     >
       <header className="flex items-center justify-between gap-2 border-b border-hairline px-4 py-4">
         <div>
-          <p className="eyebrow">Chat</p>
-          <h2 className="mt-2 text-lg font-medium tracking-[-0.03em] text-foreground">
-            Conversas
+          <p className="eyebrow">{copy.sidebar.eyebrow}</p>
+          <h2 className="mt-2 text-lg font-medium text-foreground">
+            {copy.sidebar.title}
           </h2>
         </div>
         <Button
           size="icon"
           variant="secondary"
-          aria-label="Nova conversa"
+          aria-label={copy.sidebar.newConversationAria}
           onClick={newChat}
           className="h-10 w-10 min-h-[44px] min-w-[44px]"
         >
@@ -140,9 +146,9 @@ export function ChatSidebar({ chats, activeChatId }: Props) {
       <footer className="border-t border-hairline p-3">
         <Link
           href="/"
-          className="inline-flex items-center rounded-full px-3 py-2 text-sm text-muted-foreground surface-transition hover:bg-foreground/[0.05] hover:text-foreground"
+          className="surface-transition inline-flex items-center rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground"
         >
-          ← Biblioteca
+          {copy.sidebar.backToLibrary}
         </Link>
       </footer>
     </aside>

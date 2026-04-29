@@ -29,6 +29,17 @@ describe('createStorageContext', () => {
     expect(ctx.chatsDir).toBe(path.join(tmpDir, 'users', 'user-123', 'chats'))
     expect(ctx.trailsDir).toBe(path.join(tmpDir, 'users', 'user-123', 'trails'))
   })
+
+  it('uses an external books directory override without moving chats or trails', () => {
+    const externalBooksDir = path.join(tmpDir, 'obsidian', 'livros')
+    const ctx = createStorageContext('user-123', tmpDir, {
+      booksDir: externalBooksDir,
+    })
+
+    expect(ctx.booksDir).toBe(externalBooksDir)
+    expect(ctx.chatsDir).toBe(path.join(tmpDir, 'users', 'user-123', 'chats'))
+    expect(ctx.trailsDir).toBe(path.join(tmpDir, 'users', 'user-123', 'trails'))
+  })
 })
 
 describe('ensureStorageContext', () => {

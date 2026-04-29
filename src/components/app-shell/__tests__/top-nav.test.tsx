@@ -45,6 +45,7 @@ describe('TopNav', () => {
     )
 
     expect(screen.getByText('Library')).toBeInTheDocument()
+    expect(screen.getByText('Trails')).toBeInTheDocument()
     expect(screen.getByText('Chat')).toBeInTheDocument()
     expect(screen.getByText('Personal library')).toBeInTheDocument()
   })
