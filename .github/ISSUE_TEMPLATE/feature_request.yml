@@ -1,0 +1,44 @@
+name: Feature request
+description: Sugira uma melhoria para a Dona Flora.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Boas sugestões descrevem o problema real antes da solução. A Dona Flora prioriza local-first, Markdown legível e IA configurável.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qual problema isso resolve?
+      placeholder: "Ex.: catalogar muitos livros manualmente ainda exige cliques demais."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Como você imagina a solução?
+      placeholder: "Ex.: permitir selecionar vários livros e aplicar status/nota em massa."
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options:
+        - Biblioteca/livros
+        - Chat/IA
+        - Obsidian/local-first
+        - Onboarding
+        - Trilhas
+        - Metadados/capas
+        - Design/UX
+        - Instalação/deploy
+        - Outro
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: Trade-offs ou cuidados
+      description: Se a ideia envolve nuvem, provider externo ou reescrita de Markdown, diga aqui.
+
