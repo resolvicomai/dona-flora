@@ -22,12 +22,12 @@ jest.mock('@ai-sdk/react', () => ({
   useChat: (options: any) => {
     mockUseChatOptions = options
     return {
-    error: null,
-    messages: [],
-    regenerate: jest.fn(),
-    sendMessage: jest.fn(),
-    status: 'ready',
-    stop: jest.fn(),
+      error: null,
+      messages: [],
+      regenerate: jest.fn(),
+      sendMessage: jest.fn(),
+      status: 'ready',
+      stop: jest.fn(),
     }
   },
 }))
@@ -62,13 +62,7 @@ describe('ChatMain layout chrome', () => {
   })
 
   test('keeps the in-panel header in normal flow instead of sticky positioning', () => {
-    render(
-      <ChatMain
-        chats={[]}
-        bookCount={3}
-        seedBook={null}
-      />,
-    )
+    render(<ChatMain chats={[]} bookCount={3} seedBook={null} />)
 
     const title = screen.getByText('Nova conversa')
     const header = title.closest('header')
@@ -79,20 +73,12 @@ describe('ChatMain layout chrome', () => {
   })
 
   test('moves a newly saved /chat conversation to its explicit /chat/{id} route', () => {
-    render(
-      <ChatMain
-        chats={[]}
-        bookCount={3}
-        seedBook={null}
-      />,
-    )
+    render(<ChatMain chats={[]} bookCount={3} seedBook={null} />)
 
     mockUseChatOptions.onFinish()
 
     expect(mockReplace).toHaveBeenCalledTimes(1)
-    expect(mockReplace.mock.calls[0][0]).toMatch(
-      /^\/chat\/[A-Za-z0-9][A-Za-z0-9_-]*$/,
-    )
+    expect(mockReplace.mock.calls[0][0]).toMatch(/^\/chat\/[A-Za-z0-9][A-Za-z0-9_-]*$/)
     expect(mockRefresh).not.toHaveBeenCalled()
   })
 })

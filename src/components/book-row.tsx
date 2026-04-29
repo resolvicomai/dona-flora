@@ -72,9 +72,7 @@ export function BookRow({
         aria-pressed={selected}
         className={cn(
           'group surface-transition flex items-center gap-4 rounded-lg border px-4 py-4 text-left shadow-none hover:-translate-y-px hover:border-hairline-strong hover:bg-surface-elevated hover:shadow-mac-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-          selected
-            ? 'border-primary bg-primary/10'
-            : 'border-hairline bg-surface',
+          selected ? 'border-primary bg-primary/10' : 'border-hairline bg-surface',
           className,
         )}
         onClick={() => slug && onSelectionChange?.(slug, !selected)}

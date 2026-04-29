@@ -1,24 +1,14 @@
 import fs from 'fs/promises'
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
 import { getBook } from '@/lib/books/library-service'
-import {
-  buildCoverPlaceholderSVG,
-  cacheRemoteCover,
-  findCachedCover,
-} from '@/lib/covers/cache'
+import { buildCoverPlaceholderSVG, cacheRemoteCover, findCachedCover } from '@/lib/covers/cache'
 import { ensureStorageContext } from '@/lib/storage/context'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const authResult = await requireVerifiedRequestSession(request)
   if (!authResult.ok) {
     return authResult.response
@@ -29,9 +19,7 @@ export async function GET(
     return NextResponse.json({ error: 'Slug invalido.' }, { status: 400 })
   }
 
-  const context = await ensureStorageContext(
-    getSessionStorageContext(authResult.session),
-  )
+  const context = await ensureStorageContext(getSessionStorageContext(authResult.session))
   const cached = await findCachedCover(context, slug)
   if (cached) {
     const body = await fs.readFile(cached.filepath)

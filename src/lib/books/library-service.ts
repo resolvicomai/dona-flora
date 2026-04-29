@@ -13,9 +13,7 @@ import { generateSlug, resolveSlugCollision } from './slug'
 export const SAFE_MATTER_OPTIONS = {
   engines: {
     javascript: () => {
-      throw new Error(
-        'JavaScript front-matter engine is disabled for security reasons.'
-      )
+      throw new Error('JavaScript front-matter engine is disabled for security reasons.')
     },
   },
 }
@@ -28,17 +26,12 @@ export function getLibraryDir(context?: StorageContext): string {
   return getDataSubdirectory('books', process.env.LIBRARY_DIR)
 }
 
-async function normalizeBookDataForParse(
-  data: Record<string, unknown>,
-  filepath?: string,
-) {
+async function normalizeBookDataForParse(data: Record<string, unknown>, filepath?: string) {
   const normalized = { ...data }
 
   for (const dateKey of ['added_at', 'started_at', 'finished_at']) {
     if (normalized[dateKey] instanceof Date) {
-      normalized[dateKey] = (normalized[dateKey] as Date)
-        .toISOString()
-        .split('T')[0]
+      normalized[dateKey] = (normalized[dateKey] as Date).toISOString().split('T')[0]
     }
   }
 
@@ -54,10 +47,8 @@ async function normalizeBookDataForParse(
 
   const isbn = splitLegacyISBN({
     isbn: typeof normalized.isbn === 'string' ? normalized.isbn : undefined,
-    isbn_10:
-      typeof normalized.isbn_10 === 'string' ? normalized.isbn_10 : undefined,
-    isbn_13:
-      typeof normalized.isbn_13 === 'string' ? normalized.isbn_13 : undefined,
+    isbn_10: typeof normalized.isbn_10 === 'string' ? normalized.isbn_10 : undefined,
+    isbn_13: typeof normalized.isbn_13 === 'string' ? normalized.isbn_13 : undefined,
   })
 
   return {
@@ -95,15 +86,12 @@ export async function listBooks(context?: StorageContext): Promise<Book[]> {
       if (result.success) {
         books.push(result.data)
       } else {
-        console.warn(
-          `[LibraryService] Invalid frontmatter in ${filename}:`,
-          result.error.flatten()
-        )
+        console.warn(`[LibraryService] Invalid frontmatter in ${filename}:`, result.error.flatten())
       }
     } catch (err) {
       console.warn(
         `[LibraryService] Error parsing ${filename}:`,
-        err instanceof Error ? err.message : err
+        err instanceof Error ? err.message : err,
       )
     }
   }
@@ -111,10 +99,7 @@ export async function listBooks(context?: StorageContext): Promise<Book[]> {
   return books
 }
 
-export async function getBook(
-  slug: string,
-  context?: StorageContext,
-): Promise<Book | null> {
+export async function getBook(slug: string, context?: StorageContext): Promise<Book | null> {
   const libraryDir = getLibraryDir(context)
   const filename = slug.endsWith('.md') ? slug : `${slug}.md`
   const filepath = path.join(libraryDir, filename)
@@ -211,10 +196,7 @@ export async function updateBook(
   await fs.writeFile(filepath, output, 'utf-8')
 }
 
-export async function deleteBook(
-  slug: string,
-  context?: StorageContext,
-): Promise<void> {
+export async function deleteBook(slug: string, context?: StorageContext): Promise<void> {
   const dir = getLibraryDir(context)
   const filepath = path.join(dir, `${slug}.md`)
   await fs.unlink(filepath)

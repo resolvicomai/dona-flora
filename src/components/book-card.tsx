@@ -36,7 +36,12 @@ export function BookCard({
   const content = (
     <>
       <div className="brand-panel overflow-hidden p-4 group-hover:-translate-y-px group-hover:border-hairline-strong group-hover:shadow-mac-sm">
-        <BookCover src={getBookCoverRoute(book) ?? book.cover} alt={book.title} size="card" className="mx-auto" />
+        <BookCover
+          src={getBookCoverRoute(book) ?? book.cover}
+          alt={book.title}
+          size="card"
+          className="mx-auto"
+        />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden px-1">
         <div className="flex flex-wrap items-center gap-2">

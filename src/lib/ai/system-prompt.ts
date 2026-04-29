@@ -61,9 +61,7 @@ export function buildSystemPrompt(
   options: string | BuildSystemPromptOptions = '',
 ): string {
   const normalizedOptions =
-    typeof options === 'string'
-      ? { externalPreferenceDirective: options }
-      : options
+    typeof options === 'string' ? { externalPreferenceDirective: options } : options
 
   const preferenceBlock = normalizedOptions.externalPreferenceDirective
     ? `\n\n<CONVERSATION_PREFERENCE>\n${normalizedOptions.externalPreferenceDirective}\n</CONVERSATION_PREFERENCE>`

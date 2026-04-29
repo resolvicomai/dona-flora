@@ -18,7 +18,5 @@ export function loginToAuthIdentifier(input: string) {
 
 export function authIdentifierToDisplayLogin(identifier: string) {
   const suffix = `@${LOCAL_AUTH_INTERNAL_DOMAIN}`
-  return identifier.endsWith(suffix)
-    ? identifier.slice(0, -suffix.length)
-    : identifier
+  return identifier.endsWith(suffix) ? identifier.slice(0, -suffix.length) : identifier
 }

@@ -1,8 +1,4 @@
-import {
-  STATUS_LABELS,
-  getStatusOptions,
-  getStatusLabel,
-} from '../status-labels'
+import { STATUS_LABELS, getStatusOptions, getStatusLabel } from '../status-labels'
 
 describe('status-labels', () => {
   describe('STATUS_LABELS', () => {

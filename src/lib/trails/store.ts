@@ -69,9 +69,7 @@ export async function saveTrail(
   let existing: string[] = []
   try {
     const files = await fs.readdir(dir)
-    existing = files
-      .filter((f) => f.endsWith('.md'))
-      .map((f) => f.replace(/\.md$/, ''))
+    existing = files.filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, ''))
   } catch {
     // dir freshly created or unreadable — no collisions to resolve
   }
@@ -103,10 +101,7 @@ function normalizeTrailDataForParse(data: Record<string, unknown>) {
   return normalized
 }
 
-async function readTrailFile(
-  dir: string,
-  filename: string,
-): Promise<TrailRecord | null> {
+async function readTrailFile(dir: string, filename: string): Promise<TrailRecord | null> {
   if (!filename.endsWith('.md')) return null
 
   const filepath = path.join(dir, filename)
@@ -124,9 +119,7 @@ async function readTrailFile(
   }
 }
 
-export async function listTrails(
-  context?: StorageContext,
-): Promise<TrailRecord[]> {
+export async function listTrails(context?: StorageContext): Promise<TrailRecord[]> {
   const dir = getTrailsDir(context)
 
   try {
@@ -207,10 +200,7 @@ export async function updateTrail({
   }
 }
 
-export async function deleteTrail(
-  slug: string,
-  context?: StorageContext,
-): Promise<boolean> {
+export async function deleteTrail(slug: string, context?: StorageContext): Promise<boolean> {
   if (!TRAIL_SLUG_RE.test(slug)) {
     return false
   }

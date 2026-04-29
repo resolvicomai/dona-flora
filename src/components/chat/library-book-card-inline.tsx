@@ -28,10 +28,7 @@ interface LibraryBookCardInlineProps {
  * Visual: token-driven owned-book card with a solid border, subtle shadow,
  * and compact density so it reads as a real book surface inside the bubble.
  */
-export function LibraryBookCardInline({
-  slug,
-  className,
-}: LibraryBookCardInlineProps) {
+export function LibraryBookCardInline({ slug, className }: LibraryBookCardInlineProps) {
   const { locale } = useAppLanguage()
   const copy = getChatCopy(locale)
   const book = useBookMeta(slug)
@@ -39,11 +36,7 @@ export function LibraryBookCardInline({
   if (!book) {
     // D-14 guardrail: slug not in library → degrade to a neutral span, never
     // render a broken link.
-    return (
-      <span className="text-muted-foreground italic">
-        {copy.bookCard.unavailable}
-      </span>
-    )
+    return <span className="text-muted-foreground italic">{copy.bookCard.unavailable}</span>
   }
 
   const statusLabel = getStatusLabel(book.status, locale).toLowerCase()
@@ -61,12 +54,8 @@ export function LibraryBookCardInline({
     >
       <BookCover src={book.cover} alt={book.title} size="sm" />
       <div className="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
-        <p className="line-clamp-2 break-words text-sm font-medium text-foreground">
-          {book.title}
-        </p>
-        <p className="line-clamp-1 break-words text-sm text-muted-foreground">
-          {book.author}
-        </p>
+        <p className="line-clamp-2 break-words text-sm font-medium text-foreground">{book.title}</p>
+        <p className="line-clamp-1 break-words text-sm text-muted-foreground">{book.author}</p>
         <div>
           <StatusBadge status={book.status} locale={locale} />
         </div>

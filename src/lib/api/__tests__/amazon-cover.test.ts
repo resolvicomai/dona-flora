@@ -10,9 +10,7 @@ beforeEach(() => jest.restoreAllMocks())
 describe('amazon cover fallback', () => {
   it('converts 978 ISBN-13 to ISBN-10/ASIN', () => {
     expect(isbn13ToIsbn10('9780553293357')).toBe('0553293354')
-    expect(resolveAmazonCoverAsin({ isbn13: '978-0-553-29335-7' })).toBe(
-      '0553293354',
-    )
+    expect(resolveAmazonCoverAsin({ isbn13: '978-0-553-29335-7' })).toBe('0553293354')
   })
 
   it('does not derive ISBN-10 from 979 ISBN-13', () => {
@@ -31,9 +29,9 @@ describe('amazon cover fallback', () => {
       ok: true,
     } as Response)
 
-    await expect(
-      findAmazonCoverByISBN({ isbn13: '9780553293357' }),
-    ).resolves.toBe(getAmazonCoverUrl('0553293354'))
+    await expect(findAmazonCoverByISBN({ isbn13: '9780553293357' })).resolves.toBe(
+      getAmazonCoverUrl('0553293354'),
+    )
   })
 
   it('returns null when Amazon does not return an image', async () => {
@@ -42,8 +40,6 @@ describe('amazon cover fallback', () => {
       ok: true,
     } as Response)
 
-    await expect(
-      findAmazonCoverByISBN({ isbn13: '9780553293357' }),
-    ).resolves.toBeNull()
+    await expect(findAmazonCoverByISBN({ isbn13: '9780553293357' })).resolves.toBeNull()
   })
 })

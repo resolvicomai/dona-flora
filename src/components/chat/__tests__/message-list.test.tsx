@@ -3,10 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-import {
-  KnownLibraryProvider,
-  type ChatBookMeta,
-} from '../known-library-context'
+import { KnownLibraryProvider, type ChatBookMeta } from '../known-library-context'
 import { MessageList } from '../message-list'
 import type { LibrarianClientMessage } from '@/app/api/chat/route'
 
@@ -17,11 +14,7 @@ const book: ChatBookMeta = {
   status: 'lido',
 }
 
-function makeMessage(
-  role: 'user' | 'assistant',
-  text: string,
-  id = role,
-): LibrarianClientMessage {
+function makeMessage(role: 'user' | 'assistant', text: string, id = role): LibrarianClientMessage {
   return {
     id,
     role,
@@ -29,9 +22,7 @@ function makeMessage(
   } as unknown as LibrarianClientMessage
 }
 
-function renderMessageList(
-  props: Partial<React.ComponentProps<typeof MessageList>> = {},
-) {
+function renderMessageList(props: Partial<React.ComponentProps<typeof MessageList>> = {}) {
   return render(
     <KnownLibraryProvider books={[book]}>
       <MessageList
@@ -53,24 +44,17 @@ describe('MessageList pending and error feedback', () => {
       status: 'streaming',
     })
 
-    expect(
-      screen.getByRole('status', { name: 'Dona Flora está pensando' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('status', { name: 'Dona Flora está pensando' })).toBeInTheDocument()
     expect(screen.getAllByLabelText('Dona Flora')).toHaveLength(1)
   })
 
   test('keeps the thinking bubble when the assistant message is still empty', () => {
     renderMessageList({
-      messages: [
-        makeMessage('user', 'Oi', 'user-1'),
-        makeMessage('assistant', '', 'assistant-1'),
-      ],
+      messages: [makeMessage('user', 'Oi', 'user-1'), makeMessage('assistant', '', 'assistant-1')],
       status: 'streaming',
     })
 
-    expect(
-      screen.getByRole('status', { name: 'Dona Flora está pensando' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('status', { name: 'Dona Flora está pensando' })).toBeInTheDocument()
   })
 
   test('shows a clearer local provider error when chat generation fails', () => {

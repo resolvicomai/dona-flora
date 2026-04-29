@@ -86,9 +86,7 @@ describe('ChatSidebarItem', () => {
 
   test('shows an inline update error instead of logging a dev issue', async () => {
     const user = userEvent.setup()
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {})
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
     global.fetch = jest.fn(async () => ({
       ok: false,
       status: 500,
@@ -130,7 +128,8 @@ describe('ChatSidebarItem', () => {
 
   test('renders relative pt-BR timestamp (matches /há/)', () => {
     render(<ChatSidebarItem chat={makeChat()} active={false} />)
-    const timeEl = screen.getByRole('time') as HTMLElement | null ?? document.querySelector('time')
+    const timeEl =
+      (screen.getByRole('time') as HTMLElement | null) ?? document.querySelector('time')
     expect(timeEl).not.toBeNull()
     // pt-BR relative labels from date-fns always use "há" for past times
     expect(timeEl!.textContent ?? '').toMatch(/há/)
@@ -180,9 +179,7 @@ describe('ChatSidebarItem', () => {
 
   test('leaves the active chat after deleting it even when the current pathname is /chat', async () => {
     const user = userEvent.setup()
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {})
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     render(<ChatSidebarItem chat={makeChat()} active={true} />)
 

@@ -21,12 +21,7 @@ interface SearchInputProps {
  * Default placeholder (UI-SPEC Copywriting Contract): `Buscar por título, autor ou notas…`
  * Width recipe (PATTERNS §search-input.tsx): `md:w-72` — mobile expands via parent `flex-1`.
  */
-export function SearchInput({
-  value,
-  onChange,
-  placeholder,
-  className,
-}: SearchInputProps) {
+export function SearchInput({ value, onChange, placeholder, className }: SearchInputProps) {
   const { locale } = useAppLanguage()
   const copy = {
     'pt-BR': {

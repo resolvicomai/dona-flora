@@ -4,10 +4,7 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import type { ReactElement } from 'react'
-import {
-  KnownLibraryProvider,
-  type ChatBookMeta,
-} from '../known-library-context'
+import { KnownLibraryProvider, type ChatBookMeta } from '../known-library-context'
 import { MessageBubble } from '../message-bubble'
 import type { LibrarianClientMessage } from '@/app/api/chat/route'
 
@@ -39,13 +36,8 @@ const realBook: ChatBookMeta = {
   status: 'lido',
 }
 
-function renderWithLibrary(
-  ui: ReactElement,
-  books: ChatBookMeta[] = [realBook],
-) {
-  return render(
-    <KnownLibraryProvider books={books}>{ui}</KnownLibraryProvider>,
-  )
+function renderWithLibrary(ui: ReactElement, books: ChatBookMeta[] = [realBook]) {
+  return render(<KnownLibraryProvider books={books}>{ui}</KnownLibraryProvider>)
 }
 
 // Build a LibrarianClientMessage fixture using the structural shape; the
@@ -76,9 +68,7 @@ describe('MessageBubble', () => {
   })
 
   test('renders assistant text with AvatarMonogram', () => {
-    const msg = makeMessage('assistant', [
-      { type: 'text', text: 'Olá, caro leitor.' },
-    ])
+    const msg = makeMessage('assistant', [{ type: 'text', text: 'Olá, caro leitor.' }])
     const { container } = renderWithLibrary(
       <MessageBubble message={msg} isLastAssistantStreaming={false} />,
     )
@@ -96,9 +86,7 @@ describe('MessageBubble', () => {
         output: { slug: 'real' },
       },
     ])
-    renderWithLibrary(
-      <MessageBubble message={msg} isLastAssistantStreaming={false} />,
-    )
+    renderWithLibrary(<MessageBubble message={msg} isLastAssistantStreaming={false} />)
     const link = screen.getByRole('link')
     expect(link).toHaveAttribute('href', '/books/real')
   })
@@ -110,9 +98,7 @@ describe('MessageBubble', () => {
         text: "Comece por [chama render_library_book_card({ slug: 'real' })] e depois me conte.",
       },
     ])
-    renderWithLibrary(
-      <MessageBubble message={msg} isLastAssistantStreaming={false} />,
-    )
+    renderWithLibrary(<MessageBubble message={msg} isLastAssistantStreaming={false} />)
 
     expect(screen.queryByText(/render_library_book_card/)).toBeNull()
     expect(screen.getByRole('link')).toHaveAttribute('href', '/books/real')
@@ -131,9 +117,7 @@ describe('MessageBubble', () => {
     const { container } = renderWithLibrary(
       <MessageBubble message={msg} isLastAssistantStreaming={false} />,
     )
-    expect(
-      screen.getByText('(livro mencionado indisponível)'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('(livro mencionado indisponível)')).toBeInTheDocument()
     // CRITICAL AI-08: no <a> rendered for the hallucinated slug — the card was
     // never mounted, so there's no way it could generate a broken link.
     expect(container.querySelector('a')).toBeNull()
@@ -151,9 +135,7 @@ describe('MessageBubble', () => {
         },
       },
     ])
-    renderWithLibrary(
-      <MessageBubble message={msg} isLastAssistantStreaming={false} />,
-    )
+    renderWithLibrary(<MessageBubble message={msg} isLastAssistantStreaming={false} />)
     const note = screen.getByRole('note')
     expect(note).toBeInTheDocument()
     // "externo" tag surfaces the external nature of the mention
@@ -188,16 +170,12 @@ describe('MessageBubble', () => {
   })
 
   test('appends StreamingCursor to last text part when isLastAssistantStreaming is true', () => {
-    const msg = makeMessage('assistant', [
-      { type: 'text', text: 'Começando a resposta' },
-    ])
+    const msg = makeMessage('assistant', [{ type: 'text', text: 'Começando a resposta' }])
     const { container } = renderWithLibrary(
       <MessageBubble message={msg} isLastAssistantStreaming={true} />,
     )
     // Streaming cursor: a narrow aria-hidden inline span using the brand ink.
-    const cursor = container.querySelector(
-      'span.inline-block.w-\\[2px\\].bg-primary',
-    )
+    const cursor = container.querySelector('span.inline-block.w-\\[2px\\].bg-primary')
     expect(cursor).not.toBeNull()
   })
 })

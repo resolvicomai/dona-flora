@@ -110,9 +110,7 @@ describe('user settings persistence', () => {
       expect(settings.externalOpenness).toBe('somente-acervo')
       expect(settings.responseStyle).toBe('concisa')
       expect(settings.language).toBe('en')
-      expect(settings.additionalInstructions).toBe(
-        'Sempre use o acervo como ponto de partida.',
-      )
+      expect(settings.additionalInstructions).toBe('Sempre use o acervo como ponto de partida.')
     } finally {
       closeDatabase(db)
     }
@@ -196,9 +194,7 @@ describe('local-first settings persistence', () => {
       expect(settings.fallbackApiKeyConfigured).toBe(true)
       expect(row?.encrypted).toBeTruthy()
       expect(row?.encrypted).not.toContain('sk-openrouter-test')
-      expect(getUserAIProviderSecretRecord(db, 'user-1')).toBe(
-        'sk-openrouter-test',
-      )
+      expect(getUserAIProviderSecretRecord(db, 'user-1')).toBe('sk-openrouter-test')
     } finally {
       closeDatabase(db)
     }
@@ -231,12 +227,8 @@ describe('local-first settings persistence', () => {
       expect(row?.provider).toBe('openai')
       expect(row?.encrypted).toBeTruthy()
       expect(row?.encrypted).not.toContain('sk-openai-test')
-      expect(getUserAIPrimaryProviderSecretRecord(db, 'user-1', 'openai')).toBe(
-        'sk-openai-test',
-      )
-      expect(
-        getUserAIPrimaryProviderSecretRecord(db, 'user-1', 'anthropic'),
-      ).toBeNull()
+      expect(getUserAIPrimaryProviderSecretRecord(db, 'user-1', 'openai')).toBe('sk-openai-test')
+      expect(getUserAIPrimaryProviderSecretRecord(db, 'user-1', 'anthropic')).toBeNull()
     } finally {
       closeDatabase(db)
     }

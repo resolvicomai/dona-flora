@@ -100,10 +100,7 @@ describe('AddBookDialog language filter', () => {
 
     await user.click(screen.getByRole('button', { name: 'Adicionar livro' }))
     await user.click(screen.getByRole('button', { name: 'PT-BR' }))
-    await user.type(
-      screen.getByPlaceholderText('Buscar por título ou ISBN…'),
-      'harry potter pedra',
-    )
+    await user.type(screen.getByPlaceholderText('Buscar por título ou ISBN…'), 'harry potter pedra')
 
     await act(async () => {
       jest.advanceTimersByTime(400)

@@ -16,9 +16,7 @@ describe('ChatHeaderEntryButton', () => {
     render(<ChatHeaderEntryButton />)
     // The accessible name lives on the button; base-ui merges render={<Link />}
     // so the anchor inherits the aria-label. getByLabelText covers either host.
-    expect(
-      screen.getByLabelText('Conversar com a Dona Flora'),
-    ).toBeInTheDocument()
+    expect(screen.getByLabelText('Conversar com a Dona Flora')).toBeInTheDocument()
   })
 
   test('renders the Sparkles icon as an SVG (aria-hidden)', () => {

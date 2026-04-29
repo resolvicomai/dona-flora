@@ -7,15 +7,11 @@ import { fetchLocalAuthLink } from '@/lib/auth/dev-link-client'
 import { Input } from '@/components/ui/input'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { authClient } from '@/lib/auth/client'
-import {
-  authIdentifierToDisplayLogin,
-  loginToAuthIdentifier,
-} from '@/lib/auth/local-identity'
+import { authIdentifierToDisplayLogin, loginToAuthIdentifier } from '@/lib/auth/local-identity'
 import { cn } from '@/lib/utils'
 
 function verificationCallbackURL() {
-  const origin =
-    typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
   return `${origin}/verify-email?verified=1`
 }
 
@@ -29,15 +25,11 @@ export function VerifyEmailPanel({
   verified?: boolean
 }) {
   const { copy } = useAppLanguage()
-  const [login, setLogin] = useState(
-    authIdentifierToDisplayLogin(initialLoginIdentifier),
-  )
+  const [login, setLogin] = useState(authIdentifierToDisplayLogin(initialLoginIdentifier))
   const [error, setError] = useState<string | null>(
     errorCode ? `${copy.auth.verifyEmail.errorPrefix} (${errorCode}).` : null,
   )
-  const [info, setInfo] = useState<string | null>(
-    verified ? copy.auth.verifyEmail.verified : null,
-  )
+  const [info, setInfo] = useState<string | null>(verified ? copy.auth.verifyEmail.verified : null)
   const [localLink, setLocalLink] = useState<string | null>(null)
   const [isLoadingLocalLink, setIsLoadingLocalLink] = useState(
     Boolean(initialLoginIdentifier) && !verified,
@@ -100,11 +92,7 @@ export function VerifyEmailPanel({
 
   return (
     <div className="flex flex-col gap-4">
-      {info ? (
-        <div className="brand-inset px-4 py-3 text-sm text-foreground">
-          {info}
-        </div>
-      ) : null}
+      {info ? <div className="brand-inset px-4 py-3 text-sm text-foreground">{info}</div> : null}
 
       {error ? (
         <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -117,18 +105,13 @@ export function VerifyEmailPanel({
           <Link className={buttonVariants()} href="/">
             {copy.auth.verifyEmail.goToLibrary}
           </Link>
-          <Link
-            className={cn(buttonVariants({ variant: 'outline' }))}
-            href="/sign-in"
-          >
+          <Link className={cn(buttonVariants({ variant: 'outline' }))} href="/sign-in">
             {copy.auth.verifyEmail.otherAccount}
           </Link>
         </div>
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleResend}>
-          <p className="text-sm leading-7 text-muted-foreground">
-            {copy.auth.verifyEmail.info}
-          </p>
+          <p className="text-sm leading-7 text-muted-foreground">{copy.auth.verifyEmail.info}</p>
 
           {localLink ? (
             <div className="brand-inset px-4 py-3 text-sm text-muted-foreground">

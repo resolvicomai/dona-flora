@@ -127,9 +127,7 @@ describe('serializeTranscript', () => {
       },
     ]
     const out = serializeTranscript(messages)
-    expect(out).toContain(
-      '> external: Earthsea — Ursula K. Le Guin — prosa contemplativa parecida'
-    )
+    expect(out).toContain('> external: Earthsea — Ursula K. Le Guin — prosa contemplativa parecida')
   })
 
   it('skips tool parts whose state is not output-available', () => {
@@ -178,19 +176,13 @@ describe('parseTranscript', () => {
   })
 
   it('tokenizes [[slug]] as a library-card part', () => {
-    const md = [
-      '## Dona Flora — 15:35',
-      '',
-      'Comece por [[o-hobbit]] e siga.',
-    ].join('\n')
+    const md = ['## Dona Flora — 15:35', '', 'Comece por [[o-hobbit]] e siga.'].join('\n')
     const msgs = parseTranscript(md)
     expect(msgs).toHaveLength(1)
     const parts = msgs[0].parts
     // Expect: text "Comece por", card "o-hobbit", text "e siga."
     expect(parts.length).toBeGreaterThanOrEqual(2)
-    const cardPart = parts.find(
-      (p) => p.type === 'tool-render_library_book_card'
-    )
+    const cardPart = parts.find((p) => p.type === 'tool-render_library_book_card')
     expect(cardPart).toBeDefined()
     expect(cardPart).toMatchObject({
       type: 'tool-render_library_book_card',
@@ -209,9 +201,7 @@ describe('parseTranscript', () => {
     ].join('\n')
     const msgs = parseTranscript(md)
     expect(msgs).toHaveLength(1)
-    const cardParts = msgs[0].parts.filter(
-      (p) => p.type === 'tool-render_library_book_card',
-    )
+    const cardParts = msgs[0].parts.filter((p) => p.type === 'tool-render_library_book_card')
     expect(cardParts).toHaveLength(0)
   })
 
@@ -224,9 +214,7 @@ describe('parseTranscript', () => {
     ].join('\n')
     const msgs = parseTranscript(md)
     expect(msgs).toHaveLength(1)
-    const externalPart = msgs[0].parts.find(
-      (p) => p.type === 'tool-render_external_book_mention'
-    )
+    const externalPart = msgs[0].parts.find((p) => p.type === 'tool-render_external_book_mention')
     expect(externalPart).toBeDefined()
     expect(externalPart).toMatchObject({
       type: 'tool-render_external_book_mention',
@@ -296,12 +284,7 @@ describe('parseTranscript', () => {
 
     // Same number of messages, same role order
     expect(parsed).toHaveLength(4)
-    expect(parsed.map((m) => m.role)).toEqual([
-      'user',
-      'assistant',
-      'user',
-      'assistant',
-    ])
+    expect(parsed.map((m) => m.role)).toEqual(['user', 'assistant', 'user', 'assistant'])
 
     // Message 1: one text part with the exact string
     const m1Text = parsed[0].parts
@@ -312,7 +295,7 @@ describe('parseTranscript', () => {
 
     // Message 2: two card parts in order, with the right slugs
     const m2Cards = parsed[1].parts.filter(
-      (p) => p.type === 'tool-render_library_book_card'
+      (p) => p.type === 'tool-render_library_book_card',
     ) as Array<{
       type: 'tool-render_library_book_card'
       state: string
@@ -324,12 +307,14 @@ describe('parseTranscript', () => {
 
     // Message 4: one external part preserving all three fields
     const m4External = parsed[3].parts.find(
-      (p) => p.type === 'tool-render_external_book_mention'
-    ) as {
-      type: 'tool-render_external_book_mention'
-      state: string
-      output?: { title: string; author: string; reason: string }
-    } | undefined
+      (p) => p.type === 'tool-render_external_book_mention',
+    ) as
+      | {
+          type: 'tool-render_external_book_mention'
+          state: string
+          output?: { title: string; author: string; reason: string }
+        }
+      | undefined
     expect(m4External).toBeDefined()
     expect(m4External!.output).toEqual({
       title: 'Earthsea',

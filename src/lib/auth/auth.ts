@@ -1,28 +1,18 @@
 import { betterAuth, type BetterAuthOptions } from 'better-auth'
 import { getMigrations } from 'better-auth/db/migration'
 import { nextCookies } from 'better-auth/next-js'
-import {
-  ensureAppTables,
-  getDatabase,
-} from '@/lib/auth/db'
+import { ensureAppTables, getDatabase } from '@/lib/auth/db'
 import { sendAuthEmail } from '@/lib/auth/mailer'
 import type { UserRole } from '@/lib/auth/types'
 import { claimLegacyDataForUser } from '@/lib/storage/context'
 
 function getAppBaseURL() {
-  return (
-    process.env.BETTER_AUTH_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    'http://localhost:3000'
-  )
+  return process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 }
 
 function getAuthBaseURLConfig() {
   const fallback = getAppBaseURL()
-  const allowedHosts = new Set<string>([
-    'localhost:*',
-    '127.0.0.1:*',
-  ])
+  const allowedHosts = new Set<string>(['localhost:*', '127.0.0.1:*'])
 
   try {
     allowedHosts.add(new URL(fallback).host)
@@ -38,10 +28,7 @@ function getAuthBaseURLConfig() {
 }
 
 function getTrustedOrigins() {
-  const trustedOrigins = new Set<string>([
-    'http://localhost:*',
-    'http://127.0.0.1:*',
-  ])
+  const trustedOrigins = new Set<string>(['http://localhost:*', 'http://127.0.0.1:*'])
 
   try {
     trustedOrigins.add(new URL(getAppBaseURL()).origin)
@@ -112,9 +99,10 @@ export async function ensureLocalUserReady(userId: string): Promise<UserRole> {
 
   const assignOwnerIfNeeded = database.transaction((currentUserId: string) => {
     const existingOwner = database
-      .prepare<{ role: UserRole }, { id: string }>(
-        `SELECT id FROM "user" WHERE role = @role LIMIT 1`,
-      )
+      .prepare<
+        { role: UserRole },
+        { id: string }
+      >(`SELECT id FROM "user" WHERE role = @role LIMIT 1`)
       .get({ role: 'owner' })
 
     if (existingOwner) {
@@ -122,9 +110,10 @@ export async function ensureLocalUserReady(userId: string): Promise<UserRole> {
     }
 
     database
-      .prepare<{ role: UserRole; userId: string }>(
-        `UPDATE "user" SET role = @role WHERE id = @userId`,
-      )
+      .prepare<{
+        role: UserRole
+        userId: string
+      }>(`UPDATE "user" SET role = @role WHERE id = @userId`)
       .run({ role: 'owner', userId: currentUserId })
 
     return 'owner'

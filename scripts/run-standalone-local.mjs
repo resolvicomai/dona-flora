@@ -41,21 +41,15 @@ async function syncStandaloneAssets() {
 
 await syncStandaloneAssets()
 
-const child = spawn(
-  process.execPath,
-  [
-    standaloneServer,
-  ],
-  {
-    cwd: standaloneRoot,
-    env: {
-      ...process.env,
-      HOSTNAME: process.env.HOSTNAME ?? '0.0.0.0',
-      PORT: process.env.PORT ?? '3000',
-    },
-    stdio: 'inherit',
+const child = spawn(process.execPath, [standaloneServer], {
+  cwd: standaloneRoot,
+  env: {
+    ...process.env,
+    HOSTNAME: process.env.HOSTNAME ?? '0.0.0.0',
+    PORT: process.env.PORT ?? '3000',
   },
-)
+  stdio: 'inherit',
+})
 
 child.on('exit', (code, signal) => {
   if (signal) {

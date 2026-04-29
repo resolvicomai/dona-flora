@@ -70,13 +70,7 @@ function useStableChatId(chatId?: string): string {
   return stableChatId
 }
 
-export function ChatMain({
-  chatId,
-  initialMessages,
-  chats,
-  bookCount,
-  seedBook,
-}: ChatMainProps) {
+export function ChatMain({ chatId, initialMessages, chats, bookCount, seedBook }: ChatMainProps) {
   const router = useRouter()
   const { locale } = useAppLanguage()
   const copy = getChatCopy(locale)
@@ -144,9 +138,7 @@ export function ChatMain({
     if (input !== '') return
     if ((messages?.length ?? 0) !== 0) return
 
-    setInput(
-      copy.main.seedBook(seedBook.title, seedBook.author),
-    )
+    setInput(copy.main.seedBook(seedBook.title, seedBook.author))
     seedApplied.current = true
     router.replace('/chat')
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,8 +159,7 @@ export function ChatMain({
     setInput('')
   }
 
-  const title =
-    messages.length === 0 ? copy.main.newConversation : copy.main.conversation
+  const title = messages.length === 0 ? copy.main.newConversation : copy.main.conversation
 
   return (
     <div className="brand-window flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
@@ -189,17 +180,13 @@ export function ChatMain({
         />
         <div className="min-w-0">
           <p className="eyebrow">{copy.main.brandEyebrow}</p>
-          <h2 className="truncate text-sm font-medium text-foreground">
-            {title}
-          </h2>
+          <h2 className="truncate text-sm font-medium text-foreground">{title}</h2>
         </div>
       </header>
 
       {/* One-shot aria-live announcement while a turn is pending first text. */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {status === 'submitted' || status === 'streaming'
-          ? copy.main.responding
-          : ''}
+        {status === 'submitted' || status === 'streaming' ? copy.main.responding : ''}
       </div>
 
       <MessageList
@@ -219,10 +206,7 @@ export function ChatMain({
       />
       {shouldShowExternalPreference ? (
         <div className="px-4 md:px-6">
-          <ExternalPreferenceToggle
-            value={externalPreference}
-            onChange={setExternalPreference}
-          />
+          <ExternalPreferenceToggle value={externalPreference} onChange={setExternalPreference} />
         </div>
       ) : null}
       <Composer

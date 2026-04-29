@@ -13,9 +13,7 @@ describe('SidebarEmptyState', () => {
 
   test('renders pt-BR body text', () => {
     render(<SidebarEmptyState />)
-    expect(
-      screen.getByText('Suas conversas com a Dona Flora aparecem aqui.'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Suas conversas com a Dona Flora aparecem aqui.')).toBeInTheDocument()
   })
 
   test("renders MessagesSquare icon (svg with aria-hidden='true')", () => {

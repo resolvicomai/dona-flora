@@ -141,9 +141,7 @@ export async function findLatestLocalAuthLink({
   for (const filename of matchedFiles) {
     const filePath = path.join(getDevOutboxDir(), filename)
     const content = await fs.readFile(filePath, 'utf-8')
-    const urlLine = content
-      .split('\n')
-      .find((line) => line.toLowerCase().startsWith('url: '))
+    const urlLine = content.split('\n').find((line) => line.toLowerCase().startsWith('url: '))
 
     if (!urlLine) {
       continue

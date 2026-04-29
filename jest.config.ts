@@ -88,9 +88,7 @@ const config: Config = {
     '^.+\\.tsx?$': 'ts-jest',
     '^.+\\.js$': 'babel-jest',
   },
-  transformIgnorePatterns: [
-    `node_modules/(?!(${ESM_PACKAGES})/)`,
-  ],
+  transformIgnorePatterns: [`node_modules/(?!(${ESM_PACKAGES})/)`],
 }
 
 export default config

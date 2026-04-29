@@ -40,9 +40,7 @@ function toAuthenticatedSession(
   }
 }
 
-async function prepareLocalSession(
-  session: Awaited<ReturnType<typeof auth.api.getSession>>,
-) {
+async function prepareLocalSession(session: Awaited<ReturnType<typeof auth.api.getSession>>) {
   const authenticated = toAuthenticatedSession(session)
   if (!authenticated) {
     return null

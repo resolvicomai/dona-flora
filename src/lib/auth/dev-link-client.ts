@@ -5,13 +5,7 @@ interface LocalAuthLinkResponse {
   url: string | null
 }
 
-export async function fetchLocalAuthLink({
-  kind,
-  login,
-}: {
-  kind: AuthEmailKind
-  login: string
-}) {
+export async function fetchLocalAuthLink({ kind, login }: { kind: AuthEmailKind; login: string }) {
   if (!login) {
     return null
   }

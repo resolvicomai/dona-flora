@@ -36,10 +36,7 @@ export async function PUT(request: NextRequest) {
   } catch (err) {
     return NextResponse.json(
       {
-        error:
-          err instanceof Error
-            ? err.message
-            : 'Não foi possível validar a pasta.',
+        error: err instanceof Error ? err.message : 'Não foi possível validar a pasta.',
       },
       { status: 400 },
     )

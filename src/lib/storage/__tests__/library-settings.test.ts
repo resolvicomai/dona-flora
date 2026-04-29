@@ -28,31 +28,25 @@ describe('validateBooksDirectory', () => {
   })
 
   it('rejects relative paths', async () => {
-    await expect(validateBooksDirectory('livros')).rejects.toThrow(
-      'caminho absoluto',
-    )
+    await expect(validateBooksDirectory('livros')).rejects.toThrow('caminho absoluto')
   })
 
   it('rejects missing directories', async () => {
-    await expect(
-      validateBooksDirectory(path.join(tmpDir, 'nao-existe')),
-    ).rejects.toThrow('Pasta não encontrada')
+    await expect(validateBooksDirectory(path.join(tmpDir, 'nao-existe'))).rejects.toThrow(
+      'Pasta não encontrada',
+    )
   })
 
   it('rejects files instead of directories', async () => {
     const filePath = path.join(tmpDir, 'book.md')
     await fs.writeFile(filePath, '# livro')
 
-    await expect(validateBooksDirectory(filePath)).rejects.toThrow(
-      'precisa apontar para uma pasta',
-    )
+    await expect(validateBooksDirectory(filePath)).rejects.toThrow('precisa apontar para uma pasta')
   })
 
   it('rejects directories without read/write permission', async () => {
     await fs.chmod(tmpDir, 0o000)
 
-    await expect(validateBooksDirectory(tmpDir)).rejects.toThrow(
-      'permitir leitura e escrita',
-    )
+    await expect(validateBooksDirectory(tmpDir)).rejects.toThrow('permitir leitura e escrita')
   })
 })

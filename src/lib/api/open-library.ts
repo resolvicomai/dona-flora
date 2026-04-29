@@ -1,17 +1,11 @@
 import type { BookSearchResult } from './google-books'
 import { stripDiacritics, dedupeKey } from './dedupe'
-import {
-  matchesBookLanguageFilter,
-  normalizeBookLanguageFilter,
-} from '@/lib/books/language'
+import { matchesBookLanguageFilter, normalizeBookLanguageFilter } from '@/lib/books/language'
 import { normalizeISBN } from '@/lib/books/isbn'
 
 const OPEN_LIBRARY_API = 'https://openlibrary.org/search.json'
 
-function pickOpenLibraryLanguage(
-  languages: string[] | undefined,
-  filter?: string,
-) {
+function pickOpenLibraryLanguage(languages: string[] | undefined, filter?: string) {
   if (!languages || languages.length === 0) {
     return undefined
   }
@@ -22,9 +16,8 @@ function pickOpenLibraryLanguage(
   }
 
   return (
-    languages.find((language) =>
-      matchesBookLanguageFilter(language, normalizedFilter),
-    ) ?? languages[0]
+    languages.find((language) => matchesBookLanguageFilter(language, normalizedFilter)) ??
+    languages[0]
   )
 }
 
@@ -38,8 +31,7 @@ async function fetchOnce(
   const params = new URLSearchParams({
     limit: String(limit),
     page: String(page),
-    fields:
-      'title,subtitle,author_name,first_publish_year,cover_i,isbn,language,publisher',
+    fields: 'title,subtitle,author_name,first_publish_year,cover_i,isbn,language,publisher',
   })
 
   if (isbnQuery) {
@@ -71,39 +63,32 @@ async function fetchOnce(
       first_publish_year?: number
       language?: string[]
       publisher?: string[]
-    }) =>
-      {
-        const normalizedISBNs =
-          doc.isbn
-            ?.map((value) => normalizeISBN(value))
-            .filter((value) => value !== null) ?? []
-        const isbn13 = normalizedISBNs.find(
-          (isbn) => isbn.kind === 'isbn_13',
-        )?.value
-        const isbn10 = normalizedISBNs.find(
-          (isbn) => isbn.kind === 'isbn_10',
-        )?.value
-        const cover = doc.cover_i
-          ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`
-          : undefined
+    }) => {
+      const normalizedISBNs =
+        doc.isbn?.map((value) => normalizeISBN(value)).filter((value) => value !== null) ?? []
+      const isbn13 = normalizedISBNs.find((isbn) => isbn.kind === 'isbn_13')?.value
+      const isbn10 = normalizedISBNs.find((isbn) => isbn.kind === 'isbn_10')?.value
+      const cover = doc.cover_i
+        ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`
+        : undefined
 
-        const language = pickOpenLibraryLanguage(doc.language, languageFilter)
+      const language = pickOpenLibraryLanguage(doc.language, languageFilter)
 
-        return {
-          title: doc.title ?? '',
-          authors: doc.author_name ?? [],
-          isbn: isbn13 ?? isbn10 ?? doc.isbn?.[0],
-          isbn10,
-          isbn13,
-          subtitle: doc.subtitle,
-          publisher: doc.publisher?.[0],
-          cover,
-          coverSource: cover ? 'open-library' : undefined,
-          source: 'open-library',
-          year: doc.first_publish_year,
-          language,
-        } satisfies BookSearchResult
-      }
+      return {
+        title: doc.title ?? '',
+        authors: doc.author_name ?? [],
+        isbn: isbn13 ?? isbn10 ?? doc.isbn?.[0],
+        isbn10,
+        isbn13,
+        subtitle: doc.subtitle,
+        publisher: doc.publisher?.[0],
+        cover,
+        coverSource: cover ? 'open-library' : undefined,
+        source: 'open-library',
+        year: doc.first_publish_year,
+        language,
+      } satisfies BookSearchResult
+    },
   )
 }
 
@@ -120,14 +105,9 @@ export async function searchOpenLibrary(
   const stripped = stripDiacritics(query)
   const variants = stripped === query ? [query] : [query, stripped]
 
-  const settled = await Promise.allSettled(
-    variants.map((v) => fetchOnce(v, limit, page, language))
-  )
+  const settled = await Promise.allSettled(variants.map((v) => fetchOnce(v, limit, page, language)))
   const successes = settled
-    .filter(
-      (r): r is PromiseFulfilledResult<BookSearchResult[]> =>
-        r.status === 'fulfilled'
-    )
+    .filter((r): r is PromiseFulfilledResult<BookSearchResult[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
 
   if (successes.length === 0) {

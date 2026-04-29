@@ -44,14 +44,15 @@ jest.mock('@/lib/auth/db', () => ({
   getUserAIProviderSettings: jest.fn(),
 }))
 
-const mockedGetUserAIProviderSettings =
-  getUserAIProviderSettings as jest.MockedFunction<typeof getUserAIProviderSettings>
-const mockedGetUserAIProviderSecret =
-  getUserAIProviderSecret as jest.MockedFunction<typeof getUserAIProviderSecret>
-const mockedGetUserAIPrimaryProviderSecret =
-  getUserAIPrimaryProviderSecret as jest.MockedFunction<
-    typeof getUserAIPrimaryProviderSecret
-  >
+const mockedGetUserAIProviderSettings = getUserAIProviderSettings as jest.MockedFunction<
+  typeof getUserAIProviderSettings
+>
+const mockedGetUserAIProviderSecret = getUserAIProviderSecret as jest.MockedFunction<
+  typeof getUserAIProviderSecret
+>
+const mockedGetUserAIPrimaryProviderSecret = getUserAIPrimaryProviderSecret as jest.MockedFunction<
+  typeof getUserAIPrimaryProviderSecret
+>
 const mockedFetch = jest.fn()
 
 const defaultSettings: AIProviderSettings = {
@@ -93,9 +94,7 @@ describe('resolveVisionModelForUser', () => {
       visionEnabled: true,
     })
 
-    expect(() => resolveVisionModelForUser('user-1')).toThrow(
-      'exige uma chave externa',
-    )
+    expect(() => resolveVisionModelForUser('user-1')).toThrow('exige uma chave externa')
   })
 
   it('uses the configured OpenRouter vision model when enabled', () => {
@@ -218,8 +217,6 @@ describe('resolveChatModelForUser', () => {
     await expect(resolveChatModelForUser('user-1')).rejects.toBeInstanceOf(
       AIProviderConfigurationError,
     )
-    await expect(resolveChatModelForUser('user-1')).rejects.toThrow(
-      'Ollama local não respondeu',
-    )
+    await expect(resolveChatModelForUser('user-1')).rejects.toThrow('Ollama local não respondeu')
   })
 })

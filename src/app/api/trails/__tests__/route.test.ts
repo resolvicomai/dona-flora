@@ -37,9 +37,7 @@ jest.mock('@/lib/auth/server', () => ({
 // Default mock returns a permissive set that contains every fixture slug
 // used in the happy-path tests; individual tests override as needed.
 jest.mock('@/lib/library/slug-set', () => ({
-  loadKnownSlugs: jest.fn(
-    async () => new Set(['o-hobbit', 'a-sociedade-do-anel']),
-  ),
+  loadKnownSlugs: jest.fn(async () => new Set(['o-hobbit', 'a-sociedade-do-anel'])),
 }))
 
 import { POST } from '@/app/api/trails/route'
@@ -47,9 +45,7 @@ import { saveTrail } from '@/lib/trails/store'
 import { loadKnownSlugs } from '@/lib/library/slug-set'
 
 const mockedSaveTrail = saveTrail as jest.MockedFunction<typeof saveTrail>
-const mockedLoadKnownSlugs = loadKnownSlugs as jest.MockedFunction<
-  typeof loadKnownSlugs
->
+const mockedLoadKnownSlugs = loadKnownSlugs as jest.MockedFunction<typeof loadKnownSlugs>
 
 function makeRequest(body: unknown): NextRequest {
   return new NextRequest('http://localhost/api/trails', {
@@ -61,9 +57,7 @@ function makeRequest(body: unknown): NextRequest {
 beforeEach(() => {
   mockedSaveTrail.mockReset()
   mockedLoadKnownSlugs.mockReset()
-  mockedLoadKnownSlugs.mockResolvedValue(
-    new Set(['o-hobbit', 'a-sociedade-do-anel']),
-  )
+  mockedLoadKnownSlugs.mockResolvedValue(new Set(['o-hobbit', 'a-sociedade-do-anel']))
 })
 
 describe('POST /api/trails — happy path', () => {
@@ -73,22 +67,25 @@ describe('POST /api/trails — happy path', () => {
       makeRequest({
         title: 'Minha Trilha',
         book_refs: ['o-hobbit', 'a-sociedade-do-anel'],
-      })
+      }),
     )
     expect(res.status).toBe(201)
     const body = await res.json()
     expect(body.slug).toBe('minha-trilha')
-    expect(mockedSaveTrail).toHaveBeenCalledWith({
-      title: 'Minha Trilha',
-      book_refs: ['o-hobbit', 'a-sociedade-do-anel'],
-    }, {
-      booksDir: '/tmp/books',
-      chatsDir: '/tmp/chats',
-      dataRoot: '/tmp',
-      trailsDir: '/tmp/trails',
-      userId: 'user-1',
-      userRoot: '/tmp/users/user-1',
-    })
+    expect(mockedSaveTrail).toHaveBeenCalledWith(
+      {
+        title: 'Minha Trilha',
+        book_refs: ['o-hobbit', 'a-sociedade-do-anel'],
+      },
+      {
+        booksDir: '/tmp/books',
+        chatsDir: '/tmp/chats',
+        dataRoot: '/tmp',
+        trailsDir: '/tmp/trails',
+        userId: 'user-1',
+        userRoot: '/tmp/users/user-1',
+      },
+    )
   })
 
   it('forwards optional goal and notes', async () => {
@@ -99,38 +96,37 @@ describe('POST /api/trails — happy path', () => {
         goal: 'Ler fantasia clássica',
         book_refs: ['o-hobbit'],
         notes: 'Três livros, um por mês',
-      })
+      }),
     )
     expect(res.status).toBe(201)
-    expect(mockedSaveTrail).toHaveBeenCalledWith({
-      title: 'Trilha X',
-      goal: 'Ler fantasia clássica',
-      book_refs: ['o-hobbit'],
-      notes: 'Três livros, um por mês',
-    }, {
-      booksDir: '/tmp/books',
-      chatsDir: '/tmp/chats',
-      dataRoot: '/tmp',
-      trailsDir: '/tmp/trails',
-      userId: 'user-1',
-      userRoot: '/tmp/users/user-1',
-    })
+    expect(mockedSaveTrail).toHaveBeenCalledWith(
+      {
+        title: 'Trilha X',
+        goal: 'Ler fantasia clássica',
+        book_refs: ['o-hobbit'],
+        notes: 'Três livros, um por mês',
+      },
+      {
+        booksDir: '/tmp/books',
+        chatsDir: '/tmp/chats',
+        dataRoot: '/tmp',
+        trailsDir: '/tmp/trails',
+        userId: 'user-1',
+        userRoot: '/tmp/users/user-1',
+      },
+    )
   })
 })
 
 describe('POST /api/trails — validation', () => {
   it('returns 400 when title is empty', async () => {
-    const res = await POST(
-      makeRequest({ title: '', book_refs: ['o-hobbit'] })
-    )
+    const res = await POST(makeRequest({ title: '', book_refs: ['o-hobbit'] }))
     expect(res.status).toBe(400)
     expect(mockedSaveTrail).not.toHaveBeenCalled()
   })
 
   it('returns 400 when book_refs is empty', async () => {
-    const res = await POST(
-      makeRequest({ title: 'Minha Trilha', book_refs: [] })
-    )
+    const res = await POST(makeRequest({ title: 'Minha Trilha', book_refs: [] }))
     expect(res.status).toBe(400)
     expect(mockedSaveTrail).not.toHaveBeenCalled()
   })
@@ -140,7 +136,7 @@ describe('POST /api/trails — validation', () => {
       makeRequest({
         title: 'Minha Trilha',
         book_refs: ['O Hobbit'],
-      })
+      }),
     )
     expect(res.status).toBe(400)
     expect(mockedSaveTrail).not.toHaveBeenCalled()
@@ -151,7 +147,7 @@ describe('POST /api/trails — validation', () => {
       makeRequest({
         title: 'Minha Trilha',
         book_refs: ['../etc/passwd'],
-      })
+      }),
     )
     expect(res.status).toBe(400)
     expect(mockedSaveTrail).not.toHaveBeenCalled()
@@ -165,14 +161,12 @@ describe('POST /api/trails — validation', () => {
       makeRequest({
         title: 'Minha Trilha',
         book_refs: ['o-hobbit', 'livro-que-nao-existe'],
-      })
+      }),
     )
     expect(res.status).toBe(400)
     expect(mockedSaveTrail).not.toHaveBeenCalled()
     const body = await res.json()
-    expect(body.details?.fieldErrors?.book_refs?.[0]).toMatch(
-      /livro-que-nao-existe/,
-    )
+    expect(body.details?.fieldErrors?.book_refs?.[0]).toMatch(/livro-que-nao-existe/)
   })
 
   it('returns 400 when body is not JSON', async () => {
@@ -201,9 +195,7 @@ describe('POST /api/trails — failure paths', () => {
   it('returns 500 when saveTrail throws', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {})
     mockedSaveTrail.mockRejectedValueOnce(new Error('disk full'))
-    const res = await POST(
-      makeRequest({ title: 'Minha Trilha', book_refs: ['o-hobbit'] })
-    )
+    const res = await POST(makeRequest({ title: 'Minha Trilha', book_refs: ['o-hobbit'] }))
     expect(res.status).toBe(500)
     const body = await res.json()
     expect(body.error).toMatch(/Erro ao salvar trilha/i)

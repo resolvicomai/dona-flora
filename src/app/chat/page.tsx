@@ -2,10 +2,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { Suspense } from 'react'
 import { listBooks } from '@/lib/books/library-service'
 import { listChats } from '@/lib/chats/list'
-import {
-  getSessionStorageContext,
-  requireVerifiedServerSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedServerSession } from '@/lib/auth/server'
 import { ChatShell } from '@/components/chat/chat-shell'
 import type { ChatBookMeta } from '@/components/chat/known-library-context'
 import { getBookAuthorsDisplay } from '@/lib/books/authors'
@@ -31,10 +28,7 @@ export default async function ChatPage({
   const session = await requireVerifiedServerSession()
   const storageContext = getSessionStorageContext(session)
   const { about } = await searchParams
-  const [books, chats] = await Promise.all([
-    listBooks(storageContext),
-    listChats(storageContext),
-  ])
+  const [books, chats] = await Promise.all([listBooks(storageContext), listChats(storageContext)])
 
   const knownBooks: ChatBookMeta[] = books
     .map((b) => ({
@@ -47,13 +41,8 @@ export default async function ChatPage({
     .filter((b) => b.slug !== '')
 
   const knownSlugs = new Set(knownBooks.map((b) => b.slug))
-  const seed =
-    about && knownSlugs.has(about)
-      ? knownBooks.find((b) => b.slug === about)
-      : undefined
-  const seedBook = seed
-    ? { slug: seed.slug, title: seed.title, author: seed.author }
-    : null
+  const seed = about && knownSlugs.has(about) ? knownBooks.find((b) => b.slug === about) : undefined
+  const seedBook = seed ? { slug: seed.slug, title: seed.title, author: seed.author } : null
 
   return (
     <Suspense fallback={null}>

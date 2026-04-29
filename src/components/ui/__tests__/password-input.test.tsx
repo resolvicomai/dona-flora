@@ -20,8 +20,6 @@ describe('PasswordInput', () => {
     await user.click(toggle)
 
     expect(screen.getByLabelText('Senha')).toHaveAttribute('type', 'text')
-    expect(
-      screen.getByRole('button', { name: 'Ocultar senha' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ocultar senha' })).toBeInTheDocument()
   })
 })

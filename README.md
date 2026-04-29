@@ -1,5 +1,10 @@
 # Dona Flora
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-1f6f5b.svg)](LICENSE)
+[![Node.js >= 22](https://img.shields.io/badge/node-%3E%3D22-1f6f5b.svg)](package.json)
+[![Local-first](https://img.shields.io/badge/local--first-Markdown%20%2B%20SQLite-1f6f5b.svg)](#onde-cada-coisa-vive)
+[![Status: beta](https://img.shields.io/badge/status-beta-c89b3c.svg)](#status-do-projeto)
+
 **Uma biblioteca pessoal local-first, escrita em Markdown, com uma bibliotecária de IA que conversa com o seu acervo.**
 
 Dona Flora é para quem tem livros físicos, notas espalhadas, vontade de ler melhor e uma certa intuição de que a própria biblioteca deveria conversar de volta.
@@ -7,6 +12,27 @@ Dona Flora é para quem tem livros físicos, notas espalhadas, vontade de ler me
 Ela organiza livros em arquivos `.md`, funciona bem com Obsidian, guarda seus dados localmente e usa IA configurável para responder perguntas sobre o seu acervo real: livros lidos, livros na fila, notas, highlights, trilhas e preferências.
 
 > O catálogo é só o começo. O centro da Dona Flora é a bibliotecária: uma agente pessoal que conhece seus livros e ajuda você a se orientar dentro deles.
+
+## Índice
+
+- [Por Que Existe](#por-que-existe)
+- [Por Que "Dona Flora"](#por-que-dona-flora)
+- [Quem Construiu](#quem-construiu)
+- [O Que Ela Faz](#o-que-ela-faz)
+- [Capturas](#capturas)
+- [Como Os Dados Ficam](#como-os-dados-ficam)
+- [Instalação Rápida](#instalação-rápida)
+- [Primeiro Uso](#primeiro-uso)
+- [Usando Com Obsidian](#usando-com-obsidian)
+- [IA Local E Providers](#ia-local-e-providers)
+- [Busca De Metadados](#busca-de-metadados)
+- [Trilhas De Leitura](#trilhas-de-leitura)
+- [Highlights](#highlights)
+- [Docker](#docker)
+- [Variáveis De Ambiente](#variáveis-de-ambiente)
+- [Arquitetura](#arquitetura)
+- [Segurança E Privacidade](#segurança-e-privacidade)
+- [Contribuindo](#contribuindo)
 
 ## Por Que Existe
 
@@ -51,6 +77,17 @@ A ideia é explorar um tipo de agente pessoal que começa do jeito certo: dados 
 - **Chat com memória:** conversas persistem localmente e usam seu acervo como contexto.
 - **Login offline:** múltiplos usuários locais com usuário e senha, sem depender de e-mail.
 
+## Capturas
+
+As imagens oficiais entram aqui antes do anúncio público.
+
+| Tela                            | Descrição                                                     |
+| ------------------------------- | ------------------------------------------------------------- |
+| `docs/screenshots/library.png`  | Visão da biblioteca, filtros e edição em massa.               |
+| `docs/screenshots/chat.png`     | Conversa com a Dona Flora usando o acervo como contexto.      |
+| `docs/screenshots/settings.png` | Configuração de pasta local e provider de IA.                 |
+| `docs/screenshots/trails.png`   | Trilhas de leitura salvas e progresso pelo status dos livros. |
+
 ## Como Os Dados Ficam
 
 Os livros vivem em arquivos Markdown.
@@ -84,14 +121,14 @@ O corpo do arquivo é sua área livre de notas. A Dona Flora preserva o Markdown
 
 ## Onde Cada Coisa Vive
 
-| Dado | Onde fica |
-| --- | --- |
-| Livros | Pasta Markdown escolhida por usuário |
-| Notas dos livros | Corpo do próprio `.md` |
-| Conta local | SQLite em `DATA_DIR` |
-| Chats | Arquivos locais por usuário |
-| Trilhas | Arquivos locais por usuário |
-| Cache de capas | App data local por usuário |
+| Dado             | Onde fica                                             |
+| ---------------- | ----------------------------------------------------- |
+| Livros           | Pasta Markdown escolhida por usuário                  |
+| Notas dos livros | Corpo do próprio `.md`                                |
+| Conta local      | SQLite em `DATA_DIR`                                  |
+| Chats            | Arquivos locais por usuário                           |
+| Trilhas          | Arquivos locais por usuário                           |
+| Cache de capas   | App data local por usuário                            |
 | Chaves opcionais | SQLite local, criptografadas com `BETTER_AUTH_SECRET` |
 
 Nada disso precisa ir para a nuvem para o app funcionar.
@@ -261,14 +298,14 @@ O compose usa um volume Docker para dados internos. Se quiser conectar uma pasta
 
 Copie `.env.example` para `.env.local` e ajuste só o que precisar.
 
-| Variável | Obrigatória | Descrição |
-| --- | --- | --- |
-| `BETTER_AUTH_URL` | Sim | URL local/pública do app |
-| `BETTER_AUTH_SECRET` | Produção: sim | Segredo para sessão e criptografia local. Obrigatório se você configurar chaves externas |
-| `DATA_DIR` | Não | Pasta de SQLite, chats, trilhas e cache |
-| `LIBRARY_DIR` | Não | Fallback inicial para livros antes da UI |
-| `GOOGLE_BOOKS_API_KEY` | Não | Chave opcional para Google Books |
-| `DONA_FLORA_LIBRARY_WATCH` | Não | `1` ativa refresh automático local |
+| Variável                   | Obrigatória   | Descrição                                                                                |
+| -------------------------- | ------------- | ---------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_URL`          | Sim           | URL local/pública do app                                                                 |
+| `BETTER_AUTH_SECRET`       | Produção: sim | Segredo para sessão e criptografia local. Obrigatório se você configurar chaves externas |
+| `DATA_DIR`                 | Não           | Pasta de SQLite, chats, trilhas e cache                                                  |
+| `LIBRARY_DIR`              | Não           | Fallback inicial para livros antes da UI                                                 |
+| `GOOGLE_BOOKS_API_KEY`     | Não           | Chave opcional para Google Books                                                         |
+| `DONA_FLORA_LIBRARY_WATCH` | Não           | `1` ativa refresh automático local                                                       |
 
 Gere um segredo forte:
 
@@ -283,6 +320,8 @@ npm run dev          # desenvolvimento
 npm run build        # build de produção
 npm run start        # iniciar build de produção
 npm run lint         # lint
+npm run format       # formatar arquivos
+npm run format:check # checar formatação
 npm test -- --runInBand
 npm run migrate:isbn -- --help
 ```

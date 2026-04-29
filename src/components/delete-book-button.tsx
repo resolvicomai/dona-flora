@@ -78,26 +78,25 @@ export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger render={
-        <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
-          <Trash2 className="mr-2 h-4 w-4" />
-          {copy.action}
-        </Button>
-      } />
+      <AlertDialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {copy.action}
+          </Button>
+        }
+      />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{copy.title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {copy.description(filename)}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{copy.description(filename)}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            disabled={deleting}
-            variant="destructive"
-          >
+          <AlertDialogAction onClick={handleDelete} disabled={deleting} variant="destructive">
             {deleting ? copy.deleting : copy.action}
           </AlertDialogAction>
         </AlertDialogFooter>

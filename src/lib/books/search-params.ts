@@ -1,9 +1,4 @@
-import {
-  parseAsArrayOf,
-  parseAsString,
-  parseAsStringLiteral,
-  parseAsInteger,
-} from 'nuqs'
+import { parseAsArrayOf, parseAsString, parseAsStringLiteral, parseAsInteger } from 'nuqs'
 import { BookStatusEnum } from './schema'
 
 const STATUS_VALUES = BookStatusEnum.options

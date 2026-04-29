@@ -72,8 +72,7 @@ const ONBOARDING_COPY: Record<
     title: 'Primeiro, deixe a biblioteca encontrável.',
     trailAction: 'Ver trilhas',
     trailConfigured: (count) => `${count} trilha(s) salva(s).`,
-    trailMissing:
-      'Quando a Dona Flora sugerir uma sequência, salve e acompanhe em Trilhas.',
+    trailMissing: 'Quando a Dona Flora sugerir uma sequência, salve e acompanhe em Trilhas.',
     trailTitle: 'Acompanhar trilhas',
   },
   en: {
@@ -100,8 +99,7 @@ const ONBOARDING_COPY: Record<
     title: 'First, make the library findable.',
     trailAction: 'View trails',
     trailConfigured: (count) => `${count} saved trail(s).`,
-    trailMissing:
-      'When Dona Flora suggests a sequence, save it and track it in Trails.',
+    trailMissing: 'When Dona Flora suggests a sequence, save it and track it in Trails.',
     trailTitle: 'Track trails',
   },
   es: {
@@ -128,8 +126,7 @@ const ONBOARDING_COPY: Record<
     title: 'Primero, haz que la biblioteca sea encontrable.',
     trailAction: 'Ver rutas',
     trailConfigured: (count) => `${count} ruta(s) guardada(s).`,
-    trailMissing:
-      'Cuando Dona Flora sugiera una secuencia, guárdala y acompáñala en Rutas.',
+    trailMissing: 'Cuando Dona Flora sugiera una secuencia, guárdala y acompáñala en Rutas.',
     trailTitle: 'Acompañar rutas',
   },
   'zh-CN': {
@@ -147,8 +144,7 @@ const ONBOARDING_COPY: Record<
     chatTitle: '带着上下文聊天',
     dismissAria: '隐藏检查清单',
     eyebrow: '首次使用',
-    intro:
-      '当 Dona Flora 知道书在哪里、由哪个模型回答、以及如何开始对话时，她才会真正好用。',
+    intro: '当 Dona Flora 知道书在哪里、由哪个模型回答、以及如何开始对话时，她才会真正好用。',
     libraryAction: '选择文件夹',
     libraryConfigured: 'Dona Flora 已知道你的 Markdown 文件在哪里。',
     libraryMissing: '指向 Obsidian 或磁盘中的图书文件夹。',
@@ -201,18 +197,13 @@ export function OnboardingChecklist({
         </Button>
       ),
       completed: libraryConfigured,
-      description: libraryConfigured
-        ? copy.libraryConfigured
-        : copy.libraryMissing,
+      description: libraryConfigured ? copy.libraryConfigured : copy.libraryMissing,
       title: copy.libraryTitle,
     },
     {
       action: <AddBookDialog triggerLabel={copy.bookAction} />,
       completed: bookCount > 0,
-      description:
-        bookCount > 0
-          ? copy.booksConfigured(bookCount)
-          : copy.booksMissing,
+      description: bookCount > 0 ? copy.booksConfigured(bookCount) : copy.booksMissing,
       title: copy.booksTitle,
     },
     {
@@ -222,9 +213,7 @@ export function OnboardingChecklist({
         </Button>
       ),
       completed: Boolean(aiModel),
-      description: aiModel
-        ? copy.aiConfigured(aiModel)
-        : copy.aiMissing,
+      description: aiModel ? copy.aiConfigured(aiModel) : copy.aiMissing,
       title: copy.aiTitle,
     },
     {
@@ -234,10 +223,7 @@ export function OnboardingChecklist({
         </Button>
       ),
       completed: chatCount > 0,
-      description:
-        chatCount > 0
-          ? copy.chatConfigured(chatCount)
-          : copy.chatMissing,
+      description: chatCount > 0 ? copy.chatConfigured(chatCount) : copy.chatMissing,
       title: copy.chatTitle,
     },
     {
@@ -247,10 +233,7 @@ export function OnboardingChecklist({
         </Button>
       ),
       completed: trailCount > 0,
-      description:
-        trailCount > 0
-          ? copy.trailConfigured(trailCount)
-          : copy.trailMissing,
+      description: trailCount > 0 ? copy.trailConfigured(trailCount) : copy.trailMissing,
       title: copy.trailTitle,
     },
   ]
@@ -270,9 +253,7 @@ export function OnboardingChecklist({
           <h2 className="mt-2 text-xl font-semibold tracking-normal text-foreground md:text-2xl">
             {copy.title}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
-            {copy.intro}
-          </p>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">{copy.intro}</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <span className="rounded-md border border-hairline bg-surface px-3 py-2 font-mono text-sm text-foreground">
@@ -308,28 +289,24 @@ export function OnboardingChecklist({
               key={step.title}
             >
               <div className="flex items-start gap-3">
-              <span
-                className={
-                  step.completed
-                    ? 'flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground'
-                    : 'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-hairline-strong font-mono text-xs text-muted-foreground'
-                }
-              >
-                {step.completed ? (
-                  <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                ) : (
-                  String(index + 1).padStart(2, '0')
-                )}
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">
-                  {step.title}
-                </h3>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  {step.description}
-                </p>
+                <span
+                  className={
+                    step.completed
+                      ? 'flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground'
+                      : 'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-hairline-strong font-mono text-xs text-muted-foreground'
+                  }
+                >
+                  {step.completed ? (
+                    <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                  ) : (
+                    String(index + 1).padStart(2, '0')
+                  )}
+                </span>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">{step.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.description}</p>
+                </div>
               </div>
-            </div>
               <div>{step.action}</div>
             </li>
           )

@@ -1,6 +1,6 @@
 name: Bug report
 description: Relate algo que quebrou ou se comportou diferente do esperado.
-title: "[Bug]: "
+title: '[Bug]: '
 labels:
   - bug
 body:
@@ -13,7 +13,7 @@ body:
     attributes:
       label: O que aconteceu?
       description: Conte o comportamento observado e o que você esperava.
-      placeholder: "Ex.: Ao salvar a pasta de livros, o app mostra erro mesmo com arquivos .md válidos."
+      placeholder: 'Ex.: Ao salvar a pasta de livros, o app mostra erro mesmo com arquivos .md válidos.'
     validations:
       required: true
   - type: textarea
@@ -31,7 +31,7 @@ body:
     id: version
     attributes:
       label: Versão ou commit
-      placeholder: "Ex.: main em 5e292a2"
+      placeholder: 'Ex.: main em 5e292a2'
   - type: dropdown
     id: area
     attributes:
@@ -51,10 +51,9 @@ body:
     attributes:
       label: Ambiente
       description: Sistema, navegador, Node.js e provider de IA, se relevante.
-      placeholder: "macOS 15, Chrome, Node 22, Ollama local"
+      placeholder: 'macOS 15, Chrome, Node 22, Ollama local'
   - type: textarea
     id: extra
     attributes:
       label: Contexto adicional
       description: Prints são úteis, mas esconda dados pessoais.
-

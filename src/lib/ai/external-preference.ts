@@ -1,10 +1,6 @@
 import { z } from 'zod'
 
-export const ExternalPreferenceSchema = z.enum([
-  'acervo',
-  'ambos',
-  'externo',
-])
+export const ExternalPreferenceSchema = z.enum(['acervo', 'ambos', 'externo'])
 
 export type ExternalPreference = z.infer<typeof ExternalPreferenceSchema>
 
@@ -53,9 +49,7 @@ export function shouldOfferExternalPreference({
     .every((message) => (message.parts ?? []).some(isResolvedExternalMentionPart))
 }
 
-export function buildExternalPreferenceDirective(
-  preference?: ExternalPreference | null,
-) {
+export function buildExternalPreferenceDirective(preference?: ExternalPreference | null) {
   if (!preference) {
     return ''
   }

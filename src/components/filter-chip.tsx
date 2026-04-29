@@ -3,11 +3,7 @@
 import type { ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { cn } from '@/lib/utils'
 
@@ -44,9 +40,7 @@ export function FilterChip({
     es: !count
       ? `Filtrar por ${label.toLowerCase()}`
       : `Filtrar por ${label.toLowerCase()}, ${count} seleccionado${count === 1 ? '' : 's'}`,
-    'zh-CN': !count
-      ? `按${label}筛选`
-      : `按${label}筛选，已选择 ${count} 项`,
+    'zh-CN': !count ? `按${label}筛选` : `按${label}筛选，已选择 ${count} 项`,
   }[locale]
 
   return (
@@ -66,11 +60,7 @@ export function FilterChip({
         <span className="truncate">{formatSelectionLabel(label, count)}</span>
         <ChevronDown className="size-3.5 shrink-0 opacity-60" aria-hidden="true" />
       </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        sideOffset={10}
-        className={cn('w-72', contentClassName)}
-      >
+      <PopoverContent align="start" sideOffset={10} className={cn('w-72', contentClassName)}>
         {children}
       </PopoverContent>
     </Popover>

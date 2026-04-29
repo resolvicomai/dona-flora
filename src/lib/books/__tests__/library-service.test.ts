@@ -1,7 +1,14 @@
 import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
-import { listBooks, getBook, SAFE_MATTER_OPTIONS, writeBook, updateBook, deleteBook } from '../library-service'
+import {
+  listBooks,
+  getBook,
+  SAFE_MATTER_OPTIONS,
+  writeBook,
+  updateBook,
+  deleteBook,
+} from '../library-service'
 import { BookSchema } from '../schema'
 import matter from 'gray-matter'
 import { createStorageContext } from '@/lib/storage/context'
@@ -80,7 +87,7 @@ describe('SAFE_MATTER_OPTIONS (CVE-2025-65108)', () => {
   it('throws when parsing JavaScript-engine frontmatter', () => {
     const jsContent = '---javascript\nreturn { title: "Attack" }\n---\n'
     expect(() => matter(jsContent, SAFE_MATTER_OPTIONS)).toThrow(
-      'JavaScript front-matter engine is disabled for security reasons.'
+      'JavaScript front-matter engine is disabled for security reasons.',
     )
   })
 })
@@ -175,7 +182,10 @@ describe('writeBook', () => {
       status: 'lido',
     })
     expect(result.slug).toBe('o-alquimista')
-    const exists = await fs.access(path.join(tmpDir, 'o-alquimista.md')).then(() => true).catch(() => false)
+    const exists = await fs
+      .access(path.join(tmpDir, 'o-alquimista.md'))
+      .then(() => true)
+      .catch(() => false)
     expect(exists).toBe(true)
   })
 
@@ -183,7 +193,10 @@ describe('writeBook', () => {
     await writeBook({ title: 'Collision', author: 'A', status: 'quero-ler' })
     const result2 = await writeBook({ title: 'Collision', author: 'B', status: 'quero-ler' })
     expect(result2.slug).toBe('collision-2')
-    const exists = await fs.access(path.join(tmpDir, 'collision-2.md')).then(() => true).catch(() => false)
+    const exists = await fs
+      .access(path.join(tmpDir, 'collision-2.md'))
+      .then(() => true)
+      .catch(() => false)
     expect(exists).toBe(true)
   })
 })
@@ -267,7 +280,10 @@ describe('deleteBook', () => {
       status: 'quero-ler',
     })
     await deleteBook(slug)
-    const exists = await fs.access(path.join(tmpDir, `${slug}.md`)).then(() => true).catch(() => false)
+    const exists = await fs
+      .access(path.join(tmpDir, `${slug}.md`))
+      .then(() => true)
+      .catch(() => false)
     expect(exists).toBe(false)
   })
 
@@ -306,9 +322,9 @@ describe('library service with external Obsidian books directory', () => {
     )
     expect(slug).toBe('livro-obsidian')
 
-    await expect(
-      fs.readFile(path.join(booksDir, 'livro-obsidian.md'), 'utf-8'),
-    ).resolves.toContain('Notas no arquivo externo.')
+    await expect(fs.readFile(path.join(booksDir, 'livro-obsidian.md'), 'utf-8')).resolves.toContain(
+      'Notas no arquivo externo.',
+    )
 
     const listed = await listBooks(context)
     expect(listed).toHaveLength(1)
@@ -323,9 +339,7 @@ describe('library service with external Obsidian books directory', () => {
     expect(updated?._notes).toBe('Nota atualizada.')
 
     await deleteBook(slug, context)
-    await expect(
-      fs.access(path.join(booksDir, 'livro-obsidian.md')),
-    ).rejects.toThrow()
+    await expect(fs.access(path.join(booksDir, 'livro-obsidian.md'))).rejects.toThrow()
   })
 })
 

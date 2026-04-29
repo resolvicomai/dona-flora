@@ -1,10 +1,6 @@
 import { PageReturnLink } from '@/components/app-shell/page-return-link'
 import { SettingsForm } from '@/components/account/settings-form'
-import {
-  getUserAIProviderSettings,
-  getUserLibrarySettings,
-  getUserSettings,
-} from '@/lib/auth/db'
+import { getUserAIProviderSettings, getUserLibrarySettings, getUserSettings } from '@/lib/auth/db'
 import { requireVerifiedServerSession } from '@/lib/auth/server'
 
 export default async function SettingsPage() {

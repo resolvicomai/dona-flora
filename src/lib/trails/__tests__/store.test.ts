@@ -71,7 +71,7 @@ describe('saveTrail', () => {
     // Pre-create a file with the exact base slug
     await fs.writeFile(
       path.join(tmpDir, 'minha-trilha.md'),
-      '---\ntitle: Existing\ngoal: ""\ncreated_at: "2026-04-17T10:00:00Z"\nbook_refs:\n  - x\nnotes: ""\n---\n\n'
+      '---\ntitle: Existing\ngoal: ""\ncreated_at: "2026-04-17T10:00:00Z"\nbook_refs:\n  - x\nnotes: ""\n---\n\n',
     )
 
     const { slug } = await saveTrail({
@@ -98,9 +98,7 @@ describe('saveTrail', () => {
   })
 
   it('throws when book_refs is empty (Zod min(1))', async () => {
-    await expect(
-      saveTrail({ title: 'Sem Livros', book_refs: [] })
-    ).rejects.toThrow()
+    await expect(saveTrail({ title: 'Sem Livros', book_refs: [] })).rejects.toThrow()
   })
 
   // WR-09: punctuation-only titles are rejected by the schema (they
@@ -109,15 +107,11 @@ describe('saveTrail', () => {
   // tests covered the old fallback behavior — replaced with explicit
   // rejection.
   it('throws when title has no slug-eligible characters (WR-09)', async () => {
-    await expect(
-      saveTrail({ title: '!!!', book_refs: ['foo'] }),
-    ).rejects.toThrow()
+    await expect(saveTrail({ title: '!!!', book_refs: ['foo'] })).rejects.toThrow()
   })
 
   it('throws on punctuation-only title even with "???" variant (WR-09)', async () => {
-    await expect(
-      saveTrail({ title: '???', book_refs: ['bar'] }),
-    ).rejects.toThrow()
+    await expect(saveTrail({ title: '???', book_refs: ['bar'] })).rejects.toThrow()
   })
 
   it('omits empty goal/notes gracefully when not provided', async () => {
@@ -138,10 +132,7 @@ describe('saveTrail', () => {
 
     const trails = await listTrails()
 
-    expect(trails.map((trail) => trail.title)).toEqual([
-      'Segunda Trilha',
-      'Primeira Trilha',
-    ])
+    expect(trails.map((trail) => trail.title)).toEqual(['Segunda Trilha', 'Primeira Trilha'])
     expect(trails[0].slug).toBe('segunda-trilha')
   })
 

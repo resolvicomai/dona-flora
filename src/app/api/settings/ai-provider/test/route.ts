@@ -14,13 +14,7 @@ export const runtime = 'nodejs'
 const ProviderTestSchema = z.object({
   apiKey: z.string().trim().optional().nullable(),
   baseUrl: z.string().trim().url().optional().nullable(),
-  provider: z.enum([
-    'anthropic',
-    'ollama',
-    'openai',
-    'openai-compatible',
-    'openrouter',
-  ]),
+  provider: z.enum(['anthropic', 'ollama', 'openai', 'openai-compatible', 'openrouter']),
 })
 
 export async function POST(request: NextRequest) {
@@ -47,9 +41,7 @@ export async function POST(request: NextRequest) {
   const provider = parsed.data.provider as AIPrimaryProvider
   const savedKey =
     getUserAIPrimaryProviderSecret(authResult.session.user.id, provider) ??
-    (provider === 'openrouter'
-      ? getUserAIProviderSecret(authResult.session.user.id)
-      : null)
+    (provider === 'openrouter' ? getUserAIProviderSecret(authResult.session.user.id) : null)
   const result = await testAIProviderConnection({
     apiKey: parsed.data.apiKey || savedKey,
     baseUrl: parsed.data.baseUrl,

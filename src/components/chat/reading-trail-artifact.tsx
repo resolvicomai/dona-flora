@@ -66,9 +66,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
   return (
     <div className="brand-panel my-4 flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium text-card-foreground">
-          {copy.trail.title}
-        </h3>
+        <h3 className="text-sm font-medium text-card-foreground">{copy.trail.title}</h3>
         {state === 'idle' && (
           <Button size="sm" onClick={handleSave}>
             <BookmarkPlus className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -77,10 +75,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
         )}
         {state === 'saving' && (
           <Button size="sm" disabled aria-busy="true">
-            <Loader2
-              className="mr-2 h-4 w-4 motion-safe:animate-spin"
-              aria-hidden="true"
-            />
+            <Loader2 className="mr-2 h-4 w-4 motion-safe:animate-spin" aria-hidden="true" />
             {copy.trail.saving}
           </Button>
         )}
@@ -91,11 +86,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
               {copy.trail.saved}
             </span>
             {savedSlug ? (
-              <Button
-                size="sm"
-                variant="secondary"
-                render={<Link href={`/trails/${savedSlug}`} />}
-              >
+              <Button size="sm" variant="secondary" render={<Link href={`/trails/${savedSlug}`} />}>
                 {copy.trail.open}
               </Button>
             ) : null}
@@ -103,9 +94,7 @@ export function ReadingTrailArtifact({ slugs, suggestedTitle }: Props) {
         )}
         {state === 'error' && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-destructive">
-              {copy.trail.error}
-            </span>
+            <span className="text-sm text-destructive">{copy.trail.error}</span>
             <Button size="sm" variant="secondary" onClick={handleSave}>
               {copy.trail.retry}
             </Button>

@@ -27,10 +27,7 @@ import { BookLanguageBadge } from '@/components/book-language-badge'
 
 import type { BookSearchResult } from '@/lib/api/google-books'
 import { dedupeBooks } from '@/lib/api/dedupe'
-import {
-  normalizeBookLanguageFilter,
-  type BookLanguageFilter,
-} from '@/lib/books/language'
+import { normalizeBookLanguageFilter, type BookLanguageFilter } from '@/lib/books/language'
 import { getStatusLabel, getStatusOptions } from '@/lib/books/status-labels'
 import type { AppLanguage } from '@/lib/i18n/app-language'
 
@@ -343,11 +340,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
       setNextStart(20)
       setNextPage(2)
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : copy.searchError,
-      )
+      setError(err instanceof Error ? err.message : copy.searchError)
     } finally {
       setSearching(false)
     }
@@ -442,11 +435,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
       setNextPage((p) => p + 1)
       if (data.length < 20) setHasMore(false)
     } catch (err) {
-      setLoadMoreError(
-        err instanceof Error
-          ? err.message
-          : copy.unableToLoadMore,
-      )
+      setLoadMoreError(err instanceof Error ? err.message : copy.unableToLoadMore)
     } finally {
       setLoadingMore(false)
     }
@@ -577,9 +566,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
       <DialogTrigger
         render={
           triggerLabel ? (
-            <Button className="w-full">
-              {triggerLabel}
-            </Button>
+            <Button className="w-full">{triggerLabel}</Button>
           ) : (
             <Button aria-label={copy.dialogTitle}>
               <Plus />
@@ -599,14 +586,8 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
         {(step === 'search' || step === 'results' || step === 'saving') && selected === null && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label className="eyebrow">
-                {filterCopy.label}
-              </Label>
-              <div
-                role="group"
-                aria-label={filterCopy.label}
-                className="flex flex-wrap gap-2"
-              >
+              <Label className="eyebrow">{filterCopy.label}</Label>
+              <div role="group" aria-label={filterCopy.label} className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   aria-pressed={bookLanguage === 'all'}
@@ -655,9 +636,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
             <div className="brand-inset flex flex-col gap-3 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-medium text-foreground">{copy.photoTitle}</p>
-                <p className="mt-1">
-                  {copy.photoBody}
-                </p>
+                <p className="mt-1">{copy.photoBody}</p>
               </div>
               <input
                 ref={imageInputRef}
@@ -737,9 +716,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
 
             {/* No results state */}
             {!searching && query.length >= 3 && results.length === 0 && !error && (
-              <p className="text-center text-sm text-muted-foreground">
-                {copy.noResults}
-              </p>
+              <p className="text-center text-sm text-muted-foreground">{copy.noResults}</p>
             )}
 
             {/* Manual add link */}
@@ -764,9 +741,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
               <BookCover src={selected.cover} alt={selected.title} size="sm" />
               <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="line-clamp-3 break-words text-sm font-medium text-foreground">
-                  {selected.subtitle
-                    ? `${selected.title}: ${selected.subtitle}`
-                    : selected.title}
+                  {selected.subtitle ? `${selected.title}: ${selected.subtitle}` : selected.title}
                 </p>
                 <p className="mt-0.5 line-clamp-2 break-words text-xs text-muted-foreground">
                   {formatAuthors(selected.authors, copy)}
@@ -776,25 +751,38 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
                     {selected.genre}
                   </p>
                 )}
-                {selected.year && (
-                  <p className="text-xs text-muted-foreground">{selected.year}</p>
-                )}
+                {selected.year && <p className="text-xs text-muted-foreground">{selected.year}</p>}
                 <BookLanguageBadge language={selected.language} />
               </div>
             </div>
 
             <div className="brand-inset grid gap-2 px-4 py-3 text-sm text-muted-foreground">
-              <MetadataLine label={copy.sourceLabel} value={metadataSourceLabel(selected.source, copy)} />
+              <MetadataLine
+                label={copy.sourceLabel}
+                value={metadataSourceLabel(selected.source, copy)}
+              />
               <MetadataLine label={copy.publisherLabel} value={selected.publisher} />
               <MetadataLine label="ISBN-13" value={selected.isbn13} />
               <MetadataLine label="ISBN-10" value={selected.isbn10} />
               <MetadataLine label={copy.synopsisLabel} value={selected.synopsisSource} />
-              <MetadataLine label={copy.coverLabel} value={selected.coverSource ?? selected.cover ? selected.coverSource ?? copy.coverSourceExternal : undefined} />
+              <MetadataLine
+                label={copy.coverLabel}
+                value={
+                  (selected.coverSource ?? selected.cover)
+                    ? (selected.coverSource ?? copy.coverSourceExternal)
+                    : undefined
+                }
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label className="eyebrow">{copy.statusLabel}</Label>
-              <Select value={previewStatus} onValueChange={(v) => { if (v) setPreviewStatus(v) }}>
+              <Select
+                value={previewStatus}
+                onValueChange={(v) => {
+                  if (v) setPreviewStatus(v)
+                }}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue>{(v) => getStatusLabel(v, locale)}</SelectValue>
                 </SelectTrigger>
@@ -888,7 +876,12 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
 
             <div className="flex flex-col gap-1.5">
               <Label className="eyebrow">{copy.statusLabel}</Label>
-              <Select value={manualStatus} onValueChange={(v) => { if (v) setManualStatus(v) }}>
+              <Select
+                value={manualStatus}
+                onValueChange={(v) => {
+                  if (v) setManualStatus(v)
+                }}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue>{(v) => getStatusLabel(v, locale)}</SelectValue>
                 </SelectTrigger>
@@ -935,13 +928,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
   )
 }
 
-function MetadataLine({
-  label,
-  value,
-}: {
-  label: string
-  value?: string | number | null
-}) {
+function MetadataLine({ label, value }: { label: string; value?: string | number | null }) {
   if (value == null || value === '') {
     return null
   }

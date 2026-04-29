@@ -31,10 +31,7 @@ function safeSlug(slug: string) {
   return slug
 }
 
-export async function findCachedCover(
-  context: StorageContext,
-  slug: string,
-) {
+export async function findCachedCover(context: StorageContext, slug: string) {
   const safe = safeSlug(slug)
   if (!safe) return null
 
@@ -123,8 +120,7 @@ export function buildCoverPlaceholderSVG(book: Pick<Book, 'author' | 'title'>) {
     ['#f0e4d8', '#2f2a26', '#8c3f2f'],
     ['#dde6df', '#172c2a', '#9a6b2e'],
   ] as const
-  const [background, foreground, accent] =
-    palette[hashString(`${title}${author}`) % palette.length]
+  const [background, foreground, accent] = palette[hashString(`${title}${author}`) % palette.length]
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900" role="img">

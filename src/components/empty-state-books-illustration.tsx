@@ -4,16 +4,9 @@ interface EmptyStateBooksIllustrationProps {
   className?: string
 }
 
-export function EmptyStateBooksIllustration({
-  className,
-}: EmptyStateBooksIllustrationProps) {
+export function EmptyStateBooksIllustration({ className }: EmptyStateBooksIllustrationProps) {
   return (
-    <svg
-      viewBox="0 0 128 96"
-      role="img"
-      aria-hidden="true"
-      className={cn('h-24 w-32', className)}
-    >
+    <svg viewBox="0 0 128 96" role="img" aria-hidden="true" className={cn('h-24 w-32', className)}>
       <g className="stroke-border" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
         <rect
           x="20"
@@ -24,14 +17,7 @@ export function EmptyStateBooksIllustration({
           transform="rotate(-8 20 44)"
           className="fill-muted"
         />
-        <rect
-          x="53"
-          y="28"
-          width="26"
-          height="50"
-          rx="4"
-          className="fill-muted"
-        />
+        <rect x="53" y="28" width="26" height="50" rx="4" className="fill-muted" />
         <rect
           x="86"
           y="40"

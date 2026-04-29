@@ -8,16 +8,16 @@ const STATUS_CONFIG: Record<BookStatus, { className: string }> = {
   'quero-ler': {
     className: 'border-hairline-strong bg-surface text-foreground',
   },
-  'lendo': {
+  lendo: {
     className: 'border-hairline-strong bg-foreground/[0.1] text-foreground',
   },
-  'lido': {
+  lido: {
     className: 'border-transparent bg-primary text-primary-foreground shadow-none',
   },
   'quero-reler': {
     className: 'border-hairline-strong bg-surface-strong text-foreground',
   },
-  'abandonado': {
+  abandonado: {
     className: 'border-hairline bg-transparent text-foreground/72',
   },
 }

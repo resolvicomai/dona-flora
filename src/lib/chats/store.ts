@@ -99,11 +99,7 @@ export interface UpdateChatMetadataInput {
  * On re-save of an existing conversation, `started_at` from the on-disk file is
  * preserved; `updated_at` always advances to the current wall-clock time.
  */
-export async function saveChat({
-  chatId,
-  messages,
-  storageContext,
-}: SaveChatInput): Promise<void> {
+export async function saveChat({ chatId, messages, storageContext }: SaveChatInput): Promise<void> {
   const dir = getChatsDir(storageContext)
   await fs.mkdir(dir, { recursive: true })
   const filepath = path.join(dir, `${chatId}.md`)
@@ -127,10 +123,7 @@ export async function saveChat({
   const nowIso = new Date().toISOString()
   const firstMessageCreatedAt = normalizeIso(messages[0]?.metadata?.createdAt)
   const derivedTitle = deriveTitle(messages)
-  const title =
-    existing.title_locked && existing.title
-      ? existing.title
-      : derivedTitle
+  const title = existing.title_locked && existing.title ? existing.title : derivedTitle
 
   const fm: ChatFrontmatter = {
     id: chatId,
@@ -177,9 +170,7 @@ export async function updateChatMetadata({
   const nowIso = new Date().toISOString()
   const next: ChatFrontmatter = {
     ...parsed.data,
-    ...(title !== undefined
-      ? { title: title.trim(), title_locked: true }
-      : {}),
+    ...(title !== undefined ? { title: title.trim(), title_locked: true } : {}),
     ...(pinned !== undefined ? { pinned } : {}),
     updated_at: nowIso,
   }
@@ -213,20 +204,12 @@ export async function loadChat(
     const normalized = normalizeChatFrontmatter(data)
     const parsed = ChatFrontmatterSchema.safeParse(normalized)
     if (!parsed.success) {
-      console.warn(
-        '[ChatsStore] Invalid frontmatter in',
-        chatId,
-        parsed.error.flatten()
-      )
+      console.warn('[ChatsStore] Invalid frontmatter in', chatId, parsed.error.flatten())
       return null
     }
     return parseTranscript(content)
   } catch (err) {
-    console.warn(
-      '[ChatsStore] Error parsing',
-      chatId,
-      err instanceof Error ? err.message : err
-    )
+    console.warn('[ChatsStore] Error parsing', chatId, err instanceof Error ? err.message : err)
     return null
   }
 }

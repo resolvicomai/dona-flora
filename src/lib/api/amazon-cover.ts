@@ -15,8 +15,7 @@ export function isbn13ToIsbn10(isbn13Raw: string | undefined | null) {
   }
 
   const remainder = 11 - (sum % 11)
-  const check =
-    remainder === 10 ? 'X' : remainder === 11 ? '0' : String(remainder)
+  const check = remainder === 10 ? 'X' : remainder === 11 ? '0' : String(remainder)
 
   return `${body}${check}`
 }
@@ -25,10 +24,7 @@ export function getAmazonCoverUrl(isbn10OrAsin: string) {
   return `https://m.media-amazon.com/images/P/${isbn10OrAsin}.01._SCLZZZZZZZ_.jpg`
 }
 
-export function resolveAmazonCoverAsin(input: {
-  isbn10?: string
-  isbn13?: string
-}) {
+export function resolveAmazonCoverAsin(input: { isbn10?: string; isbn13?: string }) {
   const isbn10 = normalizeISBN(input.isbn10)
   if (isbn10?.kind === 'isbn_10') {
     return isbn10.value
@@ -37,10 +33,7 @@ export function resolveAmazonCoverAsin(input: {
   return isbn13ToIsbn10(input.isbn13)
 }
 
-export async function findAmazonCoverByISBN(input: {
-  isbn10?: string
-  isbn13?: string
-}) {
+export async function findAmazonCoverByISBN(input: { isbn10?: string; isbn13?: string }) {
   const asin = resolveAmazonCoverAsin(input)
   if (!asin) return null
 

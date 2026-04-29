@@ -43,8 +43,7 @@ function getICloudDriveCandidate() {
 async function countMarkdownFiles(dir: string) {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
-    return entries.filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
-      .length
+    return entries.filter((entry) => entry.isFile() && entry.name.endsWith('.md')).length
   } catch {
     return 0
   }
@@ -110,19 +109,13 @@ export async function GET(request: NextRequest) {
   const targetPath = requestedPath?.trim() || settings.booksDir || os.homedir()
 
   if (!path.isAbsolute(targetPath)) {
-    return NextResponse.json(
-      { error: 'Use um caminho absoluto para navegar.' },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: 'Use um caminho absoluto para navegar.' }, { status: 400 })
   }
 
   try {
     const stat = await fs.stat(targetPath)
     if (!stat.isDirectory()) {
-      return NextResponse.json(
-        { error: 'O caminho selecionado não é uma pasta.' },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: 'O caminho selecionado não é uma pasta.' }, { status: 400 })
     }
 
     const entries = await fs.readdir(targetPath, { withFileTypes: true })
@@ -145,10 +138,7 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     return NextResponse.json(
       {
-        error:
-          err instanceof Error
-            ? err.message
-            : 'Não foi possível abrir esta pasta.',
+        error: err instanceof Error ? err.message : 'Não foi possível abrir esta pasta.',
       },
       { status: 400 },
     )

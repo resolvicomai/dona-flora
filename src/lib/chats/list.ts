@@ -32,9 +32,7 @@ const MAX_CONTENT_CHARS = 4000
  *
  * Uses `SAFE_MATTER_OPTIONS` (CVE-2025-65108 mitigation) on every parse.
  */
-export async function listChats(
-  storageContext?: StorageContext,
-): Promise<ChatListEntry[]> {
+export async function listChats(storageContext?: StorageContext): Promise<ChatListEntry[]> {
   const dir = getChatsDir(storageContext)
   let files: string[]
   try {
@@ -52,13 +50,9 @@ export async function listChats(
       const normalized = {
         ...data,
         started_at:
-          data?.started_at instanceof Date
-            ? data.started_at.toISOString()
-            : data?.started_at,
+          data?.started_at instanceof Date ? data.started_at.toISOString() : data?.started_at,
         updated_at:
-          data?.updated_at instanceof Date
-            ? data.updated_at.toISOString()
-            : data?.updated_at,
+          data?.updated_at instanceof Date ? data.updated_at.toISOString() : data?.updated_at,
         pinned: data?.pinned === true,
         title_locked: data?.title_locked === true,
       }
@@ -67,18 +61,10 @@ export async function listChats(
         const trimmed = (content ?? '').slice(0, MAX_CONTENT_CHARS)
         items.push({ ...parsed.data, content: trimmed })
       } else {
-        console.warn(
-          '[ChatsList] Invalid frontmatter in',
-          file,
-          parsed.error.flatten()
-        )
+        console.warn('[ChatsList] Invalid frontmatter in', file, parsed.error.flatten())
       }
     } catch (err) {
-      console.warn(
-        '[ChatsList] Error parsing',
-        file,
-        err instanceof Error ? err.message : err
-      )
+      console.warn('[ChatsList] Error parsing', file, err instanceof Error ? err.message : err)
     }
   }
 

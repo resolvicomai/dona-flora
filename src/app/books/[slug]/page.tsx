@@ -1,10 +1,7 @@
 import { unstable_noStore as noStore } from 'next/cache'
 import { notFound } from 'next/navigation'
 import { getBook } from '@/lib/books/library-service'
-import {
-  getSessionStorageContext,
-  requireVerifiedServerSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedServerSession } from '@/lib/auth/server'
 import { getUserSettings } from '@/lib/auth/db'
 import type { AppLanguage } from '@/lib/i18n/app-language'
 import { renderMarkdown } from '@/lib/markdown'
@@ -69,11 +66,7 @@ const BOOK_DETAIL_COPY: Record<
   },
 }
 
-export default async function BookDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function BookDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   noStore()
   const session = await requireVerifiedServerSession()
   const locale = getUserSettings(session.user.id).language
@@ -93,18 +86,8 @@ export default async function BookDetailPage({
 
       <section className="grid gap-5 lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start">
         <div className="brand-panel flex shrink-0 justify-center p-5 md:justify-start">
-          <BookCover
-            src={coverSrc}
-            alt={book.title}
-            size="lg"
-            className="hidden md:block"
-          />
-          <BookCover
-            src={coverSrc}
-            alt={book.title}
-            size="md"
-            className="md:hidden"
-          />
+          <BookCover src={coverSrc} alt={book.title} size="lg" className="hidden md:block" />
+          <BookCover src={coverSrc} alt={book.title} size="md" className="md:hidden" />
         </div>
 
         <div className="brand-window flex flex-1 flex-col gap-5 p-6 text-center md:text-left">
@@ -116,9 +99,7 @@ export default async function BookDetailPage({
             {book.subtitle ? (
               <p className="mt-3 text-lg text-foreground/80">{book.subtitle}</p>
             ) : null}
-            <p className="mt-3 text-base text-muted-foreground">
-              {getBookAuthorsDisplay(book)}
-            </p>
+            <p className="mt-3 text-base text-muted-foreground">{getBookAuthorsDisplay(book)}</p>
           </div>
 
           <div className="grid gap-3 text-sm sm:grid-cols-2">
@@ -137,17 +118,13 @@ export default async function BookDetailPage({
             {book.publisher && (
               <div className="brand-inset px-4 py-3">
                 <p className="eyebrow">{copy.publisher}</p>
-                <p className="mt-2 text-sm font-medium text-foreground">
-                  {book.publisher}
-                </p>
+                <p className="mt-2 text-sm font-medium text-foreground">{book.publisher}</p>
               </div>
             )}
             {book.translator && (
               <div className="brand-inset px-4 py-3">
                 <p className="eyebrow">{copy.translator}</p>
-                <p className="mt-2 text-sm font-medium text-foreground">
-                  {book.translator}
-                </p>
+                <p className="mt-2 text-sm font-medium text-foreground">{book.translator}</p>
               </div>
             )}
             {book.series && (
@@ -200,10 +177,7 @@ export default async function BookDetailPage({
       />
 
       <div className="border-t border-hairline pt-6">
-        <DeleteBookButton
-          slug={slug}
-          filename={book._filename ?? `${slug}.md`}
-        />
+        <DeleteBookButton slug={slug} filename={book._filename ?? `${slug}.md`} />
       </div>
     </div>
   )

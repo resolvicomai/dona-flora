@@ -12,20 +12,17 @@ export function EmptyResults({ onClear }: EmptyResultsProps) {
   const { locale } = useAppLanguage()
   const copy = {
     'pt-BR': {
-      body:
-        'Você tem livros cadastrados, mas nenhum deles corresponde à sua busca ou filtros. Ajuste os filtros ou limpe tudo para ver a biblioteca completa.',
+      body: 'Você tem livros cadastrados, mas nenhum deles corresponde à sua busca ou filtros. Ajuste os filtros ou limpe tudo para ver a biblioteca completa.',
       clear: 'Limpar filtros',
       title: 'Nenhum livro bate com os filtros atuais',
     },
     en: {
-      body:
-        'You have books cataloged, but none match this search or filter set. Adjust the filters or clear everything to see the full library.',
+      body: 'You have books cataloged, but none match this search or filter set. Adjust the filters or clear everything to see the full library.',
       clear: 'Clear filters',
       title: 'No book matches the current filters',
     },
     es: {
-      body:
-        'Tienes libros catalogados, pero ninguno coincide con esta búsqueda o estos filtros. Ajusta los filtros o limpia todo para ver la biblioteca completa.',
+      body: 'Tienes libros catalogados, pero ninguno coincide con esta búsqueda o estos filtros. Ajusta los filtros o limpia todo para ver la biblioteca completa.',
       clear: 'Limpiar filtros',
       title: 'Ningún libro coincide con los filtros actuales',
     },
@@ -41,15 +38,9 @@ export function EmptyResults({ onClear }: EmptyResultsProps) {
       <div className="brand-inset flex h-16 w-16 items-center justify-center text-muted-foreground">
         <SearchX className="h-7 w-7" aria-hidden="true" />
       </div>
-      <h2 className="section-title max-w-lg text-balance text-foreground">
-        {copy.title}
-      </h2>
-      <p className="max-w-md text-balance text-sm leading-7 text-muted-foreground">
-        {copy.body}
-      </p>
-      <Button onClick={onClear}>
-        {copy.clear}
-      </Button>
+      <h2 className="section-title max-w-lg text-balance text-foreground">{copy.title}</h2>
+      <p className="max-w-md text-balance text-sm leading-7 text-muted-foreground">{copy.body}</p>
+      <Button onClick={onClear}>{copy.clear}</Button>
     </div>
   )
 }

@@ -14,12 +14,7 @@ const STAR_SIZE = {
   md: 'h-4 w-4',
 } as const
 
-export function RatingStars({
-  value,
-  className,
-  locale = 'pt-BR',
-  size = 'sm',
-}: RatingStarsProps) {
+export function RatingStars({ value, className, locale = 'pt-BR', size = 'sm' }: RatingStarsProps) {
   const ariaLabel = {
     'pt-BR': `Nota: ${value} de 5`,
     en: `Rating: ${value} out of 5`,
@@ -39,9 +34,7 @@ export function RatingStars({
           aria-hidden="true"
           className={cn(
             STAR_SIZE[size],
-            star <= value
-              ? 'fill-foreground text-foreground'
-              : 'text-foreground/18',
+            star <= value ? 'fill-foreground text-foreground' : 'text-foreground/18',
           )}
         />
       ))}

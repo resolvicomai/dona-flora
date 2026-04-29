@@ -6,10 +6,7 @@ import { promisify } from 'util'
 import { generateObject } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import {
-  AIProviderConfigurationError,
-  resolveVisionModelForUser,
-} from '@/lib/ai/provider'
+import { AIProviderConfigurationError, resolveVisionModelForUser } from '@/lib/ai/provider'
 import { searchGoogleBooks } from '@/lib/api/google-books'
 import { searchOpenLibrary } from '@/lib/api/open-library'
 import { dedupeBooks } from '@/lib/api/dedupe'
@@ -45,10 +42,7 @@ function isHeicFile(file: File) {
 }
 
 function isSupportedImage(file: File) {
-  return (
-    ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
-    isHeicFile(file)
-  )
+  return ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || isHeicFile(file)
 }
 
 async function convertHeicToJpeg(buffer: Buffer) {
@@ -58,14 +52,7 @@ async function convertHeicToJpeg(buffer: Buffer) {
 
   try {
     await fs.writeFile(inputPath, buffer)
-    await execFileAsync('sips', [
-      '-s',
-      'format',
-      'jpeg',
-      inputPath,
-      '--out',
-      outputPath,
-    ])
+    await execFileAsync('sips', ['-s', 'format', 'jpeg', inputPath, '--out', outputPath])
     return await fs.readFile(outputPath)
   } catch {
     throw new UnsupportedImageError(
@@ -128,8 +115,7 @@ export async function POST(request: NextRequest) {
           content: [
             {
               type: 'text',
-              text:
-                'Leia esta capa de livro. Retorne apenas dados bibliográficos visíveis ou muito prováveis: título, subtítulo, autor(es), editora e uma confiança de 0 a 1. Não invente ISBN.',
+              text: 'Leia esta capa de livro. Retorne apenas dados bibliográficos visíveis ou muito prováveis: título, subtítulo, autor(es), editora e uma confiança de 0 a 1. Não invente ISBN.',
             },
             {
               type: 'image',
@@ -154,12 +140,13 @@ export async function POST(request: NextRequest) {
       searchGoogleBooks(matchQuery, 5),
       searchOpenLibrary(matchQuery, 5),
     ])
-    const matches = dedupeBooks([
-      ...(googleMatches.status === 'fulfilled' ? googleMatches.value : []),
-      ...(openLibraryMatches.status === 'fulfilled'
-        ? openLibraryMatches.value
-        : []),
-    ], 8)
+    const matches = dedupeBooks(
+      [
+        ...(googleMatches.status === 'fulfilled' ? googleMatches.value : []),
+        ...(openLibraryMatches.status === 'fulfilled' ? openLibraryMatches.value : []),
+      ],
+      8,
+    )
 
     return NextResponse.json({
       candidate,
@@ -175,9 +162,6 @@ export async function POST(request: NextRequest) {
     }
 
     console.error('[API] POST /api/books/vision-import error:', err)
-    return NextResponse.json(
-      { error: 'Não foi possível importar pela foto.' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'Não foi possível importar pela foto.' }, { status: 500 })
   }
 }

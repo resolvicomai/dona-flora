@@ -14,10 +14,7 @@ function watchKey(userId: string, booksDir: string) {
 }
 
 export function isLibraryWatchEnabled() {
-  return (
-    process.env.DONA_FLORA_LIBRARY_WATCH === '1' ||
-    process.env.LIBRARY_WATCH === '1'
-  )
+  return process.env.DONA_FLORA_LIBRARY_WATCH === '1' || process.env.LIBRARY_WATCH === '1'
 }
 
 export async function subscribeToLibraryChanges(input: {
@@ -38,8 +35,7 @@ export async function subscribeToLibraryChanges(input: {
       },
       depth: 1,
       ignoreInitial: true,
-      ignored: (filePath, stats) =>
-        Boolean(stats?.isFile()) && !filePath.endsWith('.md'),
+      ignored: (filePath, stats) => Boolean(stats?.isFile()) && !filePath.endsWith('.md'),
     })
     let timeout: ReturnType<typeof setTimeout> | null = null
     const emitChange = () => {

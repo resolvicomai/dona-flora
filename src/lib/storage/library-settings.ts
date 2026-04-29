@@ -7,9 +7,7 @@ export interface ValidatedBooksDirectory {
   mdFileCount: number
 }
 
-export async function validateBooksDirectory(
-  input: string,
-): Promise<ValidatedBooksDirectory> {
+export async function validateBooksDirectory(input: string): Promise<ValidatedBooksDirectory> {
   const booksDir = input.trim()
 
   if (!path.isAbsolute(booksDir)) {

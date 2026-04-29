@@ -1,13 +1,7 @@
 'use client'
 
 import { Plus } from 'lucide-react'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { SidebarBody, useNewChatHandler } from './chat-sidebar'
@@ -40,10 +34,7 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
   return (
     <Sheet>
       <SheetTrigger render={trigger} />
-      <SheetContent
-        side="left"
-        className="!gap-0 p-0"
-      >
+      <SheetContent side="left" className="!gap-0 p-0">
         <SheetHeader className="flex-row items-center justify-between border-b border-hairline !px-4 !py-4">
           <SheetTitle className="text-lg font-medium text-foreground">
             {copy.sidebar.title}

@@ -23,9 +23,7 @@ function truncate(value: string, maxLength: number) {
  * Malformed files are skipped with `console.warn` (never throws) — same contract as
  * `listBooks()` in `library-service.ts`.
  */
-export async function loadLibraryContext(
-  context?: StorageContext,
-): Promise<string> {
+export async function loadLibraryContext(context?: StorageContext): Promise<string> {
   const dir = getLibraryDir(context)
   let files: string[]
   try {
@@ -44,10 +42,7 @@ export async function loadLibraryContext(
       const { data, content } = matter(raw, SAFE_MATTER_OPTIONS)
       const slug = file.replace(/\.md$/, '')
       const notesTrim = (content ?? '').trim()
-      const highlights = parseHighlights(content ?? '').slice(
-        0,
-        MAX_HIGHLIGHTS_PER_BOOK,
-      )
+      const highlights = parseHighlights(content ?? '').slice(0, MAX_HIGHLIGHTS_PER_BOOK)
       const parts: (string | null)[] = [
         `### ${data.title} — ${getBookAuthorsDisplay(
           data.author as string | string[] | undefined,
@@ -58,24 +53,17 @@ export async function loadLibraryContext(
         typeof data.subtitle === 'string' && data.subtitle.trim()
           ? `subtitle: ${data.subtitle}`
           : null,
-        typeof data.genre === 'string' && data.genre.trim()
-          ? `genre: ${data.genre}`
-          : null,
+        typeof data.genre === 'string' && data.genre.trim() ? `genre: ${data.genre}` : null,
         typeof data.publisher === 'string' && data.publisher.trim()
           ? `publisher: ${data.publisher}`
           : null,
-        Array.isArray(data.tags) && data.tags.length > 0
-          ? `tags: ${data.tags.join(', ')}`
-          : null,
+        Array.isArray(data.tags) && data.tags.length > 0 ? `tags: ${data.tags.join(', ')}` : null,
         notesTrim ? `notes: ${notesTrim.slice(0, 400)}` : null,
         highlights.length > 0
           ? `highlights:\n${highlights
               .map((highlight) => {
-                const page =
-                  highlight.page != null ? `p.${highlight.page}: ` : ''
-                const note = highlight.note
-                  ? ` — ${truncate(highlight.note, 160)}`
-                  : ''
+                const page = highlight.page != null ? `p.${highlight.page}: ` : ''
+                const note = highlight.note ? ` — ${truncate(highlight.note, 160)}` : ''
                 return `- ${page}"${truncate(highlight.quote, 240)}"${note}`
               })
               .join('\n')}`
@@ -83,11 +71,7 @@ export async function loadLibraryContext(
       ]
       entries.push(parts.filter((p): p is string => p !== null).join('\n'))
     } catch (err) {
-      console.warn(
-        '[LibraryContext] Error parsing',
-        file,
-        err instanceof Error ? err.message : err
-      )
+      console.warn('[LibraryContext] Error parsing', file, err instanceof Error ? err.message : err)
     }
   }
 

@@ -7,11 +7,7 @@ import { Input } from '@/components/ui/input'
 
 type PasswordInputProps = React.ComponentProps<'input'>
 
-export function PasswordInput({
-  className,
-  id,
-  ...props
-}: PasswordInputProps) {
+export function PasswordInput({ className, id, ...props }: PasswordInputProps) {
   const generatedId = useId()
   const [isVisible, setIsVisible] = useState(false)
 

@@ -9,9 +9,7 @@ import {
 describe('local username identity helpers', () => {
   it('normalizes usernames before building the internal auth identifier', () => {
     expect(normalizeUsername(' Mauro_Dev ')).toBe('mauro_dev')
-    expect(usernameToAuthIdentifier(' Mauro_Dev ')).toBe(
-      'mauro_dev@local.donaflora.test',
-    )
+    expect(usernameToAuthIdentifier(' Mauro_Dev ')).toBe('mauro_dev@local.donaflora.test')
   })
 
   it('accepts legacy email sign-in while mapping usernames to internal identifiers', () => {

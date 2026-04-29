@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import type { AuthEmailKind } from '@/lib/auth/email-types'
 import { loginToAuthIdentifier } from '@/lib/auth/local-identity'
-import {
-  findLatestLocalAuthLink,
-  isLocalAuthInboxEnabled,
-} from '@/lib/auth/mailer'
+import { findLatestLocalAuthLink, isLocalAuthInboxEnabled } from '@/lib/auth/mailer'
 
 const SearchParamsSchema = z.object({
   kind: z.enum(['reset-password', 'verify-email']),
@@ -19,10 +16,7 @@ export async function GET(request: NextRequest) {
   })
 
   if (!parsedSearchParams.success) {
-    return NextResponse.json(
-      { error: 'Invalid local auth link lookup.' },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: 'Invalid local auth link lookup.' }, { status: 400 })
   }
 
   if (!isLocalAuthInboxEnabled()) {

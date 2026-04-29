@@ -63,7 +63,9 @@ describe('buildAISettingsDirective', () => {
     expect(directive).toContain('Estilo de resposta: profunda')
     expect(directive).toContain('Idioma da interface: en')
     expect(directive).toContain('Idioma de resposta obrigatório: en')
-    expect(directive).toContain('Instruções adicionais: Sempre explique o porquê das recomendações.')
+    expect(directive).toContain(
+      'Instruções adicionais: Sempre explique o porquê das recomendações.',
+    )
   })
 
   it('builds a mandatory response-language directive from the supported app locale', () => {
@@ -85,8 +87,7 @@ describe('buildSystemPrompt with user settings', () => {
   it('appends user preferences before the <LIBRARY> block', () => {
     const output = buildSystemPrompt('BIBLIOTECA', {
       externalPreferenceDirective: 'Prefira livros do acervo nesta conversa.',
-      aiSettingsDirective:
-        'Tom preferido: calorosa\nIdioma de resposta obrigatório: es',
+      aiSettingsDirective: 'Tom preferido: calorosa\nIdioma de resposta obrigatório: es',
     })
 
     expect(output).toContain(
@@ -96,24 +97,16 @@ describe('buildSystemPrompt with user settings', () => {
       '<USER_PREFERENCES>\nTom preferido: calorosa\nIdioma de resposta obrigatório: es\n</USER_PREFERENCES>',
     )
     expect(output).toContain('<LIBRARY>\nBIBLIOTECA\n</LIBRARY>')
-    expect(output).toContain(
-      'Você deve responder no idioma definido em <USER_PREFERENCES>',
-    )
-    expect(output.indexOf('<USER_PREFERENCES>')).toBeLessThan(
-      output.lastIndexOf('<LIBRARY>'),
-    )
+    expect(output).toContain('Você deve responder no idioma definido em <USER_PREFERENCES>')
+    expect(output.indexOf('<USER_PREFERENCES>')).toBeLessThan(output.lastIndexOf('<LIBRARY>'))
   })
 })
 
 describe('getAIOptionLabel', () => {
   it('returns the display label for the currently selected option', () => {
-    expect(
-      getAIOptionLabel(
-        getAIExternalOpennessOptions('pt-BR'),
-        'sob-demanda',
-        'Fallback',
-      ),
-    ).toBe('Só quando fizer sentido')
+    expect(getAIOptionLabel(getAIExternalOpennessOptions('pt-BR'), 'sob-demanda', 'Fallback')).toBe(
+      'Só quando fizer sentido',
+    )
   })
 })
 

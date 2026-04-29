@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import type { ExternalPreference } from '@/lib/ai/external-preference'
 import { cn } from '@/lib/utils'
@@ -30,16 +30,11 @@ const OPTIONS: Array<{
   },
 ]
 
-export function ExternalPreferenceToggle({
-  value,
-  onChange,
-}: ExternalPreferenceToggleProps) {
+export function ExternalPreferenceToggle({ value, onChange }: ExternalPreferenceToggleProps) {
   return (
     <div className="mb-3 flex flex-col gap-2" aria-live="polite">
       <span className="sr-only">Opções de preferência disponíveis.</span>
-      <span className="eyebrow">
-        Preferência de recomendação
-      </span>
+      <span className="eyebrow">Preferência de recomendação</span>
       <div
         role="radiogroup"
         aria-label="Preferência de recomendação"

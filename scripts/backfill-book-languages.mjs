@@ -16,7 +16,11 @@ async function findBookFiles(root) {
       continue
     }
 
-    if (entry.isFile() && fullPath.endsWith('.md') && fullPath.includes(`${path.sep}books${path.sep}`)) {
+    if (
+      entry.isFile() &&
+      fullPath.endsWith('.md') &&
+      fullPath.includes(`${path.sep}books${path.sep}`)
+    ) {
       files.push(fullPath)
     }
   }
@@ -25,7 +29,9 @@ async function findBookFiles(root) {
 }
 
 async function resolveLanguageFromGoogleBooks(isbn) {
-  const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`)
+  const response = await fetch(
+    `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`,
+  )
   if (!response.ok) return null
 
   const payload = await response.json()
@@ -56,8 +62,7 @@ async function main() {
     }
 
     const language =
-      (await resolveLanguageFromGoogleBooks(isbn)) ??
-      (await resolveLanguageFromOpenLibrary(isbn))
+      (await resolveLanguageFromGoogleBooks(isbn)) ?? (await resolveLanguageFromOpenLibrary(isbn))
 
     if (!language) {
       continue

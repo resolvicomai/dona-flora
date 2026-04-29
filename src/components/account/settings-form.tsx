@@ -21,11 +21,7 @@ import {
   getAIToneOptions,
   type AISettings,
 } from '@/lib/ai/settings'
-import type {
-  AIProviderSettings,
-  AIPrimaryProvider,
-  UserLibrarySettings,
-} from '@/lib/auth/db'
+import type { AIProviderSettings, AIPrimaryProvider, UserLibrarySettings } from '@/lib/auth/db'
 import type { AppLanguage } from '@/lib/i18n/app-language'
 
 type SaveStatus = {
@@ -234,8 +230,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       apiKeyPlaceholderConfigured: 'Chave já configurada; deixe vazio para manter',
       apiKeyPlaceholderEmpty: 'Cole a chave apenas se quiser fallback',
       apiKeyStatus: 'Chave externa',
-      body:
-        'Aqui ficam as coisas que podem gerar custo: fallback OpenRouter e importação por foto. Deixe desligado para uso 100% local no chat.',
+      body: 'Aqui ficam as coisas que podem gerar custo: fallback OpenRouter e importação por foto. Deixe desligado para uso 100% local no chat.',
       disabled: 'não configurada',
       enabled: 'configurada',
       eyebrow: 'Opcional',
@@ -252,8 +247,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
     },
     library: {
       absolutePath: 'Caminho absoluto',
-      body:
-        'Escolha a pasta onde os Markdown vivem. Como é navegador, o caminho precisa ficar visível para o servidor local ler e escrever os arquivos.',
+      body: 'Escolha a pasta onde os Markdown vivem. Como é navegador, o caminho precisa ficar visível para o servidor local ler e escrever os arquivos.',
       browse: 'Procurar',
       browseError: 'Não foi possível abrir esta pasta.',
       browsePrompt: 'Abra uma pasta para navegar pelo filesystem local deste Mac.',
@@ -291,8 +285,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       apiKeyLabel: (provider) => `Chave de ${provider}`,
       apiKeyPlaceholderConfigured: 'Chave já configurada; deixe vazio para manter',
       apiKeyPlaceholderEmpty: 'Cole sua chave ou token aqui',
-      body:
-        'Ollama continua sendo o caminho local. Se quiser, escolha OpenAI, Anthropic, OpenRouter ou um servidor compatível usando sua própria chave.',
+      body: 'Ollama continua sendo o caminho local. Se quiser, escolha OpenAI, Anthropic, OpenRouter ou um servidor compatível usando sua própria chave.',
       compatibleHint: 'Funciona com LM Studio, LocalAI, vLLM e servidores /v1 compatíveis.',
       compatibleToken: 'Token opcional do servidor compatível',
       eyebrow: 'IA da conversa',
@@ -329,14 +322,37 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       preferences: { body: 'Tom, idioma e como ela responde.', title: 'Personalidade' },
       library: { body: 'Onde vivem os Markdown dos livros.', title: 'Livros' },
       'local-ai': { body: 'Local, OpenAI, Anthropic ou compatível.', title: 'Provedor' },
-      'external-ai': { body: 'Fallback e visão por foto, só se quiser.', title: 'Recursos externos' },
+      'external-ai': {
+        body: 'Fallback e visão por foto, só se quiser.',
+        title: 'Recursos externos',
+      },
     },
     providerOptions: {
-      ollama: { body: 'Roda no seu Mac. Ideal para uso 100% local.', label: 'Ollama local', meta: 'sem chave' },
-      openai: { body: 'Usa sua chave da OpenAI direto no app local.', label: 'OpenAI', meta: 'BYOK' },
-      anthropic: { body: 'Usa seu token da Anthropic direto no app local.', label: 'Anthropic', meta: 'BYOK' },
-      openrouter: { body: 'Roteador externo opcional para vários modelos.', label: 'OpenRouter', meta: 'BYOK' },
-      'openai-compatible': { body: 'LM Studio, LocalAI, vLLM ou qualquer /v1 compatível.', label: 'Compatível OpenAI', meta: 'local/custom' },
+      ollama: {
+        body: 'Roda no seu Mac. Ideal para uso 100% local.',
+        label: 'Ollama local',
+        meta: 'sem chave',
+      },
+      openai: {
+        body: 'Usa sua chave da OpenAI direto no app local.',
+        label: 'OpenAI',
+        meta: 'BYOK',
+      },
+      anthropic: {
+        body: 'Usa seu token da Anthropic direto no app local.',
+        label: 'Anthropic',
+        meta: 'BYOK',
+      },
+      openrouter: {
+        body: 'Roteador externo opcional para vários modelos.',
+        label: 'OpenRouter',
+        meta: 'BYOK',
+      },
+      'openai-compatible': {
+        body: 'LM Studio, LocalAI, vLLM ou qualquer /v1 compatível.',
+        label: 'Compatível OpenAI',
+        meta: 'local/custom',
+      },
     },
   },
   en: {
@@ -351,8 +367,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       apiKeyPlaceholderConfigured: 'Key already configured; leave empty to keep it',
       apiKeyPlaceholderEmpty: 'Paste the key only if you want fallback',
       apiKeyStatus: 'External key',
-      body:
-        'Cost-bearing features live here: OpenRouter fallback and photo import. Leave them off for 100% local chat.',
+      body: 'Cost-bearing features live here: OpenRouter fallback and photo import. Leave them off for 100% local chat.',
       disabled: 'not configured',
       enabled: 'configured',
       eyebrow: 'Optional',
@@ -369,8 +384,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
     },
     library: {
       absolutePath: 'Absolute path',
-      body:
-        'Choose the folder where your Markdown files live. Because this runs in a browser, the path must be visible to the local server.',
+      body: 'Choose the folder where your Markdown files live. Because this runs in a browser, the path must be visible to the local server.',
       browse: 'Browse',
       browseError: 'Could not open this folder.',
       browsePrompt: 'Open a folder to browse this Mac’s local filesystem.',
@@ -407,8 +421,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       apiKeyLabel: (provider) => `${provider} key`,
       apiKeyPlaceholderConfigured: 'Key already configured; leave empty to keep it',
       apiKeyPlaceholderEmpty: 'Paste your key or token here',
-      body:
-        'Ollama remains the local path. If you want, choose OpenAI, Anthropic, OpenRouter, or a compatible server with your own key.',
+      body: 'Ollama remains the local path. If you want, choose OpenAI, Anthropic, OpenRouter, or a compatible server with your own key.',
       compatibleHint: 'Works with LM Studio, LocalAI, vLLM, and compatible /v1 servers.',
       compatibleToken: 'Optional compatible server token',
       eyebrow: 'Conversation AI',
@@ -445,14 +458,37 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       preferences: { body: 'Tone, language, and response style.', title: 'Personality' },
       library: { body: 'Where the book Markdown files live.', title: 'Books' },
       'local-ai': { body: 'Local, OpenAI, Anthropic, or compatible.', title: 'Provider' },
-      'external-ai': { body: 'Fallback and photo vision, only if wanted.', title: 'External features' },
+      'external-ai': {
+        body: 'Fallback and photo vision, only if wanted.',
+        title: 'External features',
+      },
     },
     providerOptions: {
-      ollama: { body: 'Runs on your Mac. Ideal for 100% local use.', label: 'Local Ollama', meta: 'no key' },
-      openai: { body: 'Uses your OpenAI key directly in the local app.', label: 'OpenAI', meta: 'BYOK' },
-      anthropic: { body: 'Uses your Anthropic token directly in the local app.', label: 'Anthropic', meta: 'BYOK' },
-      openrouter: { body: 'Optional external router for many models.', label: 'OpenRouter', meta: 'BYOK' },
-      'openai-compatible': { body: 'LM Studio, LocalAI, vLLM, or any compatible /v1 server.', label: 'OpenAI compatible', meta: 'local/custom' },
+      ollama: {
+        body: 'Runs on your Mac. Ideal for 100% local use.',
+        label: 'Local Ollama',
+        meta: 'no key',
+      },
+      openai: {
+        body: 'Uses your OpenAI key directly in the local app.',
+        label: 'OpenAI',
+        meta: 'BYOK',
+      },
+      anthropic: {
+        body: 'Uses your Anthropic token directly in the local app.',
+        label: 'Anthropic',
+        meta: 'BYOK',
+      },
+      openrouter: {
+        body: 'Optional external router for many models.',
+        label: 'OpenRouter',
+        meta: 'BYOK',
+      },
+      'openai-compatible': {
+        body: 'LM Studio, LocalAI, vLLM, or any compatible /v1 server.',
+        label: 'OpenAI compatible',
+        meta: 'local/custom',
+      },
     },
   },
   es: {
@@ -467,8 +503,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       apiKeyPlaceholderConfigured: 'Clave ya configurada; deja vacío para mantenerla',
       apiKeyPlaceholderEmpty: 'Pega la clave solo si quieres fallback',
       apiKeyStatus: 'Clave externa',
-      body:
-        'Aquí quedan los recursos que pueden generar costo: fallback OpenRouter e importación por foto. Déjalos apagados para chat 100% local.',
+      body: 'Aquí quedan los recursos que pueden generar costo: fallback OpenRouter e importación por foto. Déjalos apagados para chat 100% local.',
       disabled: 'no configurada',
       enabled: 'configurada',
       eyebrow: 'Opcional',
@@ -485,8 +520,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
     },
     library: {
       absolutePath: 'Ruta absoluta',
-      body:
-        'Elige la carpeta donde viven los Markdown. Como es navegador, la ruta debe estar visible para que el servidor local lea y escriba los archivos.',
+      body: 'Elige la carpeta donde viven los Markdown. Como es navegador, la ruta debe estar visible para que el servidor local lea y escriba los archivos.',
       browse: 'Buscar',
       browseError: 'No se pudo abrir esta carpeta.',
       browsePrompt: 'Abre una carpeta para navegar el filesystem local de este Mac.',
@@ -501,8 +535,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       contextTitle: 'Contexto de la biblioteca',
       dirConfigured: 'carpeta informada',
       dirMissing: 'no configurada',
-      helper:
-        'Usa Buscar para navegar atajos de iCloud/Obsidian, o pega la ruta absoluta.',
+      helper: 'Usa Buscar para navegar atajos de iCloud/Obsidian, o pega la ruta absoluta.',
       indexError: 'No se pudo releer la biblioteca.',
       mdCount: (count) => `${count} archivo(s) Markdown en esta carpeta.`,
       reindex: 'Releer biblioteca ahora',
@@ -524,8 +557,7 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       apiKeyLabel: (provider) => `Clave de ${provider}`,
       apiKeyPlaceholderConfigured: 'Clave ya configurada; deja vacío para mantenerla',
       apiKeyPlaceholderEmpty: 'Pega tu clave o token aquí',
-      body:
-        'Ollama sigue siendo el camino local. Si quieres, elige OpenAI, Anthropic, OpenRouter o un servidor compatible usando tu propia clave.',
+      body: 'Ollama sigue siendo el camino local. Si quieres, elige OpenAI, Anthropic, OpenRouter o un servidor compatible usando tu propia clave.',
       compatibleHint: 'Funciona con LM Studio, LocalAI, vLLM y servidores /v1 compatibles.',
       compatibleToken: 'Token opcional del servidor compatible',
       eyebrow: 'IA de la conversación',
@@ -562,14 +594,37 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       preferences: { body: 'Tono, idioma y cómo responde.', title: 'Personalidad' },
       library: { body: 'Dónde viven los Markdown de los libros.', title: 'Libros' },
       'local-ai': { body: 'Local, OpenAI, Anthropic o compatible.', title: 'Proveedor' },
-      'external-ai': { body: 'Fallback y visión por foto, solo si quieres.', title: 'Recursos externos' },
+      'external-ai': {
+        body: 'Fallback y visión por foto, solo si quieres.',
+        title: 'Recursos externos',
+      },
     },
     providerOptions: {
-      ollama: { body: 'Corre en tu Mac. Ideal para uso 100% local.', label: 'Ollama local', meta: 'sin clave' },
-      openai: { body: 'Usa tu clave de OpenAI directamente en la app local.', label: 'OpenAI', meta: 'BYOK' },
-      anthropic: { body: 'Usa tu token de Anthropic directamente en la app local.', label: 'Anthropic', meta: 'BYOK' },
-      openrouter: { body: 'Router externo opcional para varios modelos.', label: 'OpenRouter', meta: 'BYOK' },
-      'openai-compatible': { body: 'LM Studio, LocalAI, vLLM o cualquier servidor /v1 compatible.', label: 'Compatible OpenAI', meta: 'local/custom' },
+      ollama: {
+        body: 'Corre en tu Mac. Ideal para uso 100% local.',
+        label: 'Ollama local',
+        meta: 'sin clave',
+      },
+      openai: {
+        body: 'Usa tu clave de OpenAI directamente en la app local.',
+        label: 'OpenAI',
+        meta: 'BYOK',
+      },
+      anthropic: {
+        body: 'Usa tu token de Anthropic directamente en la app local.',
+        label: 'Anthropic',
+        meta: 'BYOK',
+      },
+      openrouter: {
+        body: 'Router externo opcional para varios modelos.',
+        label: 'OpenRouter',
+        meta: 'BYOK',
+      },
+      'openai-compatible': {
+        body: 'LM Studio, LocalAI, vLLM o cualquier servidor /v1 compatible.',
+        label: 'Compatible OpenAI',
+        meta: 'local/custom',
+      },
     },
   },
   'zh-CN': {
@@ -609,7 +664,8 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       connected: (count) => `文件夹已连接。找到 ${count} 个 Markdown 文件。`,
       connectError: '无法连接文件夹。',
       connectFolder: '连接文件夹',
-      contextBody: '聊天会在回答前重新读取 Markdown。此测试会立即强制读取，并显示书库是否进入上下文。',
+      contextBody:
+        '聊天会在回答前重新读取 Markdown。此测试会立即强制读取，并显示书库是否进入上下文。',
       contextEyebrow: 'Dona Flora 阅读',
       contextTitle: '书库上下文',
       dirConfigured: '已提供文件夹',
@@ -648,8 +704,10 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       modelPicked: '已选模型',
       modelsEmpty: '已连接，但没有列出模型。',
       modelsFound: (count) => `已连接。找到 ${count} 个模型。`,
-      modelsTruncated: (count) => `显示前 ${count} 个模型。如果你的模型不在列表中，请使用手动字段。`,
-      noOAuth: '真实 OAuth 不属于此阶段。当前流程是用户本地密钥/令牌，加密保存，并且不会暴露给客户端。',
+      modelsTruncated: (count) =>
+        `显示前 ${count} 个模型。如果你的模型不在列表中，请使用手动字段。`,
+      noOAuth:
+        '真实 OAuth 不属于此阶段。当前流程是用户本地密钥/令牌，加密保存，并且不会暴露给客户端。',
       ollamaHint: '通常是 http://127.0.0.1:11434/v1。',
       providerError: '无法连接到此地址的提供方。',
       save: '保存提供方',
@@ -673,11 +731,23 @@ const SETTINGS_UI_COPY: Record<AppLanguage, SettingsUiCopy> = {
       'external-ai': { body: 'Fallback 和照片视觉，仅在需要时启用。', title: '外部功能' },
     },
     providerOptions: {
-      ollama: { body: '在你的 Mac 上运行。适合 100% 本地使用。', label: '本地 Ollama', meta: '无需密钥' },
+      ollama: {
+        body: '在你的 Mac 上运行。适合 100% 本地使用。',
+        label: '本地 Ollama',
+        meta: '无需密钥',
+      },
       openai: { body: '在本地应用中直接使用你的 OpenAI 密钥。', label: 'OpenAI', meta: '自带密钥' },
-      anthropic: { body: '在本地应用中直接使用你的 Anthropic 令牌。', label: 'Anthropic', meta: '自带密钥' },
+      anthropic: {
+        body: '在本地应用中直接使用你的 Anthropic 令牌。',
+        label: 'Anthropic',
+        meta: '自带密钥',
+      },
       openrouter: { body: '可选的多模型外部路由。', label: 'OpenRouter', meta: '自带密钥' },
-      'openai-compatible': { body: 'LM Studio、LocalAI、vLLM 或任何兼容 /v1 的服务器。', label: 'OpenAI 兼容', meta: '本地/自定义' },
+      'openai-compatible': {
+        body: 'LM Studio、LocalAI、vLLM 或任何兼容 /v1 的服务器。',
+        label: 'OpenAI 兼容',
+        meta: '本地/自定义',
+      },
     },
   },
 }
@@ -736,32 +806,21 @@ export function SettingsForm({
   const router = useRouter()
   const { copy, locale } = useAppLanguage()
   const settingsCopy = SETTINGS_UI_COPY[locale]
-  const [activePanel, setActivePanel] = useState<SettingsPanel>(
-    getInitialSettingsPanel,
-  )
+  const [activePanel, setActivePanel] = useState<SettingsPanel>(getInitialSettingsPanel)
   const [settings, setSettings] = useState(initialSettings)
-  const [libraryBooksDir, setLibraryBooksDir] = useState(
-    initialLibrarySettings.booksDir ?? '',
-  )
-  const [providerSettings, setProviderSettings] = useState(
-    initialAIProviderSettings,
-  )
+  const [libraryBooksDir, setLibraryBooksDir] = useState(initialLibrarySettings.booksDir ?? '')
+  const [providerSettings, setProviderSettings] = useState(initialAIProviderSettings)
   const [primaryApiKey, setPrimaryApiKey] = useState('')
   const [fallbackApiKey, setFallbackApiKey] = useState('')
   const [preferencesStatus, setPreferencesStatus] = useState<SaveStatus>(null)
   const [libraryStatus, setLibraryStatus] = useState<SaveStatus>(null)
-  const [libraryBrowseStatus, setLibraryBrowseStatus] =
-    useState<SaveStatus>(null)
-  const [libraryIndexStatus, setLibraryIndexStatus] =
-    useState<SaveStatus>(null)
+  const [libraryBrowseStatus, setLibraryBrowseStatus] = useState<SaveStatus>(null)
+  const [libraryIndexStatus, setLibraryIndexStatus] = useState<SaveStatus>(null)
   const [providerStatus, setProviderStatus] = useState<SaveStatus>(null)
-  const [providerTestStatus, setProviderTestStatus] =
-    useState<SaveStatus>(null)
+  const [providerTestStatus, setProviderTestStatus] = useState<SaveStatus>(null)
   const [libraryBrowse, setLibraryBrowse] = useState<LibraryBrowseState>(null)
   const [mdFileCount, setMdFileCount] = useState<number | null>(null)
-  const [availableProviderModels, setAvailableProviderModels] = useState<string[]>(
-    [],
-  )
+  const [availableProviderModels, setAvailableProviderModels] = useState<string[]>([])
   const [showManualModel, setShowManualModel] = useState(false)
   const [isBrowsingLibrary, setIsBrowsingLibrary] = useState(false)
   const [isLibraryBrowserOpen, setIsLibraryBrowserOpen] = useState(false)
@@ -786,9 +845,7 @@ export function SettingsForm({
     setShowManualModel(false)
   }
 
-  async function handlePreferencesSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
+  async function handlePreferencesSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setPreferencesStatus(null)
     setIsSavingPreferences(true)
@@ -861,9 +918,7 @@ export function SettingsForm({
     if (pathToOpen) params.set('path', pathToOpen)
 
     const response = await fetch(
-      `/api/settings/library/browse${
-        params.size > 0 ? `?${params.toString()}` : ''
-      }`,
+      `/api/settings/library/browse${params.size > 0 ? `?${params.toString()}` : ''}`,
     )
     const payload = (await response.json().catch(() => null)) as
       | (NonNullable<LibraryBrowseState> & { error?: string })
@@ -913,10 +968,7 @@ export function SettingsForm({
 
     setLibraryIndexStatus({
       kind: 'success',
-      message: settingsCopy.library.reindexed(
-        payload.bookCount ?? 0,
-        payload.contextChars ?? 0,
-      ),
+      message: settingsCopy.library.reindexed(payload.bookCount ?? 0, payload.contextChars ?? 0),
     })
   }
 
@@ -998,9 +1050,7 @@ export function SettingsForm({
     if (!response.ok || !payload) {
       setProviderTestStatus({
         kind: 'error',
-        message:
-          payload?.error ??
-          settingsCopy.localAI.providerError,
+        message: payload?.error ?? settingsCopy.localAI.providerError,
       })
       return
     }
@@ -1049,12 +1099,8 @@ export function SettingsForm({
                   onClick={() => setActivePanel(panel.id)}
                   type="button"
                 >
-                  <span className="block font-mono text-[0.68rem]">
-                    {panel.eyebrow}
-                  </span>
-                  <span className="mt-1 block text-sm font-semibold">
-                    {panelCopy.title}
-                  </span>
+                  <span className="block font-mono text-[0.68rem]">{panel.eyebrow}</span>
+                  <span className="mt-1 block text-sm font-semibold">{panelCopy.title}</span>
                   <span
                     className={`mt-1 block text-xs leading-5 ${
                       activePanel === panel.id
@@ -1195,11 +1241,7 @@ function PreferencesPanel({
             <SelectTrigger className="w-full">
               <SelectValue>
                 {() =>
-                  getAIOptionLabel(
-                    toneOptions,
-                    settings.tone,
-                    copy.settings.placeholders.tone,
-                  )
+                  getAIOptionLabel(toneOptions, settings.tone, copy.settings.placeholders.tone)
                 }
               </SelectValue>
             </SelectTrigger>
@@ -1228,11 +1270,7 @@ function PreferencesPanel({
             <SelectTrigger className="w-full">
               <SelectValue>
                 {() =>
-                  getAIOptionLabel(
-                    focusOptions,
-                    settings.focus,
-                    copy.settings.placeholders.focus,
-                  )
+                  getAIOptionLabel(focusOptions, settings.focus, copy.settings.placeholders.focus)
                 }
               </SelectValue>
             </SelectTrigger>
@@ -1247,9 +1285,7 @@ function PreferencesPanel({
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="eyebrow">
-            {copy.settings.externalOpennessLabel}
-          </span>
+          <span className="eyebrow">{copy.settings.externalOpennessLabel}</span>
           <Select
             value={settings.externalOpenness}
             onValueChange={(value) =>
@@ -1349,9 +1385,7 @@ function PreferencesPanel({
       </div>
 
       <label className="mt-6 flex flex-col gap-2">
-        <span className="eyebrow">
-          {copy.settings.additionalInstructionsLabel}
-        </span>
+        <span className="eyebrow">{copy.settings.additionalInstructionsLabel}</span>
         <Textarea
           maxLength={500}
           onChange={(event) =>
@@ -1410,11 +1444,7 @@ function LibraryPanel({
   return (
     <div className="space-y-5">
       <form className="brand-window p-6 md:p-7" onSubmit={onSubmit}>
-        <SectionHeader
-          eyebrow={strings.eyebrow}
-          title={strings.title}
-          body={strings.body}
-        />
+        <SectionHeader eyebrow={strings.eyebrow} title={strings.title} body={strings.body} />
 
         {status ? <StatusMessage status={status} /> : null}
 
@@ -1444,9 +1474,7 @@ function LibraryPanel({
             {isSaving ? strings.validating : strings.connectFolder}
           </Button>
         </div>
-        <p className="mt-2 text-xs leading-5 text-muted-foreground">
-          {strings.helper}
-        </p>
+        <p className="mt-2 text-xs leading-5 text-muted-foreground">{strings.helper}</p>
 
         {isBrowserOpen ? (
           <LibraryBrowser
@@ -1478,12 +1506,7 @@ function LibraryPanel({
 
         {indexStatus ? <StatusMessage status={indexStatus} /> : null}
 
-        <Button
-          className="mt-6"
-          disabled={isReindexing}
-          onClick={onReindex}
-          type="button"
-        >
+        <Button className="mt-6" disabled={isReindexing} onClick={onReindex} type="button">
           {isReindexing ? strings.reindexing : strings.reindex}
         </Button>
       </section>
@@ -1517,9 +1540,7 @@ function LibraryBrowser({
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div className="min-w-0">
               <p className="eyebrow">{strings.browsingEyebrow}</p>
-              <p className="mt-2 break-all text-sm font-medium text-foreground">
-                {browse.path}
-              </p>
+              <p className="mt-2 break-all text-sm font-medium text-foreground">{browse.path}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {strings.mdCount(browse.mdFileCount)}
               </p>
@@ -1576,16 +1597,12 @@ function LibraryBrowser({
                 </button>
               ))
             ) : (
-              <p className="px-4 py-3 text-sm text-muted-foreground">
-                {strings.emptyFolders}
-              </p>
+              <p className="px-4 py-3 text-sm text-muted-foreground">{strings.emptyFolders}</p>
             )}
           </div>
         </>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          {strings.browsePrompt}
-        </p>
+        <p className="text-sm text-muted-foreground">{strings.browsePrompt}</p>
       )}
     </div>
   )
@@ -1627,25 +1644,18 @@ function LocalAIPanel({
   testStatus: SaveStatus
 }) {
   const selectedModel = getSelectedProviderModel(providerSettings)
-  const modelChoices = Array.from(
-    new Set([selectedModel, ...availableModels].filter(Boolean)),
-  )
+  const modelChoices = Array.from(new Set([selectedModel, ...availableModels].filter(Boolean)))
   const visibleModelChoices = modelChoices.slice(0, 24)
   const needsPrimaryKey = !['ollama', 'openai-compatible'].includes(
     providerSettings.primaryProvider,
   )
-  const canUsePrimaryKey =
-    providerSettings.primaryProvider !== 'ollama'
+  const canUsePrimaryKey = providerSettings.primaryProvider !== 'ollama'
   const isCompatible = providerSettings.primaryProvider === 'openai-compatible'
   const isOllama = providerSettings.primaryProvider === 'ollama'
 
   return (
     <section className="brand-window p-6 md:p-7">
-      <SectionHeader
-        eyebrow={strings.eyebrow}
-        title={strings.title}
-        body={strings.body}
-      />
+      <SectionHeader eyebrow={strings.eyebrow} title={strings.title} body={strings.body} />
 
       {status ? <StatusMessage status={status} /> : null}
 
@@ -1665,21 +1675,13 @@ function LocalAIPanel({
               onClick={() => onPrimaryProviderSelect(option.id)}
               type="button"
             >
-              <span
-                className={`eyebrow ${
-                  isActive ? 'text-primary-foreground/75' : ''
-                }`}
-              >
+              <span className={`eyebrow ${isActive ? 'text-primary-foreground/75' : ''}`}>
                 {optionCopy.meta}
               </span>
-              <span className="mt-3 block text-sm font-semibold">
-                {optionCopy.label}
-              </span>
+              <span className="mt-3 block text-sm font-semibold">{optionCopy.label}</span>
               <span
                 className={`mt-2 block text-xs leading-5 ${
-                  isActive
-                    ? 'text-primary-foreground/80'
-                    : 'text-muted-foreground'
+                  isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'
                 }`}
               >
                 {optionCopy.body}
@@ -1692,9 +1694,7 @@ function LocalAIPanel({
       <div className="mt-7 grid gap-5 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-end">
         {isOllama || isCompatible ? (
           <label className="flex flex-col gap-2">
-            <span className="eyebrow">
-              {isOllama ? strings.urlOllama : strings.urlCompatible}
-            </span>
+            <span className="eyebrow">{isOllama ? strings.urlOllama : strings.urlCompatible}</span>
             <Input
               onChange={(event) =>
                 onProviderChange((current) =>
@@ -1709,30 +1709,18 @@ function LocalAIPanel({
                       },
                 )
               }
-              placeholder={
-                isOllama
-                  ? 'http://127.0.0.1:11434/v1'
-                  : 'http://127.0.0.1:1234/v1'
-              }
+              placeholder={isOllama ? 'http://127.0.0.1:11434/v1' : 'http://127.0.0.1:1234/v1'}
               spellCheck={false}
-              value={
-                isOllama
-                  ? providerSettings.ollamaBaseUrl
-                  : providerSettings.compatibleBaseUrl
-              }
+              value={isOllama ? providerSettings.ollamaBaseUrl : providerSettings.compatibleBaseUrl}
             />
             <span className="text-xs leading-5 text-muted-foreground">
-              {isOllama
-                ? strings.ollamaHint
-                : strings.compatibleHint}
+              {isOllama ? strings.ollamaHint : strings.compatibleHint}
             </span>
           </label>
         ) : (
           <label className="flex flex-col gap-2">
             <span className="eyebrow">
-              {strings.apiKeyLabel(
-                providerStrings[providerSettings.primaryProvider].label,
-              )}
+              {strings.apiKeyLabel(providerStrings[providerSettings.primaryProvider].label)}
             </span>
             <Input
               autoComplete="off"
@@ -1786,9 +1774,7 @@ function LocalAIPanel({
           <div>
             <p className="font-medium text-foreground">{strings.modelPicked}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {selectedModel
-                ? selectedModel
-                : strings.modelMissing}
+              {selectedModel ? selectedModel : strings.modelMissing}
             </p>
             {needsPrimaryKey ? (
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -1821,9 +1807,7 @@ function LocalAIPanel({
                 }`}
                 key={modelId}
                 onClick={() =>
-                  onProviderChange((current) =>
-                    setSelectedProviderModel(current, modelId),
-                  )
+                  onProviderChange((current) => setSelectedProviderModel(current, modelId))
                 }
                 type="button"
               >
@@ -1832,9 +1816,7 @@ function LocalAIPanel({
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-muted-foreground">
-            {strings.testPrompt}
-          </p>
+          <p className="mt-4 text-sm text-muted-foreground">{strings.testPrompt}</p>
         )}
 
         {modelChoices.length > visibleModelChoices.length ? (
@@ -1848,16 +1830,12 @@ function LocalAIPanel({
             <span className="eyebrow">{strings.manualModel}</span>
             <Input
               onChange={(event) =>
-                onProviderChange((current) =>
-                  setSelectedProviderModel(current, event.target.value),
-                )
+                onProviderChange((current) => setSelectedProviderModel(current, event.target.value))
               }
               spellCheck={false}
               value={selectedModel}
             />
-            <span className="text-xs leading-5 text-muted-foreground">
-              {strings.manualHelper}
-            </span>
+            <span className="text-xs leading-5 text-muted-foreground">{strings.manualHelper}</span>
           </label>
         ) : null}
       </div>
@@ -1896,11 +1874,7 @@ function ExternalAIPanel({
 }) {
   return (
     <section className="brand-window p-6 md:p-7">
-      <SectionHeader
-        eyebrow={strings.eyebrow}
-        title={strings.title}
-        body={strings.body}
-      />
+      <SectionHeader eyebrow={strings.eyebrow} title={strings.title} body={strings.body} />
 
       {status ? <StatusMessage status={status} /> : null}
 
@@ -1953,9 +1927,7 @@ function ExternalAIPanel({
         <div className="brand-inset px-4 py-3 text-sm text-muted-foreground">
           {strings.apiKeyStatus}:{' '}
           <span className="font-medium text-foreground">
-            {providerSettings.fallbackApiKeyConfigured
-              ? strings.enabled
-              : strings.disabled}
+            {providerSettings.fallbackApiKeyConfigured ? strings.enabled : strings.disabled}
           </span>
         </div>
 
@@ -2022,15 +1994,7 @@ function ToggleSetting({
   )
 }
 
-function SectionHeader({
-  body,
-  eyebrow,
-  title,
-}: {
-  body: string
-  eyebrow: string
-  title: string
-}) {
+function SectionHeader({ body, eyebrow, title }: { body: string; eyebrow: string; title: string }) {
   return (
     <div className="max-w-3xl space-y-3">
       <p className="eyebrow">{eyebrow}</p>

@@ -114,10 +114,7 @@ function renderTextWithPseudoTools(text: string, keyPrefix: string) {
  *   - array of slugs when a qualifying group is found, OR
  *   - null when no group of 2+ exists.
  */
-function detectTrail(
-  parts: LooseMessagePart[],
-  knownSlugs: Set<string>,
-): string[] | null {
+function detectTrail(parts: LooseMessagePart[], knownSlugs: Set<string>): string[] | null {
   const groups: string[][] = []
   let current: string[] = []
   for (const p of parts) {
@@ -168,10 +165,7 @@ function detectTrail(
  * is appended inline after the LAST text part only — tool parts do not get a
  * cursor (UI-SPEC §Streaming Affordances §Typography).
  */
-export function MessageBubble({
-  message,
-  isLastAssistantStreaming,
-}: MessageBubbleProps) {
+export function MessageBubble({ message, isLastAssistantStreaming }: MessageBubbleProps) {
   const knownSlugs = useKnownSlugs()
 
   if (message.role === 'system') return null
@@ -217,9 +211,7 @@ export function MessageBubble({
                 return (
                   <Fragment key={i}>
                     {renderTextWithPseudoTools(part.text as string, `text-${i}`)}
-                    {isLastAssistantStreaming && i === lastTextIndex ? (
-                      <StreamingCursor />
-                    ) : null}
+                    {isLastAssistantStreaming && i === lastTextIndex ? <StreamingCursor /> : null}
                   </Fragment>
                 )
 

@@ -1,11 +1,6 @@
 'use client'
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  type ReactNode,
-} from 'react'
+import { createContext, useContext, useEffect, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLocalStorage } from '@/lib/use-local-storage'
 
@@ -105,23 +100,23 @@ export type AppLanguageCopy = {
       passwordMismatch: string
       submit: string
     }
-      verifyEmail: {
-        createAnotherAccount: string
-        emailLabel: string
-        emailPlaceholder: string
-        errorPrefix: string
-        backToSignIn: string
-        goToLibrary: string
-        info: string
-        localLinkNote: string
-        localLinkTitle: string
-        otherAccount: string
-        preparingLocalLink: string
-        resend: string
-        resending: string
-        resendSubtitle: string
-        verified: string
-      }
+    verifyEmail: {
+      createAnotherAccount: string
+      emailLabel: string
+      emailPlaceholder: string
+      errorPrefix: string
+      backToSignIn: string
+      goToLibrary: string
+      info: string
+      localLinkNote: string
+      localLinkTitle: string
+      otherAccount: string
+      preparingLocalLink: string
+      resend: string
+      resending: string
+      resendSubtitle: string
+      verified: string
+    }
   }
   settings: {
     additionalInstructionsLabel: string
@@ -166,8 +161,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       aiLabel: 'IA',
       eyebrow: 'Biblioteca pessoal',
       headline: 'Seu espaço de leitura, memória e conversa.',
-      intro:
-        'Organize o acervo, converse com a Dona Flora e mantenha tudo no seu próprio espaço.',
+      intro: 'Organize o acervo, converse com a Dona Flora e mantenha tudo no seu próprio espaço.',
       libraryBody: 'Acervo próprio por conta',
       libraryLabel: 'Acervo',
       brandSubtitle: 'Biblioteca pessoal',
@@ -186,8 +180,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         emailPlaceholder: 'leitor-local',
         error: 'Não foi possível gerar o link.',
         link: 'Esqueci minha senha',
-        localLinkNote:
-          'Link local pronto. Ele vale só para esta instalação da Dona Flora.',
+        localLinkNote: 'Link local pronto. Ele vale só para esta instalação da Dona Flora.',
         localLinkTitle: 'Abrir link local de redefinição',
         sending: 'Gerando…',
         success: 'Se esse usuário existir, o link de redefinição fica pronto aqui.',
@@ -213,8 +206,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         forgotPassword: 'Esqueci minha senha',
         passwordLabel: 'Senha',
         passwordPlaceholder: 'Sua senha',
-        resetComplete:
-          'Senha redefinida. Agora você já pode entrar com a nova credencial.',
+        resetComplete: 'Senha redefinida. Agora você já pode entrar com a nova credencial.',
         signIn: 'Entrar',
         signingIn: 'Entrando…',
       },
@@ -242,8 +234,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         errorPrefix: 'Não foi possível validar a conta',
         goToLibrary: 'Ir para a biblioteca',
         info: 'Este app usa acesso local. Se esta tela aparecer, gere o link local abaixo e continue.',
-        localLinkNote:
-          'Link local pronto. Ele vale só para esta instalação da Dona Flora.',
+        localLinkNote: 'Link local pronto. Ele vale só para esta instalação da Dona Flora.',
         localLinkTitle: 'Abrir link local',
         otherAccount: 'Entrar em outra conta',
         preparingLocalLink: 'Preparando o link local…',
@@ -301,8 +292,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       aiLabel: 'AI',
       eyebrow: 'Personal library',
       headline: 'Your space for reading, memory, and conversation.',
-      intro:
-        'Organize your library, talk with Dona Flora, and keep everything in your own space.',
+      intro: 'Organize your library, talk with Dona Flora, and keep everything in your own space.',
       libraryBody: 'A private collection per account',
       libraryLabel: 'Collection',
       brandSubtitle: 'Personal library',
@@ -321,8 +311,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         emailPlaceholder: 'local-reader',
         error: 'We could not create the link.',
         link: 'Forgot password?',
-        localLinkNote:
-          'Local link ready. It only works in this Dona Flora installation.',
+        localLinkNote: 'Local link ready. It only works in this Dona Flora installation.',
         localLinkTitle: 'Open local reset link',
         sending: 'Creating…',
         success: 'If this username exists, the reset link is ready here.',
@@ -376,8 +365,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         errorPrefix: 'We could not validate the account',
         goToLibrary: 'Go to the library',
         info: 'This app uses local access. If you see this screen, create the local link below and continue.',
-        localLinkNote:
-          'Local link ready. It only works in this Dona Flora installation.',
+        localLinkNote: 'Local link ready. It only works in this Dona Flora installation.',
         localLinkTitle: 'Open local link',
         otherAccount: 'Sign in to another account',
         preparingLocalLink: 'Preparing local link…',
@@ -435,8 +423,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
       aiLabel: 'IA',
       eyebrow: 'Biblioteca personal',
       headline: 'Tu espacio para lectura, memoria y conversación.',
-      intro:
-        'Organiza tu biblioteca, conversa con Dona Flora y mantén todo en tu propio espacio.',
+      intro: 'Organiza tu biblioteca, conversa con Dona Flora y mantén todo en tu propio espacio.',
       libraryBody: 'Colección propia por cuenta',
       libraryLabel: 'Colección',
       brandSubtitle: 'Biblioteca personal',
@@ -455,8 +442,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         emailPlaceholder: 'lector-local',
         error: 'No pudimos crear el enlace.',
         link: '¿Olvidaste tu contraseña?',
-        localLinkNote:
-          'Enlace local listo. Solo funciona en esta instalación de Dona Flora.',
+        localLinkNote: 'Enlace local listo. Solo funciona en esta instalación de Dona Flora.',
         localLinkTitle: 'Abrir enlace local de restablecimiento',
         sending: 'Creando…',
         success: 'Si este usuario existe, el enlace de restablecimiento queda listo aquí.',
@@ -510,8 +496,7 @@ const APP_LANGUAGE_COPY: Record<AppLanguage, AppLanguageCopy> = {
         errorPrefix: 'No pudimos validar la cuenta',
         goToLibrary: 'Ir a la biblioteca',
         info: 'Esta app usa acceso local. Si ves esta pantalla, crea el enlace local abajo y continúa.',
-        localLinkNote:
-          'Enlace local listo. Solo funciona en esta instalación de Dona Flora.',
+        localLinkNote: 'Enlace local listo. Solo funciona en esta instalación de Dona Flora.',
         localLinkTitle: 'Abrir enlace local',
         otherAccount: 'Entrar con otra cuenta',
         preparingLocalLink: 'Preparando el enlace local…',

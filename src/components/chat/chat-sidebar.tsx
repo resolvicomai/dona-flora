@@ -126,9 +126,7 @@ export function ChatSidebar({ chats, activeChatId }: Props) {
       <header className="flex items-center justify-between gap-2 border-b border-hairline px-4 py-4">
         <div>
           <p className="eyebrow">{copy.sidebar.eyebrow}</p>
-          <h2 className="mt-2 text-lg font-medium text-foreground">
-            {copy.sidebar.title}
-          </h2>
+          <h2 className="mt-2 text-lg font-medium text-foreground">{copy.sidebar.title}</h2>
         </div>
         <Button
           size="icon"

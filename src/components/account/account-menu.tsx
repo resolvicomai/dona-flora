@@ -83,14 +83,16 @@ export function AccountMenu() {
 
   return (
     <Popover>
-      <PopoverTrigger render={
-        <Button
-          aria-label={copy.menuLabel}
-          size="sm"
-          variant="secondary"
-          className="gap-2 pl-2.5"
-        />
-      }>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label={copy.menuLabel}
+            size="sm"
+            variant="secondary"
+            className="gap-2 pl-2.5"
+          />
+        }
+      >
         <span className="crt-screen flex h-7 w-7 items-center justify-center rounded-md font-mono text-[0.72rem] font-semibold tracking-normal">
           {isPending ? '…' : initials}
         </span>
@@ -104,37 +106,25 @@ export function AccountMenu() {
         <PopoverHeader>
           <p className="eyebrow">{copy.title}</p>
           <PopoverTitle>{session?.user?.name ?? 'Dona Flora'}</PopoverTitle>
-          <p className="text-sm text-muted-foreground">
-            {displayLogin ?? copy.emailLoading}
-          </p>
+          <p className="text-sm text-muted-foreground">{displayLogin ?? copy.emailLoading}</p>
         </PopoverHeader>
 
         <div className="grid gap-2">
           <Link
-            className={cn(
-              buttonVariants({ variant: 'ghost' }),
-              'justify-start rounded-md',
-            )}
+            className={cn(buttonVariants({ variant: 'ghost' }), 'justify-start rounded-md')}
             href="/profile"
           >
             <UserRound className="h-4 w-4" />
             {copy.profile}
           </Link>
           <Link
-            className={cn(
-              buttonVariants({ variant: 'ghost' }),
-              'justify-start rounded-md',
-            )}
+            className={cn(buttonVariants({ variant: 'ghost' }), 'justify-start rounded-md')}
             href="/settings"
           >
             <Settings2 className="h-4 w-4" />
             {copy.settings}
           </Link>
-          <Button
-            className="justify-start rounded-md"
-            onClick={handleSignOut}
-            variant="ghost"
-          >
+          <Button className="justify-start rounded-md" onClick={handleSignOut} variant="ghost">
             <LogOut className="h-4 w-4" />
             {copy.signOut}
           </Button>

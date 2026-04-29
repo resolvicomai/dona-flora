@@ -1,7 +1,4 @@
-import {
-  matchesBookLanguageFilter,
-  resolveGoogleBooksLanguageRestrict,
-} from '@/lib/books/language'
+import { matchesBookLanguageFilter, resolveGoogleBooksLanguageRestrict } from '@/lib/books/language'
 import { normalizeISBN } from '@/lib/books/isbn'
 
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes'
@@ -63,9 +60,7 @@ export async function searchGoogleBooks(
   startIndex = 0,
   language?: string,
 ): Promise<BookSearchResult[]> {
-  const q = isIsbnQuery(query)
-    ? `isbn:${query.replace(/[-\s]/g, '')}`
-    : query
+  const q = isIsbnQuery(query) ? `isbn:${query.replace(/[-\s]/g, '')}` : query
   const params = new URLSearchParams({
     q,
     maxResults: String(maxResults),
@@ -98,12 +93,10 @@ export async function searchGoogleBooks(
             normalized: normalizeISBN(id.identifier),
           }))
           .filter((id) => id.normalized !== null) ?? []
-      const isbn13 = normalizedIdentifiers.find(
-        (id) => id.normalized?.kind === 'isbn_13',
-      )?.normalized?.value
-      const isbn10 = normalizedIdentifiers.find(
-        (id) => id.normalized?.kind === 'isbn_10',
-      )?.normalized?.value
+      const isbn13 = normalizedIdentifiers.find((id) => id.normalized?.kind === 'isbn_13')
+        ?.normalized?.value
+      const isbn10 = normalizedIdentifiers.find((id) => id.normalized?.kind === 'isbn_10')
+        ?.normalized?.value
       const cover = v.imageLinks?.thumbnail?.replace('http://', 'https://')
       return {
         title: v.title ?? '',
@@ -119,9 +112,7 @@ export async function searchGoogleBooks(
         coverSource: cover ? 'google-books' : undefined,
         genre: v.categories?.[0],
         source: 'google-books',
-        year: v.publishedDate
-          ? parseInt(v.publishedDate.slice(0, 4), 10) || undefined
-          : undefined,
+        year: v.publishedDate ? parseInt(v.publishedDate.slice(0, 4), 10) || undefined : undefined,
         language: v.language,
       } satisfies BookSearchResult
     })

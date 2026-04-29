@@ -215,11 +215,7 @@ export function TrailActions({ goal, notes, slug, title }: TrailActionsProps) {
             </label>
 
             <DialogFooter className="mt-5">
-              <Button
-                onClick={() => setOpen(false)}
-                type="button"
-                variant="outline"
-              >
+              <Button onClick={() => setOpen(false)} type="button" variant="outline">
                 {copy.cancel}
               </Button>
               <Button disabled={saving} type="submit">
@@ -245,17 +241,11 @@ export function TrailActions({ goal, notes, slug, title }: TrailActionsProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{copy.deleteTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {copy.deleteDescription}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{copy.deleteDescription}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={deleting}
-              onClick={handleDelete}
-              variant="destructive"
-            >
+            <AlertDialogAction disabled={deleting} onClick={handleDelete} variant="destructive">
               {deleting ? copy.deleting : copy.delete}
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -34,9 +34,7 @@ describe('SignInForm', () => {
 
     expect(screen.getByText('Contraseña')).toBeInTheDocument()
     expect(screen.getByText('Usuario')).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Iniciar sesión' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument()
     expect(screen.getByText('Crear cuenta')).toBeInTheDocument()
   })
 })

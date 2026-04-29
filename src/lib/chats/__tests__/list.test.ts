@@ -20,7 +20,11 @@ afterEach(async () => {
   }
 })
 
-async function writeChatFile(name: string, fm: Record<string, unknown>, body = '## Você — 15:00\n\nMensagem.') {
+async function writeChatFile(
+  name: string,
+  fm: Record<string, unknown>,
+  body = '## Você — 15:00\n\nMensagem.',
+) {
   const yaml = Object.entries(fm)
     .map(([k, v]) => {
       if (Array.isArray(v)) {
@@ -113,7 +117,7 @@ updated_at: "2026-04-17T10:00:00Z"
 
 body
 `,
-      'utf-8'
+      'utf-8',
     )
 
     const result = await listChats()

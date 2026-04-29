@@ -11,10 +11,7 @@ interface FilterResetButtonProps {
   className?: string
 }
 
-export function FilterResetButton({
-  onClick,
-  className,
-}: FilterResetButtonProps) {
+export function FilterResetButton({ onClick, className }: FilterResetButtonProps) {
   const { locale } = useAppLanguage()
   const copy = {
     'pt-BR': {

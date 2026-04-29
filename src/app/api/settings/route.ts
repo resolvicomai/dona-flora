@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  AISettingsSchema,
-  normalizeAISettings,
-  type AISettings,
-} from '@/lib/ai/settings'
+import { AISettingsSchema, normalizeAISettings, type AISettings } from '@/lib/ai/settings'
 import { upsertUserSettings } from '@/lib/auth/db'
 import { requireVerifiedRequestSession } from '@/lib/auth/server'
 
@@ -21,9 +17,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'JSON invalido.' }, { status: 400 })
   }
 
-  const parsed = AISettingsSchema.safeParse(
-    normalizeAISettings(body as Partial<AISettings>),
-  )
+  const parsed = AISettingsSchema.safeParse(normalizeAISettings(body as Partial<AISettings>))
 
   if (!parsed.success) {
     return NextResponse.json(

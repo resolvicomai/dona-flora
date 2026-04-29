@@ -35,12 +35,10 @@ interface BulkEditBooksDialogProps {
   onComplete: () => void
 }
 
-type SaveStatus =
-  | {
-      kind: 'error' | 'success'
-      message: string
-    }
-  | null
+type SaveStatus = {
+  kind: 'error' | 'success'
+  message: string
+} | null
 
 const BULK_COPY: Record<
   AppLanguage,
@@ -150,8 +148,7 @@ const BULK_COPY: Record<
     },
     title: (count) => `Edit ${count} book(s)`,
     updateError: 'Could not update the books.',
-    explanation:
-      'Only checked fields will change. Other Markdown metadata stays as it is.',
+    explanation: 'Only checked fields will change. Other Markdown metadata stays as it is.',
   },
   es: {
     apply: 'Aplicar cambios',
@@ -237,10 +234,7 @@ function parseTags(input: string) {
     .filter(Boolean)
 }
 
-export function BulkEditBooksDialog({
-  selectedSlugs,
-  onComplete,
-}: BulkEditBooksDialogProps) {
+export function BulkEditBooksDialog({ selectedSlugs, onComplete }: BulkEditBooksDialogProps) {
   const router = useRouter()
   const { locale } = useAppLanguage()
   const copy = BULK_COPY[locale]
@@ -265,12 +259,7 @@ export function BulkEditBooksDialog({
   const [tagsInput, setTagsInput] = useState('')
 
   const hasAnyUpdate =
-    applyStatus ||
-    applyRating ||
-    applyPriority ||
-    applyProgress ||
-    applyCurrentPage ||
-    applyTags
+    applyStatus || applyRating || applyPriority || applyProgress || applyCurrentPage || applyTags
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -347,10 +336,7 @@ export function BulkEditBooksDialog({
     } catch (err) {
       setSaveStatus({
         kind: 'error',
-        message:
-          err instanceof Error
-            ? err.message
-            : copy.updateError,
+        message: err instanceof Error ? err.message : copy.updateError,
       })
     } finally {
       setSaving(false)
@@ -372,9 +358,7 @@ export function BulkEditBooksDialog({
         </DialogHeader>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
-          <p className="text-sm leading-6 text-muted-foreground">
-            {copy.explanation}
-          </p>
+          <p className="text-sm leading-6 text-muted-foreground">{copy.explanation}</p>
 
           {saveStatus ? (
             <div
@@ -419,11 +403,7 @@ export function BulkEditBooksDialog({
           >
             <div className="flex flex-wrap items-center gap-3">
               <StarRating value={rating} onChange={setRating} />
-              <Button
-                onClick={() => setRating(0)}
-                type="button"
-                variant="ghost"
-              >
+              <Button onClick={() => setRating(0)} type="button" variant="ghost">
                 {copy.noRating}
               </Button>
             </div>
@@ -496,11 +476,7 @@ export function BulkEditBooksDialog({
           </BulkField>
 
           <div className="flex flex-col-reverse gap-2 border-t border-hairline pt-4 sm:flex-row sm:justify-end">
-            <Button
-              onClick={() => setOpen(false)}
-              type="button"
-              variant="outline"
-            >
+            <Button onClick={() => setOpen(false)} type="button" variant="outline">
               {copy.cancel}
             </Button>
             <Button disabled={saving || !hasAnyUpdate} type="submit">
@@ -544,9 +520,7 @@ function BulkField({
         />
         <span>
           <span className="block font-medium text-foreground">{label}</span>
-          <span className="block text-sm leading-6 text-muted-foreground">
-            {description}
-          </span>
+          <span className="block text-sm leading-6 text-muted-foreground">{description}</span>
         </span>
       </label>
       {checked ? children : null}

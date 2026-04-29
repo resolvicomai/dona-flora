@@ -22,7 +22,10 @@ export const ChatFrontmatterSchema = z.object({
     .string()
     .min(1)
     .max(128)
-    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/, 'chatId deve ser alfanumérico/hífen/underscore sem começar com traço'),
+    .regex(
+      /^[A-Za-z0-9][A-Za-z0-9_-]*$/,
+      'chatId deve ser alfanumérico/hífen/underscore sem começar com traço',
+    ),
   title: z.string(),
   started_at: z.string(),
   updated_at: z.string(),

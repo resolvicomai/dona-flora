@@ -18,4 +18,3 @@ Descreva em poucas linhas o que este PR entrega.
 ## Screenshots
 
 Se mudou UI, inclua antes/depois.
-

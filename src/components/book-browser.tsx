@@ -8,13 +8,7 @@ import { useQueryStates } from 'nuqs'
 import type { Book } from '@/lib/books/schema'
 import type { AppLanguage } from '@/lib/i18n/app-language'
 import { browseSearchParams } from '@/lib/books/search-params'
-import {
-  applyFilters,
-  applySearch,
-  applySort,
-  createFuse,
-  extractGenres,
-} from '@/lib/books/query'
+import { applyFilters, applySearch, applySort, createFuse, extractGenres } from '@/lib/books/query'
 import { useLocalStorage } from '@/lib/use-local-storage'
 
 import { AddBookDialog } from '@/components/add-book-dialog'
@@ -68,8 +62,7 @@ function getBookSlug(book: Book) {
 const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
   'pt-BR': {
     collectionBody: 'Os livros que fazem sentido para este recorte da sua biblioteca.',
-    collectionCount: (count) =>
-      `${count} ${count === 1 ? 'título em foco' : 'títulos em foco'}`,
+    collectionCount: (count) => `${count} ${count === 1 ? 'título em foco' : 'títulos em foco'}`,
     collectionEyebrow: 'Acervo',
     connectFolderCta: 'Conectar pasta',
     emptyBody:
@@ -103,14 +96,12 @@ const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
         title: 'Ritmo',
       },
     ],
-    summaryCount: (count) =>
-      count === 1 ? 'título catalogado' : 'títulos catalogados',
+    summaryCount: (count) => (count === 1 ? 'título catalogado' : 'títulos catalogados'),
     summaryEyebrow: 'Panorama',
   },
   en: {
     collectionBody: 'The books that matter in this slice of your library.',
-    collectionCount: (count) =>
-      `${count} ${count === 1 ? 'title in focus' : 'titles in focus'}`,
+    collectionCount: (count) => `${count} ${count === 1 ? 'title in focus' : 'titles in focus'}`,
     collectionEyebrow: 'Collection',
     connectFolderCta: 'Connect folder',
     emptyBody:
@@ -144,14 +135,12 @@ const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
         title: 'Pace',
       },
     ],
-    summaryCount: (count) =>
-      count === 1 ? 'cataloged title' : 'cataloged titles',
+    summaryCount: (count) => (count === 1 ? 'cataloged title' : 'cataloged titles'),
     summaryEyebrow: 'Overview',
   },
   es: {
     collectionBody: 'Los libros que importan en este recorte de tu biblioteca.',
-    collectionCount: (count) =>
-      `${count} ${count === 1 ? 'título en foco' : 'títulos en foco'}`,
+    collectionCount: (count) => `${count} ${count === 1 ? 'título en foco' : 'títulos en foco'}`,
     collectionEyebrow: 'Coleccion',
     connectFolderCta: 'Conectar carpeta',
     emptyBody:
@@ -185,8 +174,7 @@ const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
         title: 'Ritmo',
       },
     ],
-    summaryCount: (count) =>
-      count === 1 ? 'título catalogado' : 'títulos catalogados',
+    summaryCount: (count) => (count === 1 ? 'título catalogado' : 'títulos catalogados'),
     summaryEyebrow: 'Panorama',
   },
   'zh-CN': {
@@ -236,11 +224,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
     scroll: false,
   })
   // D-21: localStorage preference applied post-hydration; brief reflow accepted for personal app (see RESEARCH Pitfall 2).
-  const [view, setView] = useLocalStorage<ViewMode>(
-    'dona-flora:view-mode',
-    'grid',
-    VIEW_VALUES,
-  )
+  const [view, setView] = useLocalStorage<ViewMode>('dona-flora:view-mode', 'grid', VIEW_VALUES)
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([])
 
@@ -276,10 +260,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
     () => applySort(searchedBooks, state.sort, state.dir),
     [searchedBooks, state.sort, state.dir],
   )
-  const visibleSlugs = useMemo(
-    () => visible.map(getBookSlug).filter(Boolean),
-    [visible],
-  )
+  const visibleSlugs = useMemo(() => visible.map(getBookSlug).filter(Boolean), [visible])
   const selectedSlugSet = useMemo(() => new Set(selectedSlugs), [selectedSlugs])
 
   const hasActiveFilters =
@@ -344,16 +325,11 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
           <section className="library-start-shell grid gap-8 px-5 py-8 md:px-8 md:py-10 xl:grid-cols-[minmax(0,1fr)_28rem] xl:items-center">
             <div className="max-w-3xl">
               <p className="eyebrow">{copy.heroEyebrow}</p>
-              <h1 className="editorial-title mt-5 max-w-3xl text-foreground">
-                {copy.emptyTitle}.
-              </h1>
+              <h1 className="editorial-title mt-5 max-w-3xl text-foreground">{copy.emptyTitle}.</h1>
               <p className="body-copy mt-5 max-w-xl">{copy.emptyBody}</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <AddBookDialog triggerLabel={copy.firstBookCta} />
-                <Button
-                  render={<Link href="/settings?panel=library" />}
-                  variant="outline"
-                >
+                <Button render={<Link href="/settings?panel=library" />} variant="outline">
                   {copy.connectFolderCta}
                 </Button>
               </div>
@@ -392,9 +368,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
           <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_21rem] xl:items-end">
             <div className="space-y-4 md:space-y-5">
               <p className="eyebrow">{copy.heroEyebrow}</p>
-              <h1 className="editorial-title max-w-3xl text-foreground">
-                {copy.heroTitle}
-              </h1>
+              <h1 className="editorial-title max-w-3xl text-foreground">{copy.heroTitle}</h1>
               <p className="body-copy max-w-2xl">{copy.heroBody}</p>
             </div>
 
@@ -415,10 +389,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
                 <SummaryMetric label="lendo" value={statusSummary.reading} />
                 <SummaryMetric label="quero ler" value={statusSummary.want} />
                 <SummaryMetric label="lidos" value={statusSummary.read} />
-                <SummaryMetric
-                  label="abandonados"
-                  value={statusSummary.abandoned}
-                />
+                <SummaryMetric label="abandonados" value={statusSummary.abandoned} />
               </div>
             </div>
           </section>
@@ -472,10 +443,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
                 >
                   Limpar
                 </Button>
-                <BulkEditBooksDialog
-                  onComplete={completeBulkEdit}
-                  selectedSlugs={selectedSlugs}
-                />
+                <BulkEditBooksDialog onComplete={completeBulkEdit} selectedSlugs={selectedSlugs} />
               </>
             ) : null}
           </div>
@@ -485,19 +453,16 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
       {initialBooks.length > 0 ? (
         <div className="flex min-h-0 flex-1 flex-col pb-10">
           <div className="mb-4 flex flex-col gap-3 lg:mb-6 lg:flex-row lg:items-end lg:justify-between lg:gap-4">
-              <div>
-                <p className="eyebrow">{copy.collectionEyebrow}</p>
-                <p
-                  className="mt-2 text-sm text-muted-foreground tabular-nums"
-                  aria-live="polite"
-                >
-                  {copy.collectionCount(visible.length)}
-                </p>
-              </div>
-              <p className="max-w-md text-sm leading-7 text-muted-foreground">
-                {copy.collectionBody}
+            <div>
+              <p className="eyebrow">{copy.collectionEyebrow}</p>
+              <p className="mt-2 text-sm text-muted-foreground tabular-nums" aria-live="polite">
+                {copy.collectionCount(visible.length)}
               </p>
             </div>
+            <p className="max-w-md text-sm leading-7 text-muted-foreground">
+              {copy.collectionBody}
+            </p>
+          </div>
 
           {visible.length === 0 && hasActiveFilters ? (
             <EmptyResults onClear={clearAll} />
@@ -537,28 +502,16 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
 function SummaryMetric({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <p className="font-mono text-xl font-semibold tabular-nums text-foreground">
-        {value}
-      </p>
+      <p className="font-mono text-xl font-semibold tabular-nums text-foreground">{value}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
     </div>
   )
 }
 
-function StartHint({
-  body,
-  index,
-  title,
-}: {
-  body: string
-  index: string
-  title: string
-}) {
+function StartHint({ body, index, title }: { body: string; index: string; title: string }) {
   return (
     <div className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3">
-      <span className="font-mono text-xs leading-6 text-muted-foreground">
-        {index}
-      </span>
+      <span className="font-mono text-xs leading-6 text-muted-foreground">{index}</span>
       <div>
         <p className="text-sm font-semibold text-foreground">{title}</p>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p>

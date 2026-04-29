@@ -54,17 +54,11 @@ export function useLocalStorage<T extends string>(
       }
 
       window.addEventListener('storage', handleStorage)
-      window.addEventListener(
-        LOCAL_STORAGE_EVENT,
-        handleCustomStorage as EventListener,
-      )
+      window.addEventListener(LOCAL_STORAGE_EVENT, handleCustomStorage as EventListener)
 
       return () => {
         window.removeEventListener('storage', handleStorage)
-        window.removeEventListener(
-          LOCAL_STORAGE_EVENT,
-          handleCustomStorage as EventListener,
-        )
+        window.removeEventListener(LOCAL_STORAGE_EVENT, handleCustomStorage as EventListener)
       }
     },
     [key],
@@ -72,21 +66,24 @@ export function useLocalStorage<T extends string>(
 
   const value = useSyncExternalStore(subscribe, getSnapshot, () => fallback)
 
-  const set = useCallback((next: T) => {
-    try {
-      window.localStorage.setItem(key, next)
-    } catch {
-      /* private-mode or storage disabled */
-    }
+  const set = useCallback(
+    (next: T) => {
+      try {
+        window.localStorage.setItem(key, next)
+      } catch {
+        /* private-mode or storage disabled */
+      }
 
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent(LOCAL_STORAGE_EVENT, {
-          detail: { key },
-        }),
-      )
-    }
-  }, [key])
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent(LOCAL_STORAGE_EVENT, {
+            detail: { key },
+          }),
+        )
+      }
+    },
+    [key],
+  )
 
   return [value, set]
 }

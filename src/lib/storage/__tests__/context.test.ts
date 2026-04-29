@@ -76,13 +76,25 @@ describe('claimLegacyDataForUser', () => {
     expect(result.backupRoot).toBeTruthy()
 
     const ownerCtx = createStorageContext('owner-1', tmpDir)
-    await expect(fs.readFile(path.join(ownerCtx.booksDir, 'book-a.md'), 'utf-8')).resolves.toBe('book-a')
-    await expect(fs.readFile(path.join(ownerCtx.chatsDir, 'chat-a.md'), 'utf-8')).resolves.toBe('chat-a')
-    await expect(fs.readFile(path.join(ownerCtx.trailsDir, 'trail-a.md'), 'utf-8')).resolves.toBe('trail-a')
+    await expect(fs.readFile(path.join(ownerCtx.booksDir, 'book-a.md'), 'utf-8')).resolves.toBe(
+      'book-a',
+    )
+    await expect(fs.readFile(path.join(ownerCtx.chatsDir, 'chat-a.md'), 'utf-8')).resolves.toBe(
+      'chat-a',
+    )
+    await expect(fs.readFile(path.join(ownerCtx.trailsDir, 'trail-a.md'), 'utf-8')).resolves.toBe(
+      'trail-a',
+    )
 
-    await expect(fs.readFile(path.join(result.backupRoot!, 'books', 'book-a.md'), 'utf-8')).resolves.toBe('book-a')
-    await expect(fs.readFile(path.join(result.backupRoot!, 'chats', 'chat-a.md'), 'utf-8')).resolves.toBe('chat-a')
-    await expect(fs.readFile(path.join(result.backupRoot!, 'trails', 'trail-a.md'), 'utf-8')).resolves.toBe('trail-a')
+    await expect(
+      fs.readFile(path.join(result.backupRoot!, 'books', 'book-a.md'), 'utf-8'),
+    ).resolves.toBe('book-a')
+    await expect(
+      fs.readFile(path.join(result.backupRoot!, 'chats', 'chat-a.md'), 'utf-8'),
+    ).resolves.toBe('chat-a')
+    await expect(
+      fs.readFile(path.join(result.backupRoot!, 'trails', 'trail-a.md'), 'utf-8'),
+    ).resolves.toBe('trail-a')
 
     const marker = JSON.parse(await fs.readFile(result.markerPath, 'utf-8')) as {
       ownerUserId: string

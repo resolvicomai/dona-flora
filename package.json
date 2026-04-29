@@ -13,6 +13,8 @@
     "start": "next start",
     "start:local": "node scripts/run-standalone-local.mjs",
     "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "migrate:isbn": "node scripts/migrate-isbn-frontmatter.mjs",
     "test": "jest"
   },
@@ -69,6 +71,7 @@
     "eslint-config-next": "16.2.4",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
+    "prettier": "^3.8.3",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.9",
     "typescript": "^5"

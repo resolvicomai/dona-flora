@@ -16,10 +16,7 @@ export function dedupeKey(b: BookSearchResult): string {
  * Order-preserving dedupe: first occurrence wins.
  * Optional cap limits output length (used by searchOpenLibrary and AddBookDialog).
  */
-export function dedupeBooks(
-  input: BookSearchResult[],
-  cap?: number,
-): BookSearchResult[] {
+export function dedupeBooks(input: BookSearchResult[], cap?: number): BookSearchResult[] {
   const seen = new Set<string>()
   const out: BookSearchResult[] = []
   for (const book of input) {

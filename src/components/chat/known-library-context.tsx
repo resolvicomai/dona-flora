@@ -44,11 +44,7 @@ export function KnownLibraryProvider({
     for (const b of books) map.set(b.slug, b)
     return { map }
   }, [books])
-  return (
-    <KnownLibraryContext.Provider value={value}>
-      {children}
-    </KnownLibraryContext.Provider>
-  )
+  return <KnownLibraryContext.Provider value={value}>{children}</KnownLibraryContext.Provider>
 }
 
 /**

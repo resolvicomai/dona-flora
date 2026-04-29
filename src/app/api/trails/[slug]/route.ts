@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
 import { deleteTrail, updateTrail } from '@/lib/trails/store'
 
 export const dynamic = 'force-dynamic'
@@ -21,17 +18,11 @@ const UpdateTrailSchema = z
     title: z.string().trim().min(1).max(120).optional(),
   })
   .refine(
-    (value) =>
-      value.title !== undefined ||
-      value.goal !== undefined ||
-      value.notes !== undefined,
+    (value) => value.title !== undefined || value.goal !== undefined || value.notes !== undefined,
     { message: 'Informe pelo menos um campo para atualizar.' },
   )
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ slug: string }> },
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const authResult = await requireVerifiedRequestSession(request)
   if (!authResult.ok) {
     return authResult.response
@@ -71,17 +62,11 @@ export async function PATCH(
     return NextResponse.json({ ok: true, trail })
   } catch (err) {
     console.error('[API] PATCH /api/trails/[slug] error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao atualizar trilha.' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'Erro ao atualizar trilha.' }, { status: 500 })
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ slug: string }> },
-) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const authResult = await requireVerifiedRequestSession(request)
   if (!authResult.ok) {
     return authResult.response
@@ -94,19 +79,13 @@ export async function DELETE(
   }
 
   try {
-    const removed = await deleteTrail(
-      parsedSlug.data,
-      getSessionStorageContext(session),
-    )
+    const removed = await deleteTrail(parsedSlug.data, getSessionStorageContext(session))
     if (!removed) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
     return new NextResponse(null, { status: 204 })
   } catch (err) {
     console.error('[API] DELETE /api/trails/[slug] error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao excluir trilha.' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'Erro ao excluir trilha.' }, { status: 500 })
   }
 }

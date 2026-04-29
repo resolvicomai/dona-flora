@@ -13,10 +13,5 @@ export async function MarkdownContent({ content }: MarkdownContentProps) {
     )
   }
   const html = await renderMarkdown(content)
-  return (
-    <div
-      className="markdown-content"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  )
+  return <div className="markdown-content" dangerouslySetInnerHTML={{ __html: html }} />
 }

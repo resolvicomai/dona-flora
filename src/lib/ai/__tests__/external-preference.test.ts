@@ -87,20 +87,14 @@ describe('buildExternalPreferenceDirective', () => {
   })
 
   it('returns a library-only directive for acervo', () => {
-    expect(buildExternalPreferenceDirective('acervo')).toContain(
-      'apenas livros do acervo',
-    )
+    expect(buildExternalPreferenceDirective('acervo')).toContain('apenas livros do acervo')
   })
 
   it('returns a dual-path directive for ambos', () => {
-    expect(buildExternalPreferenceDirective('ambos')).toContain(
-      'acervo ou externos',
-    )
+    expect(buildExternalPreferenceDirective('ambos')).toContain('acervo ou externos')
   })
 
   it('returns an external-first directive for externo', () => {
-    expect(buildExternalPreferenceDirective('externo')).toContain(
-      'priorize sugestões externas',
-    )
+    expect(buildExternalPreferenceDirective('externo')).toContain('priorize sugestões externas')
   })
 })

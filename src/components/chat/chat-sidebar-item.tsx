@@ -53,14 +53,7 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
   const label = Number.isNaN(updated.getTime())
     ? ''
     : formatDistanceToNow(updated, {
-        locale:
-          locale === 'en'
-            ? enUS
-            : locale === 'es'
-              ? es
-              : locale === 'zh-CN'
-                ? zhCN
-                : ptBR,
+        locale: locale === 'en' ? enUS : locale === 'es' ? es : locale === 'zh-CN' ? zhCN : ptBR,
         addSuffix: true,
       })
   const preview = getChatPreview(chat.content, copy.item.youLabel, copy.item.externalLabel)
@@ -177,19 +170,12 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
         >
           <div className="flex min-w-0 items-center gap-2">
             {chat.pinned ? (
-              <Pin
-                className="h-3.5 w-3.5 shrink-0 fill-primary text-primary"
-                aria-hidden="true"
-              />
+              <Pin className="h-3.5 w-3.5 shrink-0 fill-primary text-primary" aria-hidden="true" />
             ) : null}
-            <p className="line-clamp-1 text-sm font-semibold text-foreground">
-              {chat.title}
-            </p>
+            <p className="line-clamp-1 text-sm font-semibold text-foreground">{chat.title}</p>
           </div>
           {preview ? (
-            <p className="line-clamp-2 text-[0.78rem] leading-5 text-foreground/78">
-              {preview}
-            </p>
+            <p className="line-clamp-2 text-[0.78rem] leading-5 text-foreground/78">{preview}</p>
           ) : null}
           {label && (
             <time dateTime={chat.updated_at} className="text-xs text-muted-foreground">
@@ -210,16 +196,11 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
             variant="ghost"
             size="icon-xs"
             aria-label={
-              chat.pinned
-                ? copy.item.unpinAria(chat.title)
-                : copy.item.pinAria(chat.title)
+              chat.pinned ? copy.item.unpinAria(chat.title) : copy.item.pinAria(chat.title)
             }
             onClick={() => void patchChat({ pinned: !chat.pinned })}
             disabled={saving || deleting}
-            className={cn(
-              'h-8 w-8 min-h-[32px] min-w-[32px]',
-              chat.pinned && 'text-primary',
-            )}
+            className={cn('h-8 w-8 min-h-[32px] min-w-[32px]', chat.pinned && 'text-primary')}
           >
             <Pin className={cn('h-3.5 w-3.5', chat.pinned && 'fill-current')} aria-hidden="true" />
           </Button>
@@ -237,12 +218,12 @@ export function ChatSidebarItem({ chat, active }: ChatSidebarItemProps) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger
               render={
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label={copy.item.deleteAria(chat.title)}
-              className="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-destructive"
-            />
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={copy.item.deleteAria(chat.title)}
+                  className="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-destructive"
+                />
               }
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />

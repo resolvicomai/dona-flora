@@ -197,9 +197,7 @@ export function BookEditForm({
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,16rem)_1fr]">
         <div className="space-y-3">
-          <Label className="eyebrow">
-            {copy.status}
-          </Label>
+          <Label className="eyebrow">{copy.status}</Label>
           <Select value={status} onValueChange={handleStatusChange}>
             <SelectTrigger className="w-full">
               <SelectValue>{(v) => getStatusLabel(v, locale)}</SelectValue>
@@ -215,17 +213,13 @@ export function BookEditForm({
         </div>
 
         <div className="space-y-3">
-          <Label className="eyebrow">
-            {copy.rating}
-          </Label>
+          <Label className="eyebrow">{copy.rating}</Label>
           <StarRating value={rating} onChange={handleRatingChange} />
         </div>
       </div>
 
       <div className="space-y-3">
-        <Label className="eyebrow">
-          {copy.notes}
-        </Label>
+        <Label className="eyebrow">{copy.notes}</Label>
 
         {editingNotes ? (
           <Textarea
@@ -256,16 +250,12 @@ export function BookEditForm({
                 dangerouslySetInnerHTML={{ __html: renderedNotes }}
               />
             ) : (
-              <p className="text-sm italic text-muted-foreground">
-                {copy.clickToAddNotes}
-              </p>
+              <p className="text-sm italic text-muted-foreground">{copy.clickToAddNotes}</p>
             )}
           </div>
         )}
 
-        <p className="text-xs leading-6 text-muted-foreground">
-          {copy.markdownHelp}
-        </p>
+        <p className="text-xs leading-6 text-muted-foreground">{copy.markdownHelp}</p>
       </div>
     </div>
   )
@@ -279,19 +269,16 @@ function SaveIndicator({
   state: SaveState
 }) {
   if (state === 'idle') return null
-  const label =
-    state === 'saving'
-      ? copy.saving
-      : state === 'saved'
-        ? copy.saved
-        : copy.saveError
+  const label = state === 'saving' ? copy.saving : state === 'saved' ? copy.saved : copy.saveError
   const tone =
     state === 'error'
       ? 'border-destructive/20 bg-destructive/10 text-destructive'
       : 'border-hairline bg-surface text-foreground'
 
   return (
-    <span className={`inline-flex w-fit items-center rounded-md border px-3 py-1 font-mono text-xs font-medium ${tone}`}>
+    <span
+      className={`inline-flex w-fit items-center rounded-md border px-3 py-1 font-mono text-xs font-medium ${tone}`}
+    >
       {label}
     </span>
   )

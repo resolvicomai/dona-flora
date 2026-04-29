@@ -5,18 +5,13 @@ import { listBooks } from '@/lib/books/library-service'
 import { listChats } from '@/lib/chats/list'
 import { listTrails } from '@/lib/trails/store'
 import { getUserAIProviderSettings, getUserLibrarySettings } from '@/lib/auth/db'
-import {
-  getSessionStorageContext,
-  requireVerifiedServerSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedServerSession } from '@/lib/auth/server'
 import { BookBrowser } from '@/components/book-browser'
 import { OnboardingChecklist } from '@/components/onboarding-checklist'
 
 export const dynamic = 'force-dynamic'
 
-function getConfiguredAIModelLabel(
-  settings: ReturnType<typeof getUserAIProviderSettings>,
-) {
+function getConfiguredAIModelLabel(settings: ReturnType<typeof getUserAIProviderSettings>) {
   if (settings.primaryProvider === 'anthropic') return settings.anthropicModel
   if (settings.primaryProvider === 'openai') return settings.openaiModel
   if (settings.primaryProvider === 'openai-compatible') {

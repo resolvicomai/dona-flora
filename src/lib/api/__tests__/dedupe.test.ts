@@ -19,8 +19,9 @@ describe('dedupeKey', () => {
     expect(dedupeKey(book({ isbn: '978-0-00-000000-0' }))).toBe('isbn:978-0-00-000000-0')
   })
   it('falls back to folded title+author', () => {
-    expect(dedupeKey(book({ title: 'O Senhor dos Anéis', authors: ['J.R.R. Tolkien'] })))
-      .toBe('ta:o senhor dos aneis|j.r.r. tolkien')
+    expect(dedupeKey(book({ title: 'O Senhor dos Anéis', authors: ['J.R.R. Tolkien'] }))).toBe(
+      'ta:o senhor dos aneis|j.r.r. tolkien',
+    )
   })
 })
 

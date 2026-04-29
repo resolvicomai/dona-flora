@@ -20,10 +20,7 @@ export const librarianTools = {
     description:
       'Renderiza um card inline para um livro QUE EXISTE na biblioteca do usuário. Use APENAS com slug literal de <LIBRARY>. Não use para livros externos ou imaginados.',
     inputSchema: z.object({
-      slug: z
-        .string()
-        .min(1)
-        .regex(KEBAB_SLUG, 'slug deve ser kebab-case ASCII'),
+      slug: z.string().min(1).regex(KEBAB_SLUG, 'slug deve ser kebab-case ASCII'),
     }),
     execute: async ({ slug }) => ({ slug }),
   }),

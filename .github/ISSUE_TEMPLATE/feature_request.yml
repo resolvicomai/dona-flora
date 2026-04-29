@@ -1,6 +1,6 @@
 name: Feature request
 description: Sugira uma melhoria para a Dona Flora.
-title: "[Feature]: "
+title: '[Feature]: '
 labels:
   - enhancement
 body:
@@ -12,14 +12,14 @@ body:
     id: problem
     attributes:
       label: Qual problema isso resolve?
-      placeholder: "Ex.: catalogar muitos livros manualmente ainda exige cliques demais."
+      placeholder: 'Ex.: catalogar muitos livros manualmente ainda exige cliques demais.'
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
       label: Como você imagina a solução?
-      placeholder: "Ex.: permitir selecionar vários livros e aplicar status/nota em massa."
+      placeholder: 'Ex.: permitir selecionar vários livros e aplicar status/nota em massa.'
     validations:
       required: true
   - type: dropdown
@@ -41,4 +41,3 @@ body:
     attributes:
       label: Trade-offs ou cuidados
       description: Se a ideia envolve nuvem, provider externo ou reescrita de Markdown, diga aqui.
-

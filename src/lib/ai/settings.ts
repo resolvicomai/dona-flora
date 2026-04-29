@@ -1,9 +1,5 @@
 import { z } from 'zod'
-import {
-  AppLanguageSchema,
-  normalizeAppLanguage,
-  type AppLanguage,
-} from '@/lib/i18n/app-language'
+import { AppLanguageSchema, normalizeAppLanguage, type AppLanguage } from '@/lib/i18n/app-language'
 
 export const AISettingsSchema = z.object({
   tone: z.enum(['calorosa', 'analitica', 'assertiva']),
@@ -36,11 +32,7 @@ export const DEFAULT_AI_SETTINGS: AISettings = {
 
 const AI_TONE_VALUES = ['calorosa', 'analitica', 'assertiva'] as const
 const AI_FOCUS_VALUES = ['equilibrado', 'memoria', 'descoberta'] as const
-const AI_EXTERNAL_OPENNESS_VALUES = [
-  'sob-demanda',
-  'aberta',
-  'somente-acervo',
-] as const
+const AI_EXTERNAL_OPENNESS_VALUES = ['sob-demanda', 'aberta', 'somente-acervo'] as const
 const AI_RESPONSE_STYLE_VALUES = ['conversa', 'concisa', 'profunda'] as const
 
 const AI_OPTION_LABELS: Record<
@@ -161,17 +153,11 @@ export function getAIFocusOptions(locale: AppLanguage = 'pt-BR') {
 }
 
 export function getAIExternalOpennessOptions(locale: AppLanguage = 'pt-BR') {
-  return buildOptions(
-    AI_EXTERNAL_OPENNESS_VALUES,
-    AI_OPTION_LABELS[locale].externalOpenness,
-  )
+  return buildOptions(AI_EXTERNAL_OPENNESS_VALUES, AI_OPTION_LABELS[locale].externalOpenness)
 }
 
 export function getAIResponseStyleOptions(locale: AppLanguage = 'pt-BR') {
-  return buildOptions(
-    AI_RESPONSE_STYLE_VALUES,
-    AI_OPTION_LABELS[locale].responseStyle,
-  )
+  return buildOptions(AI_RESPONSE_STYLE_VALUES, AI_OPTION_LABELS[locale].responseStyle)
 }
 
 export const AI_TONE_OPTIONS = getAIToneOptions()
@@ -229,9 +215,7 @@ const responseLanguageLabels: Record<AISettings['language'], string> = {
   'zh-CN': 'zh-CN',
 }
 
-export function normalizeAISettings(
-  input?: AISettingsInput | null,
-): AISettings {
+export function normalizeAISettings(input?: AISettingsInput | null): AISettings {
   return AISettingsSchema.parse({
     ...DEFAULT_AI_SETTINGS,
     ...(input ?? {}),
@@ -240,9 +224,7 @@ export function normalizeAISettings(
   })
 }
 
-export function buildAISettingsDirective(
-  input?: Partial<AISettings> | null,
-): string {
+export function buildAISettingsDirective(input?: Partial<AISettings> | null): string {
   const settings = normalizeAISettings(input)
 
   const lines = [

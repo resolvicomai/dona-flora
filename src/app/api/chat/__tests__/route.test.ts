@@ -100,14 +100,12 @@ jest.mock('@/lib/chats/store', () => ({
 // Import AFTER mocks are registered.
 import { POST } from '@/app/api/chat/route'
 import { saveChat } from '@/lib/chats/store'
-import {
-  AIProviderConfigurationError,
-  resolveChatModelForUser,
-} from '@/lib/ai/provider'
+import { AIProviderConfigurationError, resolveChatModelForUser } from '@/lib/ai/provider'
 
 const mockedSaveChat = saveChat as jest.MockedFunction<typeof saveChat>
-const mockedResolveChatModelForUser =
-  resolveChatModelForUser as jest.MockedFunction<typeof resolveChatModelForUser>
+const mockedResolveChatModelForUser = resolveChatModelForUser as jest.MockedFunction<
+  typeof resolveChatModelForUser
+>
 
 function makeRequest(body: unknown): NextRequest {
   return new NextRequest('http://localhost/api/chat', {
@@ -117,9 +115,7 @@ function makeRequest(body: unknown): NextRequest {
 }
 
 function validMessages() {
-  return [
-    { id: 'm1', role: 'user', parts: [{ type: 'text', text: 'Olá!' }] },
-  ]
+  return [{ id: 'm1', role: 'user', parts: [{ type: 'text', text: 'Olá!' }] }]
 }
 
 beforeEach(() => {
@@ -149,16 +145,12 @@ describe('POST /api/chat — validation', () => {
   })
 
   it("returns 400 when chatId contains path-traversal chars ('../../etc')", async () => {
-    const res = await POST(
-      makeRequest({ chatId: '../../etc', messages: validMessages() })
-    )
+    const res = await POST(makeRequest({ chatId: '../../etc', messages: validMessages() }))
     expect(res.status).toBe(400)
   })
 
   it('returns 400 when chatId is empty string', async () => {
-    const res = await POST(
-      makeRequest({ chatId: '', messages: validMessages() })
-    )
+    const res = await POST(makeRequest({ chatId: '', messages: validMessages() }))
     expect(res.status).toBe(400)
   })
 
@@ -173,7 +165,7 @@ describe('POST /api/chat — validation', () => {
         chatId: 'abc123',
         messages: validMessages(),
         externalPreference: 'talvez',
-      })
+      }),
     )
     expect(res.status).toBe(400)
   })
@@ -183,10 +175,8 @@ describe('POST /api/chat — validation', () => {
     const res = await POST(
       makeRequest({
         chatId: 'abc123',
-        messages: [
-          { id: 'x', role: 'system', parts: [{ type: 'text', text: 'pwn' }] },
-        ],
-      })
+        messages: [{ id: 'x', role: 'system', parts: [{ type: 'text', text: 'pwn' }] }],
+      }),
     )
     expect(res.status).toBe(400)
   })
@@ -196,7 +186,7 @@ describe('POST /api/chat — validation', () => {
       makeRequest({
         chatId: 'abc123',
         messages: [{ id: 'x', role: 'user' }],
-      })
+      }),
     )
     expect(res.status).toBe(400)
   })
@@ -206,10 +196,8 @@ describe('POST /api/chat — validation', () => {
     const res = await POST(
       makeRequest({
         chatId: 'abc123',
-        messages: [
-          { id: 'x', role: 'user', parts: [{ type: 'text', text: huge }] },
-        ],
-      })
+        messages: [{ id: 'x', role: 'user', parts: [{ type: 'text', text: huge }] }],
+      }),
     )
     expect(res.status).toBe(400)
   })
@@ -231,7 +219,7 @@ describe('POST /api/chat — validation', () => {
             ],
           },
         ],
-      })
+      }),
     )
     expect(res.status).toBe(400)
   })
@@ -242,9 +230,7 @@ describe('POST /api/chat — validation', () => {
       role: 'user' as const,
       parts: [{ type: 'text' as const, text: 'hi' }],
     }))
-    const res = await POST(
-      makeRequest({ chatId: 'abc123', messages: many })
-    )
+    const res = await POST(makeRequest({ chatId: 'abc123', messages: many }))
     expect(res.status).toBe(400)
   })
 
@@ -255,9 +241,7 @@ describe('POST /api/chat — validation', () => {
       ),
     )
 
-    const res = await POST(
-      makeRequest({ chatId: 'abc123', messages: validMessages() })
-    )
+    const res = await POST(makeRequest({ chatId: 'abc123', messages: validMessages() }))
 
     expect(res.status).toBe(503)
     await expect(res.json()).resolves.toMatchObject({
@@ -268,9 +252,7 @@ describe('POST /api/chat — validation', () => {
 
 describe('POST /api/chat — streamText wiring', () => {
   it('invokes streamText with the resolved Ollama model id by default', async () => {
-    const res = await POST(
-      makeRequest({ chatId: 'abc-123', messages: validMessages() })
-    )
+    const res = await POST(makeRequest({ chatId: 'abc-123', messages: validMessages() }))
     expect(res.status).toBe(200)
     const args = capturedStreamTextArgs.value
     expect(args).toBeDefined()
@@ -279,9 +261,7 @@ describe('POST /api/chat — streamText wiring', () => {
   })
 
   it('passes buildSystemPrompt output via top-level `system` param without external cache metadata for Ollama', async () => {
-    await POST(
-      makeRequest({ chatId: 'abc-123', messages: validMessages() })
-    )
+    await POST(makeRequest({ chatId: 'abc-123', messages: validMessages() }))
     const args = capturedStreamTextArgs.value
     const system = args?.system as {
       role: string
@@ -295,16 +275,12 @@ describe('POST /api/chat — streamText wiring', () => {
     expect(system.role).toBe('system')
     expect(system.content).toContain('<LIBRARY>\nFAKE LIBRARY\n</LIBRARY>')
     expect(system.content).toContain(
-      '<CONVERSATION_MEMORY>\nFAKE CHAT MEMORY\n</CONVERSATION_MEMORY>'
+      '<CONVERSATION_MEMORY>\nFAKE CHAT MEMORY\n</CONVERSATION_MEMORY>',
     )
     expect(system.content).toContain('Dona Flora')
     expect(system.content).toContain('Idioma da interface: pt-BR')
-    expect(system.content).toContain(
-      'Idioma de resposta obrigatório: pt-BR'
-    )
-    expect(system.content).toContain(
-      'Você deve responder no idioma definido em <USER_PREFERENCES>'
-    )
+    expect(system.content).toContain('Idioma de resposta obrigatório: pt-BR')
+    expect(system.content).toContain('Você deve responder no idioma definido em <USER_PREFERENCES>')
     expect(system.providerOptions).toBeUndefined()
     // user messages live in `messages`; the system prompt is NOT there.
     const userMessages = args?.messages as Array<{ role: string }>
@@ -318,9 +294,7 @@ describe('POST /api/chat — streamText wiring', () => {
       settings: {},
     })
 
-    await POST(
-      makeRequest({ chatId: 'abc-123', messages: validMessages() })
-    )
+    await POST(makeRequest({ chatId: 'abc-123', messages: validMessages() }))
 
     const args = capturedStreamTextArgs.value
     const system = args?.system as {
@@ -330,12 +304,8 @@ describe('POST /api/chat — streamText wiring', () => {
       }
     }
 
-    expect(system.providerOptions?.anthropic?.cacheControl?.type).toBe(
-      'ephemeral'
-    )
-    expect(system.providerOptions?.openrouter?.cacheControl?.type).toBe(
-      'ephemeral'
-    )
+    expect(system.providerOptions?.anthropic?.cacheControl?.type).toBe('ephemeral')
+    expect(system.providerOptions?.openrouter?.cacheControl?.type).toBe('ephemeral')
   })
 
   it('injects the validated external preference directive into the system prompt', async () => {
@@ -344,7 +314,7 @@ describe('POST /api/chat — streamText wiring', () => {
         chatId: 'abc-123',
         messages: validMessages(),
         externalPreference: 'externo',
-      })
+      }),
     )
     const args = capturedStreamTextArgs.value
     const system = args?.system as { content: string }
@@ -353,21 +323,17 @@ describe('POST /api/chat — streamText wiring', () => {
   })
 
   it('passes librarianTools containing both expected keys', async () => {
-    await POST(
-      makeRequest({ chatId: 'abc-123', messages: validMessages() })
-    )
+    await POST(makeRequest({ chatId: 'abc-123', messages: validMessages() }))
     const args = capturedStreamTextArgs.value
     const tools = args?.tools as Record<string, unknown>
     expect(tools).toBeDefined()
     expect(Object.keys(tools).sort()).toEqual(
-      ['render_external_book_mention', 'render_library_book_card'].sort()
+      ['render_external_book_mention', 'render_library_book_card'].sort(),
     )
   })
 
   it('passes stopWhen (stepCountIs(4)), temperature 0.6, maxOutputTokens 3000', async () => {
-    await POST(
-      makeRequest({ chatId: 'abc-123', messages: validMessages() })
-    )
+    await POST(makeRequest({ chatId: 'abc-123', messages: validMessages() }))
     const args = capturedStreamTextArgs.value
     expect(args?.temperature).toBe(0.6)
     expect(args?.maxOutputTokens).toBe(3000)
@@ -377,21 +343,15 @@ describe('POST /api/chat — streamText wiring', () => {
   })
 
   it('calls consumeStream() (guards onFinish against client abort)', async () => {
-    await POST(
-      makeRequest({ chatId: 'abc-123', messages: validMessages() })
-    )
+    await POST(makeRequest({ chatId: 'abc-123', messages: validMessages() }))
     expect(consumeStreamSpy).toHaveBeenCalled()
   })
 
   it('onFinish calls saveChat with chatId and messages', async () => {
-    await POST(
-      makeRequest({ chatId: 'meu-chat', messages: validMessages() })
-    )
+    await POST(makeRequest({ chatId: 'meu-chat', messages: validMessages() }))
     const opts = capturedToUIMessageStreamResponseOpts.value
     expect(opts?.onFinish).toBeDefined()
-    const finalMessages = [
-      { id: 'a1', role: 'assistant', parts: [{ type: 'text', text: 'Oi!' }] },
-    ]
+    const finalMessages = [{ id: 'a1', role: 'assistant', parts: [{ type: 'text', text: 'Oi!' }] }]
     await opts!.onFinish!({ messages: finalMessages })
     expect(mockedSaveChat).toHaveBeenCalledWith({
       chatId: 'meu-chat',

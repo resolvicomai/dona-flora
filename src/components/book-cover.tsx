@@ -35,17 +35,12 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
     const initial = trimmed.length > 0 ? trimmed.charAt(0).toUpperCase() : '?'
     return (
       <div
-        className={cn(
-          'brand-panel flex items-center justify-center',
-          className,
-        )}
+        className={cn('brand-panel flex items-center justify-center', className)}
         style={{ width, height }}
         aria-label={`Capa de ${alt || 'livro'} não disponível`}
         role="img"
       >
-        <span className={cn('font-medium text-foreground', INITIAL_SIZE[size])}>
-          {initial}
-        </span>
+        <span className={cn('font-medium text-foreground', INITIAL_SIZE[size])}>{initial}</span>
       </div>
     )
   }
@@ -60,7 +55,10 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
         alt={`${alt} - capa`}
         width={width}
         height={height}
-        className={cn('rounded-md border border-hairline-strong object-cover shadow-mac-sm', className)}
+        className={cn(
+          'rounded-md border border-hairline-strong object-cover shadow-mac-sm',
+          className,
+        )}
       />
     )
   }
@@ -71,7 +69,10 @@ export function BookCover({ src, alt, size = 'md', className }: BookCoverProps) 
       alt={`${alt} - capa`}
       width={width}
       height={height}
-      className={cn('rounded-md border border-hairline-strong object-cover shadow-mac-sm', className)}
+      className={cn(
+        'rounded-md border border-hairline-strong object-cover shadow-mac-sm',
+        className,
+      )}
     />
   )
 }

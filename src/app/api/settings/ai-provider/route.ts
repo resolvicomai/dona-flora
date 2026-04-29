@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import {
-  upsertUserAIProviderSettings,
-  type AIProviderSettingsInput,
-} from '@/lib/auth/db'
+import { upsertUserAIProviderSettings, type AIProviderSettingsInput } from '@/lib/auth/db'
 import { maskAIProviderSettings } from '@/lib/ai/provider'
 import { requireVerifiedRequestSession } from '@/lib/auth/server'
 
@@ -20,13 +17,7 @@ const AIProviderSettingsSchema = z.object({
   openaiModel: z.string().trim().min(1).optional(),
   openrouterModel: z.string().trim().min(1).optional(),
   primaryApiKey: z.string().trim().optional().nullable(),
-  primaryProvider: z.enum([
-    'anthropic',
-    'ollama',
-    'openai',
-    'openai-compatible',
-    'openrouter',
-  ]),
+  primaryProvider: z.enum(['anthropic', 'ollama', 'openai', 'openai-compatible', 'openrouter']),
   visionEnabled: z.boolean().optional(),
   visionModel: z.string().trim().min(1).optional(),
 })

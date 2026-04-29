@@ -9,8 +9,7 @@ import { authClient } from '@/lib/auth/client'
 import { loginToAuthIdentifier } from '@/lib/auth/local-identity'
 
 function resetRedirectURL() {
-  const origin =
-    typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
   return `${origin}/reset-password`
 }
 
@@ -58,9 +57,7 @@ export function ForgotPasswordForm({ initialLogin = '' }: { initialLogin?: strin
       ) : null}
 
       {success ? (
-        <div className="brand-inset px-4 py-3 text-sm text-foreground">
-          {success}
-        </div>
+        <div className="brand-inset px-4 py-3 text-sm text-foreground">{success}</div>
       ) : null}
 
       {localLink ? (

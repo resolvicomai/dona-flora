@@ -1,12 +1,6 @@
 import { z } from 'zod'
 
-export const BookStatusEnum = z.enum([
-  'quero-ler',
-  'lendo',
-  'lido',
-  'quero-reler',
-  'abandonado',
-])
+export const BookStatusEnum = z.enum(['quero-ler', 'lendo', 'lido', 'quero-reler', 'abandonado'])
 
 function isRealDateOnly(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
@@ -18,9 +12,7 @@ function isRealDateOnly(value: string) {
   const date = new Date(Date.UTC(year, month - 1, day))
 
   return (
-    date.getUTCFullYear() === year &&
-    date.getUTCMonth() === month - 1 &&
-    date.getUTCDate() === day
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
   )
 }
 
@@ -30,25 +22,19 @@ export const DateOnlySchema = z
   .refine(isRealDateOnly, 'Use uma data real em YYYY-MM-DD')
 
 export const ISBN10Schema = z.preprocess(
-  (value) =>
-    typeof value === 'string'
-      ? value.replace(/[-\s]/g, '').toUpperCase()
-      : value,
+  (value) => (typeof value === 'string' ? value.replace(/[-\s]/g, '').toUpperCase() : value),
   z.string().regex(/^\d{9}[\dX]$/),
 )
 
 export const ISBN13Schema = z.preprocess(
-  (value) =>
-    typeof value === 'string' ? value.replace(/[-\s]/g, '') : value,
+  (value) => (typeof value === 'string' ? value.replace(/[-\s]/g, '') : value),
   z.string().regex(/^\d{13}$/),
 )
 
 export const BookAuthorSchema = z
   .union([z.string(), z.array(z.string())])
   .transform((value) =>
-    (Array.isArray(value) ? value : [value])
-      .map((author) => author.trim())
-      .filter(Boolean),
+    (Array.isArray(value) ? value : [value]).map((author) => author.trim()).filter(Boolean),
   )
 
 export const BookSchema = z.object({

@@ -6,10 +6,7 @@ import { StatusBadge } from '@/components/status-badge'
 import { getBookAuthorsDisplay } from '@/lib/books/authors'
 import { listBooks } from '@/lib/books/library-service'
 import type { Book } from '@/lib/books/schema'
-import {
-  getSessionStorageContext,
-  requireVerifiedServerSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedServerSession } from '@/lib/auth/server'
 import { getUserSettings } from '@/lib/auth/db'
 import { listTrails, type TrailRecord } from '@/lib/trails/store'
 import type { AppLanguage } from '@/lib/i18n/app-language'
@@ -32,8 +29,7 @@ const COPY: Record<
 > = {
   'pt-BR': {
     addTrail: 'Pedir uma trilha',
-    body:
-      'Trilhas salvas pela Dona Flora ficam aqui. O progresso vem do status real dos livros: quando você marca um livro como lendo ou lido, a trilha acompanha.',
+    body: 'Trilhas salvas pela Dona Flora ficam aqui. O progresso vem do status real dos livros: quando você marca um livro como lendo ou lido, a trilha acompanha.',
     emptyBody:
       'Peça no chat algo como “monte uma trilha sobre tecnologia e poder” e salve a sugestão quando fizer sentido.',
     emptyTitle: 'Nenhuma trilha salva ainda.',
@@ -45,8 +41,7 @@ const COPY: Record<
   },
   en: {
     addTrail: 'Ask for a trail',
-    body:
-      'Trails saved by Dona Flora live here. Progress comes from the real book status: when you mark a book as reading or read, the trail follows.',
+    body: 'Trails saved by Dona Flora live here. Progress comes from the real book status: when you mark a book as reading or read, the trail follows.',
     emptyBody:
       'Ask in chat for something like “build a trail about technology and power” and save the suggestion when it makes sense.',
     emptyTitle: 'No saved trails yet.',
@@ -58,8 +53,7 @@ const COPY: Record<
   },
   es: {
     addTrail: 'Pedir una ruta',
-    body:
-      'Las rutas guardadas por Dona Flora quedan aquí. El progreso viene del estado real de los libros: cuando marcas un libro como leyendo o leído, la ruta se actualiza.',
+    body: 'Las rutas guardadas por Dona Flora quedan aquí. El progreso viene del estado real de los libros: cuando marcas un libro como leyendo o leído, la ruta se actualiza.',
     emptyBody:
       'Pide en el chat algo como “monta una ruta sobre tecnología y poder” y guarda la sugerencia cuando tenga sentido.',
     emptyTitle: 'Aún no hay rutas guardadas.',
@@ -71,10 +65,8 @@ const COPY: Record<
   },
   'zh-CN': {
     addTrail: '请求阅读路径',
-    body:
-      'Dona Flora 保存的阅读路径会出现在这里。进度来自真实的图书状态：当你把书标为在读或已读，路径会同步更新。',
-    emptyBody:
-      '在聊天里请求类似“做一条关于技术与权力的阅读路径”，觉得合适后保存建议。',
+    body: 'Dona Flora 保存的阅读路径会出现在这里。进度来自真实的图书状态：当你把书标为在读或已读，路径会同步更新。',
+    emptyBody: '在聊天里请求类似“做一条关于技术与权力的阅读路径”，觉得合适后保存建议。',
     emptyTitle: '还没有保存的路径。',
     eyebrow: '路径',
     missingBook: '书库中找不到这本书',
@@ -103,18 +95,12 @@ export default async function TrailsPage() {
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
         <div>
           <p className="eyebrow">{copy.eyebrow}</p>
-          <h1 className="hero-title mt-5 max-w-4xl text-balance text-foreground">
-            {copy.title}
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
-            {copy.body}
-          </p>
+          <h1 className="hero-title mt-5 max-w-4xl text-balance text-foreground">{copy.title}</h1>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">{copy.body}</p>
         </div>
         <div className="brand-guide flex flex-col gap-4 p-5">
           <MapIcon className="h-6 w-6 text-primary" aria-hidden="true" />
-          <p className="text-sm leading-6 text-muted-foreground">
-            {copy.emptyBody}
-          </p>
+          <p className="text-sm leading-6 text-muted-foreground">{copy.emptyBody}</p>
           <Button render={<Link href="/chat" />} className="w-fit">
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
             {copy.addTrail}
@@ -126,9 +112,7 @@ export default async function TrailsPage() {
         <section className="brand-window flex min-h-[22rem] flex-col items-center justify-center gap-4 p-8 text-center">
           <MapIcon className="h-9 w-9 text-muted-foreground" aria-hidden="true" />
           <h2 className="section-title text-foreground">{copy.emptyTitle}</h2>
-          <p className="max-w-lg text-sm leading-7 text-muted-foreground">
-            {copy.emptyBody}
-          </p>
+          <p className="max-w-lg text-sm leading-7 text-muted-foreground">{copy.emptyBody}</p>
           <Button render={<Link href="/chat" />}>{copy.addTrail}</Button>
         </section>
       ) : (
@@ -166,19 +150,12 @@ function TrailCard({
     <article className="brand-window flex min-h-[24rem] flex-col overflow-hidden">
       <div className="border-b border-hairline p-5">
         <p className="eyebrow">{copy.progress(stats.done, stats.total)}</p>
-        <h2 className="mt-3 text-2xl font-semibold leading-tight text-foreground">
-          {trail.title}
-        </h2>
+        <h2 className="mt-3 text-2xl font-semibold leading-tight text-foreground">{trail.title}</h2>
         {trail.goal ? (
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            {trail.goal}
-          </p>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{trail.goal}</p>
         ) : null}
         <div className="mt-5 h-2 overflow-hidden rounded-full border border-hairline bg-surface-strong">
-          <div
-            className="h-full rounded-full bg-primary"
-            style={{ width: `${percent}%` }}
-          />
+          <div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
         </div>
       </div>
 
@@ -193,22 +170,14 @@ function TrailCard({
               <div className="min-w-0 flex-1">
                 {book ? (
                   <>
-                    <p className="truncate text-sm font-semibold text-foreground">
-                      {book.title}
-                    </p>
+                    <p className="truncate text-sm font-semibold text-foreground">{book.title}</p>
                     <p className="mt-1 truncate text-xs text-muted-foreground">
                       {getBookAuthorsDisplay(book)}
                     </p>
-                    <StatusBadge
-                      status={book.status}
-                      locale={locale}
-                      className="mt-2"
-                    />
+                    <StatusBadge status={book.status} locale={locale} className="mt-2" />
                   </>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    {copy.missingBook}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{copy.missingBook}</p>
                 )}
               </div>
             </li>
@@ -240,9 +209,7 @@ function buildBookMap(books: Book[]): BookBySlug {
 
 function getTrailStats(trail: TrailRecord, bookBySlug: BookBySlug) {
   const total = trail.book_refs.length
-  const done = trail.book_refs.filter(
-    (slug) => bookBySlug.get(slug)?.status === 'lido',
-  ).length
+  const done = trail.book_refs.filter((slug) => bookBySlug.get(slug)?.status === 'lido').length
 
   return { done, total }
 }

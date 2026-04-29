@@ -4,10 +4,7 @@ import { Suspense } from 'react'
 import { listBooks } from '@/lib/books/library-service'
 import { listChats } from '@/lib/chats/list'
 import { loadChat } from '@/lib/chats/store'
-import {
-  getSessionStorageContext,
-  requireVerifiedServerSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedServerSession } from '@/lib/auth/server'
 import { ChatShell } from '@/components/chat/chat-shell'
 import type { ChatBookMeta } from '@/components/chat/known-library-context'
 import { getBookAuthorsDisplay } from '@/lib/books/authors'
@@ -23,11 +20,7 @@ export const dynamic = 'force-dynamic'
  * attempts produce ENOENT and are surfaced as 404s here (T-04-21 mitigation).
  * No seedBook: an existing conversation does not need the deep-link seed.
  */
-export default async function ChatIdPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function ChatIdPage({ params }: { params: Promise<{ id: string }> }) {
   noStore()
   const session = await requireVerifiedServerSession()
   const storageContext = getSessionStorageContext(session)
@@ -35,10 +28,7 @@ export default async function ChatIdPage({
   const messages = await loadChat(id, storageContext)
   if (!messages) notFound()
 
-  const [books, chats] = await Promise.all([
-    listBooks(storageContext),
-    listChats(storageContext),
-  ])
+  const [books, chats] = await Promise.all([listBooks(storageContext), listChats(storageContext)])
 
   const knownBooks: ChatBookMeta[] = books
     .map((b) => ({

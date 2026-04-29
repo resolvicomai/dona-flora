@@ -127,8 +127,7 @@ export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) 
   }
 
   const currentLabel =
-    copy.options[SORT_OPTIONS.find((o) => o.value === sort)?.value ?? sort] ??
-    copy.fallback
+    copy.options[SORT_OPTIONS.find((o) => o.value === sort)?.value ?? sort] ?? copy.fallback
   const dirLabel = dir === 'asc' ? copy.asc : copy.desc
 
   return (
@@ -161,10 +160,7 @@ export function SortSelect({ sort, dir, onChange, className }: SortSelectProps) 
         className="size-10"
       >
         <ArrowUpDown
-          className={cn(
-            'h-4 w-4 transition-transform',
-            dir === 'asc' && 'rotate-180',
-          )}
+          className={cn('h-4 w-4 transition-transform', dir === 'asc' && 'rotate-180')}
         />
       </Button>
     </div>

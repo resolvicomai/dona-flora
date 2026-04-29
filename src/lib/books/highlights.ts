@@ -5,9 +5,7 @@ export interface BookHighlight {
 }
 
 function extractHighlightsSection(markdown: string) {
-  const match = /(?:^|\n)##\s+Highlights\s*\n([\s\S]*?)(?=\n##\s+|\s*$)/i.exec(
-    markdown,
-  )
+  const match = /(?:^|\n)##\s+Highlights\s*\n([\s\S]*?)(?=\n##\s+|\s*$)/i.exec(markdown)
 
   return match?.[1] ?? ''
 }
@@ -26,10 +24,7 @@ export function parseHighlights(markdown: string): BookHighlight[] {
     if (!trimmed.startsWith('-')) continue
 
     const item = trimmed.replace(/^-\s*/, '')
-    const match =
-      /^(?:p\.?\s*(\d+)\s*:?\s*)?["“](.+?)["”]\s*(?:[—-]\s*(.+))?$/u.exec(
-        item,
-      )
+    const match = /^(?:p\.?\s*(\d+)\s*:?\s*)?["“](.+?)["”]\s*(?:[—-]\s*(.+))?$/u.exec(item)
     if (!match) continue
 
     const page = match[1] ? Number(match[1]) : undefined

@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
-import {
-  BookStatusEnum,
-  DateOnlySchema,
-  ISBN10Schema,
-  ISBN13Schema,
-} from '@/lib/books/schema'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
+import { BookStatusEnum, DateOnlySchema, ISBN10Schema, ISBN13Schema } from '@/lib/books/schema'
 import { updateBook, deleteBook } from '@/lib/books/library-service'
 
 export const dynamic = 'force-dynamic'
 
-const AuthorInputSchema = z.union([
-  z.string().min(1),
-  z.array(z.string().min(1)).min(1),
-])
+const AuthorInputSchema = z.union([z.string().min(1), z.array(z.string().min(1)).min(1)])
 
 const UpdateBookSchema = z.object({
   title: z.string().min(1).optional(),
@@ -47,10 +36,7 @@ const UpdateBookSchema = z.object({
   notes: z.string().optional(),
 })
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const authResult = await requireVerifiedRequestSession(request)
     if (!authResult.ok) {
@@ -64,7 +50,7 @@ export async function PUT(
     if (!result.success) {
       return NextResponse.json(
         { error: 'Validation failed', details: result.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       )
     }
     const updates: Record<string, unknown> = {}
@@ -88,7 +74,7 @@ export async function PUT(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const authResult = await requireVerifiedRequestSession(_request)

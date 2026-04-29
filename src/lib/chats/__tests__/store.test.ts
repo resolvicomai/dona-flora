@@ -208,7 +208,7 @@ describe('loadChat', () => {
     expect(loaded!.map((m) => m.role)).toEqual(['user', 'assistant'])
     // Cards survive
     const assistantCards = loaded![1].parts.filter(
-      (p) => p.type === 'tool-render_library_book_card'
+      (p) => p.type === 'tool-render_library_book_card',
     )
     expect(assistantCards).toHaveLength(1)
   })

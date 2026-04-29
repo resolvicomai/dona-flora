@@ -15,10 +15,7 @@ Intro livre.
 
 - fora da secao
 `),
-    ).toEqual([
-      { note: 'minha nota', page: 42, quote: 'Texto literal' },
-      { quote: 'Outro trecho' },
-    ])
+    ).toEqual([{ note: 'minha nota', page: 42, quote: 'Texto literal' }, { quote: 'Outro trecho' }])
   })
 
   it('returns an empty array when the section is absent', () => {

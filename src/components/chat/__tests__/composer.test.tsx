@@ -17,12 +17,7 @@ interface HarnessProps {
 }
 
 // A tiny parent component that owns the input state for controlled Composer testing.
-function Harness({
-  initialStatus = 'ready',
-  initialInput = '',
-  onSubmit,
-  onStop,
-}: HarnessProps) {
+function Harness({ initialStatus = 'ready', initialInput = '', onSubmit, onStop }: HarnessProps) {
   const [input, setInput] = useState(initialInput)
   return (
     <Composer
@@ -39,13 +34,7 @@ describe('Composer', () => {
   test('Enter submits and calls onSubmit when status is ready and input non-empty', async () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
-    render(
-      <Harness
-        initialInput="oi"
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
-    )
+    render(<Harness initialInput="oi" onSubmit={onSubmit} onStop={onStop} />)
     const ta = screen.getByRole('textbox')
     // Plain Enter
     fireEvent.keyDown(ta, { key: 'Enter', shiftKey: false })
@@ -55,13 +44,7 @@ describe('Composer', () => {
   test('Shift+Enter does NOT submit', async () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
-    render(
-      <Harness
-        initialInput="oi"
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
-    )
+    render(<Harness initialInput="oi" onSubmit={onSubmit} onStop={onStop} />)
     const ta = screen.getByRole('textbox')
     fireEvent.keyDown(ta, { key: 'Enter', shiftKey: true })
     expect(onSubmit).not.toHaveBeenCalled()
@@ -71,12 +54,7 @@ describe('Composer', () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
     render(
-      <Harness
-        initialInput=""
-        initialStatus="streaming"
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
+      <Harness initialInput="" initialStatus="streaming" onSubmit={onSubmit} onStop={onStop} />,
     )
     const ta = screen.getByRole('textbox')
     fireEvent.keyDown(ta, { key: 'Escape' })
@@ -86,13 +64,7 @@ describe('Composer', () => {
   test('Send button is disabled when input is empty', () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
-    render(
-      <Harness
-        initialInput=""
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
-    )
+    render(<Harness initialInput="" onSubmit={onSubmit} onStop={onStop} />)
     const sendBtn = screen.getByRole('button', { name: 'Enviar mensagem' })
     // base-ui buttons expose data-disabled or aria-disabled; assert via either form.
     const disabled =
@@ -106,32 +78,18 @@ describe('Composer', () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
     render(
-      <Harness
-        initialInput="oi"
-        initialStatus="submitted"
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
+      <Harness initialInput="oi" initialStatus="submitted" onSubmit={onSubmit} onStop={onStop} />,
     )
     // During 'submitted' the Send button is not in the DOM — Stop takes its place.
-    expect(
-      screen.queryByRole('button', { name: 'Enviar mensagem' }),
-    ).toBeNull()
-    expect(
-      screen.getByRole('button', { name: 'Parar de gerar resposta' }),
-    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Enviar mensagem' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Parar de gerar resposta' })).toBeInTheDocument()
   })
 
   test("Shows Stop button when status is 'streaming'", () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
     render(
-      <Harness
-        initialInput=""
-        initialStatus="streaming"
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
+      <Harness initialInput="" initialStatus="streaming" onSubmit={onSubmit} onStop={onStop} />,
     )
     const stop = screen.getByRole('button', {
       name: 'Parar de gerar resposta',
@@ -142,29 +100,15 @@ describe('Composer', () => {
   test("Has aria-label 'Mensagem para a Dona Flora' on textarea", () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
-    render(
-      <Harness
-        initialInput=""
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
-    )
-    expect(
-      screen.getByLabelText('Mensagem para a Dona Flora'),
-    ).toBeInTheDocument()
+    render(<Harness initialInput="" onSubmit={onSubmit} onStop={onStop} />)
+    expect(screen.getByLabelText('Mensagem para a Dona Flora')).toBeInTheDocument()
   })
 
   test('user types and sends via Enter', async () => {
     const user = userEvent.setup()
     const onSubmit = jest.fn()
     const onStop = jest.fn()
-    render(
-      <Harness
-        initialInput=""
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
-    )
+    render(<Harness initialInput="" onSubmit={onSubmit} onStop={onStop} />)
     const ta = screen.getByRole('textbox')
     await user.type(ta, 'olá')
     await user.keyboard('{Enter}')
@@ -174,13 +118,7 @@ describe('Composer', () => {
   test('composer stays sticky at the bottom of the chat panel', () => {
     const onSubmit = jest.fn()
     const onStop = jest.fn()
-    const { container } = render(
-      <Harness
-        initialInput=""
-        onSubmit={onSubmit}
-        onStop={onStop}
-      />,
-    )
+    const { container } = render(<Harness initialInput="" onSubmit={onSubmit} onStop={onStop} />)
 
     const form = container.querySelector('form')
     expect(form).not.toBeNull()

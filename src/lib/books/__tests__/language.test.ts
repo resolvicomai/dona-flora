@@ -1,6 +1,4 @@
-import {
-  formatBookLanguageLabel,
-} from '../language'
+import { formatBookLanguageLabel } from '../language'
 import { BookSchema } from '../schema'
 
 describe('book language formatting', () => {

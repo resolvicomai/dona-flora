@@ -2,20 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  ArrowRight,
-  Check,
-  Cpu,
-  ExternalLink,
-  FolderOpen,
-  UserRound,
-} from 'lucide-react'
+import { ArrowRight, Check, Cpu, ExternalLink, FolderOpen, UserRound } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-import {
-  useAppLanguage,
-  type AppLanguageCopy,
-} from '@/components/app-shell/app-language-provider'
+import { useAppLanguage, type AppLanguageCopy } from '@/components/app-shell/app-language-provider'
 import { AppLanguageSwitcher } from '@/components/app-shell/app-language-switcher'
 import { ThemeToggle } from '@/components/app-shell/theme-toggle'
 import type { AppLanguage } from '@/lib/i18n/app-language'
@@ -28,26 +18,19 @@ interface AuthShellProps {
   title: string
 }
 
-export function AuthShell({
-  children,
-  description,
-  eyebrow,
-  footer,
-  title,
-}: AuthShellProps) {
+export function AuthShell({ children, description, eyebrow, footer, title }: AuthShellProps) {
   const pathname = usePathname()
   const { copy, locale } = useAppLanguage()
 
-  const route =
-    pathname.startsWith('/sign-up')
-      ? 'signUp'
-      : pathname.startsWith('/forgot-password')
-        ? 'forgotPassword'
-        : pathname.startsWith('/reset-password')
-          ? 'resetPassword'
-          : pathname.startsWith('/verify-email')
-            ? 'verifyEmail'
-            : 'signIn'
+  const route = pathname.startsWith('/sign-up')
+    ? 'signUp'
+    : pathname.startsWith('/forgot-password')
+      ? 'forgotPassword'
+      : pathname.startsWith('/reset-password')
+        ? 'resetPassword'
+        : pathname.startsWith('/verify-email')
+          ? 'verifyEmail'
+          : 'signIn'
 
   const shellCopy = copy.shell
   const routeCopy = authShellCopy[locale][route]
@@ -65,10 +48,7 @@ export function AuthShell({
             <span className="eyebrow hidden sm:block">{shellCopy.brandSubtitle}</span>
           </Link>
 
-          <span
-            aria-hidden="true"
-            className="hidden h-6 w-px bg-hairline sm:block"
-          />
+          <span aria-hidden="true" className="hidden h-6 w-px bg-hairline sm:block" />
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -97,9 +77,7 @@ export function AuthShell({
             </p>
           </div>
 
-          {isSignUp ? (
-            <SignUpCardContext story={signUpStory} />
-          ) : null}
+          {isSignUp ? <SignUpCardContext story={signUpStory} /> : null}
 
           <div className="mt-8 flex flex-col gap-4">{children}</div>
 
@@ -114,11 +92,7 @@ export function AuthShell({
   )
 }
 
-function BrandPromise({
-  shellCopy,
-}: {
-  shellCopy: AppLanguageCopy['shell']
-}) {
+function BrandPromise({ shellCopy }: { shellCopy: AppLanguageCopy['shell'] }) {
   return (
     <>
       <div className="max-w-xl space-y-5">
@@ -161,9 +135,7 @@ function SignUpOnboardingStory({ locale }: { locale: AppLanguage }) {
         <h1 className="max-w-2xl text-[clamp(3.3rem,5.2vw,5rem)] font-semibold leading-[0.96] tracking-normal text-foreground">
           {story.title}
         </h1>
-        <p className="max-w-xl text-[1rem] leading-8 text-muted-foreground">
-          {story.description}
-        </p>
+        <p className="max-w-xl text-[1rem] leading-8 text-muted-foreground">{story.description}</p>
       </div>
 
       <div className="grid gap-0 border-y border-hairline">
@@ -178,9 +150,7 @@ function SignUpOnboardingStory({ locale }: { locale: AppLanguage }) {
                 <h2 className="text-xl font-semibold leading-tight text-foreground">
                   {item.title}
                 </h2>
-                <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground">
-                  {item.body}
-                </p>
+                <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground">{item.body}</p>
                 <a
                   className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
                   href={item.href}
@@ -205,17 +175,12 @@ function SignUpOnboardingStory({ locale }: { locale: AppLanguage }) {
         </div>
         <ul className="grid gap-3">
           {story.features.map((feature) => (
-            <li
-              className="grid grid-cols-[auto_1fr] gap-3 text-sm leading-6"
-              key={feature.title}
-            >
+            <li className="grid grid-cols-[auto_1fr] gap-3 text-sm leading-6" key={feature.title}>
               <span className="mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <Check className="h-3 w-3" aria-hidden="true" />
               </span>
               <span>
-                <strong className="font-semibold text-foreground">
-                  {feature.title}
-                </strong>
+                <strong className="font-semibold text-foreground">{feature.title}</strong>
                 <span className="text-muted-foreground"> {feature.body}</span>
               </span>
             </li>
@@ -232,11 +197,7 @@ function SignUpOnboardingStory({ locale }: { locale: AppLanguage }) {
   )
 }
 
-function SignUpCardContext({
-  story,
-}: {
-  story: (typeof signUpStoryCopy)[AppLanguage]
-}) {
+function SignUpCardContext({ story }: { story: (typeof signUpStoryCopy)[AppLanguage] }) {
   const icons = [UserRound, FolderOpen, Cpu]
 
   return (
@@ -285,9 +246,7 @@ function SignUpCardContext({
                   <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                 </span>
                 <span>
-                  <strong className="block font-semibold text-foreground">
-                    {step.title}
-                  </strong>
+                  <strong className="block font-semibold text-foreground">{step.title}</strong>
                   <span className="leading-6">{step.body}</span>
                 </span>
               </li>
@@ -335,24 +294,21 @@ const signUpStoryCopy: Record<
     closing: 'After the profile, the setup continues automatically',
     context: [
       {
-        body:
-          'The name nods to a real Dona Flora connected to the Biblioteca Rio-Grandense: a teacher who became a librarian by instinct and care.',
+        body: 'The name nods to a real Dona Flora connected to the Biblioteca Rio-Grandense: a teacher who became a librarian by instinct and care.',
         href: 'https://editoratelha.com.br/product/dona-flora-e-a-biblioteca-rio-grandense/',
         kicker: 'Why Dona Flora',
         linkLabel: 'Read the reference',
         title: 'A librarian with memory',
       },
       {
-        body:
-          'Dona Flora is an open local-first experiment by Resolvi com AI, created to show how personal agents can respect data, context, and tone.',
+        body: 'Dona Flora is an open local-first experiment by Resolvi com AI, created to show how personal agents can respect data, context, and tone.',
         href: 'https://resolvicomai.app',
         kicker: 'Who makes it',
         linkLabel: 'Visit the site',
         title: 'Built by Resolvi com AI',
       },
     ],
-    currentBody:
-      'Create the local user now. Next, Dona Flora will ask for your books folder.',
+    currentBody: 'Create the local user now. Next, Dona Flora will ask for your books folder.',
     currentTitle: 'This step only creates your local access',
     description:
       'A quiet librarian for collections that still deserve memory, context, and ownership.',
@@ -405,24 +361,21 @@ const signUpStoryCopy: Record<
     closing: 'Después del perfil, la configuración continúa automáticamente',
     context: [
       {
-        body:
-          'El nombre dialoga con una Dona Flora real ligada a la Biblioteca Rio-Grandense: una profesora que se volvió bibliotecaria por instinto y cuidado.',
+        body: 'El nombre dialoga con una Dona Flora real ligada a la Biblioteca Rio-Grandense: una profesora que se volvió bibliotecaria por instinto y cuidado.',
         href: 'https://editoratelha.com.br/product/dona-flora-e-a-biblioteca-rio-grandense/',
         kicker: 'Por qué Dona Flora',
         linkLabel: 'Leer la referencia',
         title: 'Una bibliotecaria con memoria',
       },
       {
-        body:
-          'Dona Flora es un experimento abierto y local-first de Resolvi com AI, creado para mostrar agentes personales con respeto por datos, contexto y tono.',
+        body: 'Dona Flora es un experimento abierto y local-first de Resolvi com AI, creado para mostrar agentes personales con respeto por datos, contexto y tono.',
         href: 'https://resolvicomai.app',
         kicker: 'Quién lo hace',
         linkLabel: 'Visitar el sitio',
         title: 'Creado por Resolvi com AI',
       },
     ],
-    currentBody:
-      'Crea el usuario local ahora. Luego Dona Flora pedirá la carpeta de libros.',
+    currentBody: 'Crea el usuario local ahora. Luego Dona Flora pedirá la carpeta de libros.',
     currentTitle: 'Este paso solo crea tu acceso local',
     description:
       'Una bibliotecaria tranquila para acervos que merecen memoria, contexto y propiedad.',
@@ -475,16 +428,14 @@ const signUpStoryCopy: Record<
     closing: '创建资料后，设置会自动继续',
     context: [
       {
-        body:
-          '这个名字呼应一位与 Biblioteca Rio-Grandense 有关的真实 Dona Flora：她原是教师，后来凭直觉与热爱成为图书管理员。',
+        body: '这个名字呼应一位与 Biblioteca Rio-Grandense 有关的真实 Dona Flora：她原是教师，后来凭直觉与热爱成为图书管理员。',
         href: 'https://editoratelha.com.br/product/dona-flora-e-a-biblioteca-rio-grandense/',
         kicker: '为什么叫 Dona Flora',
         linkLabel: '阅读参考',
         title: '一位有记忆的图书管理员',
       },
       {
-        body:
-          'Dona Flora 是 Resolvi com AI 的开放本地优先实验，展示个人智能代理如何尊重数据、语境与语气。',
+        body: 'Dona Flora 是 Resolvi com AI 的开放本地优先实验，展示个人智能代理如何尊重数据、语境与语气。',
         href: 'https://resolvicomai.app',
         kicker: '谁做的',
         linkLabel: '访问网站',
@@ -493,8 +444,7 @@ const signUpStoryCopy: Record<
     ],
     currentBody: '现在先创建本地用户。接下来 Dona Flora 会要求选择图书文件夹。',
     currentTitle: '这一步只创建本地访问',
-    description:
-      '一位安静的图书管理员，服务于那些仍值得拥有记忆、语境与归属权的藏书。',
+    description: '一位安静的图书管理员，服务于那些仍值得拥有记忆、语境与归属权的藏书。',
     eyebrow: '首次使用',
     featuresEyebrow: '她能做什么',
     featuresTitle: '少一点仪表盘，多一点阅读陪伴。',
@@ -544,16 +494,14 @@ const signUpStoryCopy: Record<
     closing: 'Depois do perfil, o setup continua sozinho',
     context: [
       {
-        body:
-          'O nome conversa com uma Dona Flora real da Biblioteca Rio-Grandense: professora que virou bibliotecária por instinto, cuidado e paixão pelo acervo.',
+        body: 'O nome conversa com uma Dona Flora real da Biblioteca Rio-Grandense: professora que virou bibliotecária por instinto, cuidado e paixão pelo acervo.',
         href: 'https://editoratelha.com.br/product/dona-flora-e-a-biblioteca-rio-grandense/',
         kicker: 'Por que Dona Flora',
         linkLabel: 'Ler a referência',
         title: 'Uma bibliotecária com memória',
       },
       {
-        body:
-          'Dona Flora é um experimento open source e local-first da Resolvi com AI para mostrar agentes pessoais que respeitam dados, contexto e tom de voz.',
+        body: 'Dona Flora é um experimento open source e local-first da Resolvi com AI para mostrar agentes pessoais que respeitam dados, contexto e tom de voz.',
         href: 'https://resolvicomai.app',
         kicker: 'Quem construiu',
         linkLabel: 'Conhecer o site',
@@ -563,8 +511,7 @@ const signUpStoryCopy: Record<
     currentBody:
       'Crie o usuário local agora. Em seguida a Dona Flora já abre a escolha da pasta dos livros.',
     currentTitle: 'Esta etapa só cria seu acesso local',
-    description:
-      'Uma bibliotecária calma para acervos que ainda merecem memória, contexto e dono.',
+    description: 'Uma bibliotecária calma para acervos que ainda merecem memória, contexto e dono.',
     eyebrow: 'Primeiro uso',
     featuresEyebrow: 'O que ela faz',
     featuresTitle: 'Menos painel. Mais companhia de leitura.',
@@ -618,23 +565,20 @@ const authShellCopy = {
       description:
         'Sign in with your local username to access your collection, conversations, and saved preferences.',
       eyebrow: 'Sign in',
-      footer:
-        'First time here? Create a local username and keep everything on this installation.',
+      footer: 'First time here? Create a local username and keep everything on this installation.',
       title: 'Your library is waiting for you.',
     },
     signUp: {
       description:
         'This creates a local user so your library, chats, and preferences stay separate.',
       eyebrow: 'Create account',
-      footer:
-        'After this, Dona Flora asks where your books live.',
+      footer: 'After this, Dona Flora asks where your books live.',
       title: 'Create your local access.',
     },
     forgotPassword: {
       description: 'Create a local reset link so you can choose a new password.',
       eyebrow: 'Recovery',
-      footer:
-        'In local mode, the reset link appears here. No email required.',
+      footer: 'In local mode, the reset link appears here. No email required.',
       title: 'Reset password',
     },
     resetPassword: {
@@ -655,23 +599,19 @@ const authShellCopy = {
       description:
         'Entra con tu usuario local para acceder a tu colección, conversaciones y ajustes guardados.',
       eyebrow: 'Entrar',
-      footer:
-        '¿Es tu primer acceso? Crea un usuario local y mantén todo en esta instalación.',
+      footer: '¿Es tu primer acceso? Crea un usuario local y mantén todo en esta instalación.',
       title: 'Tu biblioteca te espera.',
     },
     signUp: {
-      description:
-        'Esto crea un usuario local para separar biblioteca, chats y preferencias.',
+      description: 'Esto crea un usuario local para separar biblioteca, chats y preferencias.',
       eyebrow: 'Crear cuenta',
-      footer:
-        'Después de esto, Dona Flora pregunta dónde viven tus libros.',
+      footer: 'Después de esto, Dona Flora pregunta dónde viven tus libros.',
       title: 'Crea tu acceso local.',
     },
     forgotPassword: {
       description: 'Crea un enlace local para elegir una nueva contraseña.',
       eyebrow: 'Recuperación',
-      footer:
-        'En modo local, el enlace aparece aquí. No necesitas correo.',
+      footer: 'En modo local, el enlace aparece aquí. No necesitas correo.',
       title: 'Restablecer contraseña',
     },
     resetPassword: {
@@ -683,8 +623,7 @@ const authShellCopy = {
     verifyEmail: {
       description: 'Valida la cuenta local para continuar a la colección y al chat.',
       eyebrow: 'Acceso local',
-      footer:
-        'Si el enlace expira, puedes crear un nuevo enlace local sin salir de aquí.',
+      footer: 'Si el enlace expira, puedes crear un nuevo enlace local sin salir de aquí.',
       title: 'Valida la cuenta local',
     },
   },
@@ -725,23 +664,19 @@ const authShellCopy = {
       description:
         'Entre com seu usuário local para acessar seu acervo, suas conversas e as preferências salvas da Dona Flora.',
       eyebrow: 'Entrar',
-      footer:
-        'Primeiro acesso? Crie um usuário local e mantenha tudo nesta instalação.',
+      footer: 'Primeiro acesso? Crie um usuário local e mantenha tudo nesta instalação.',
       title: 'Sua biblioteca espera por você.',
     },
     signUp: {
-      description:
-        'Isto cria um usuário local para separar acervo, chats e preferências.',
+      description: 'Isto cria um usuário local para separar acervo, chats e preferências.',
       eyebrow: 'Criar conta',
-      footer:
-        'Depois disso, a Dona Flora pergunta onde seus livros vivem.',
+      footer: 'Depois disso, a Dona Flora pergunta onde seus livros vivem.',
       title: 'Crie seu acesso local.',
     },
     forgotPassword: {
       description: 'Gere um link local para escolher uma nova senha.',
       eyebrow: 'Recuperação',
-      footer:
-        'Em modo local, o link aparece aqui mesmo. Não precisa de e-mail.',
+      footer: 'Em modo local, o link aparece aqui mesmo. Não precisa de e-mail.',
       title: 'Redefinir senha',
     },
     resetPassword: {
@@ -753,8 +688,7 @@ const authShellCopy = {
     verifyEmail: {
       description: 'Valide a conta local para continuar ao acervo e ao chat.',
       eyebrow: 'Acesso local',
-      footer:
-        'Se o link expirar, você pode gerar um novo link local sem sair daqui.',
+      footer: 'Se o link expirar, você pode gerar um novo link local sem sair daqui.',
       title: 'Valide a conta local',
     },
   },

@@ -47,9 +47,7 @@ export function ExternalBookMention({
       <span className="line-clamp-1 text-sm font-medium text-foreground">
         {title} — {author}
       </span>
-      <span className="line-clamp-2 text-sm leading-6 text-muted-foreground">
-        {reason}
-      </span>
+      <span className="line-clamp-2 text-sm leading-6 text-muted-foreground">{reason}</span>
     </div>
   )
 }

@@ -14,9 +14,7 @@ export default async function SignUpPage() {
       description="Crie sua conta para ganhar um espaço próprio, com livros, chats e trilhas isolados por usuário."
       eyebrow="Criar conta"
       title="Comece sua Dona Flora pessoal."
-      footer={
-        <p>O cadastro é local: usuário e senha ficam neste app.</p>
-      }
+      footer={<p>O cadastro é local: usuário e senha ficam neste app.</p>}
     >
       <SignUpForm />
     </AuthShell>

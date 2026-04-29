@@ -111,9 +111,7 @@ const AI_PRIMARY_PROVIDERS: AIPrimaryProvider[] = [
   'openrouter',
 ]
 
-function normalizeAIPrimaryProvider(
-  value: string | null | undefined,
-): AIPrimaryProvider {
+function normalizeAIPrimaryProvider(value: string | null | undefined): AIPrimaryProvider {
   return AI_PRIMARY_PROVIDERS.includes(value as AIPrimaryProvider)
     ? (value as AIPrimaryProvider)
     : 'ollama'
@@ -134,10 +132,7 @@ function getEncryptionKey() {
 function encryptSecret(value: string) {
   const iv = crypto.randomBytes(12)
   const cipher = crypto.createCipheriv('aes-256-gcm', getEncryptionKey(), iv)
-  const encrypted = Buffer.concat([
-    cipher.update(value, 'utf-8'),
-    cipher.final(),
-  ])
+  const encrypted = Buffer.concat([cipher.update(value, 'utf-8'), cipher.final()])
   const tag = cipher.getAuthTag()
   return [
     iv.toString('base64url'),
@@ -247,30 +242,15 @@ export function ensureAppTables(db: AppDatabase) {
     );
   `)
 
-  ensureColumn(
-    db,
-    'user_ai_provider_settings',
-    'vision_enabled',
-    'INTEGER NOT NULL DEFAULT 0',
-  )
+  ensureColumn(db, 'user_ai_provider_settings', 'vision_enabled', 'INTEGER NOT NULL DEFAULT 0')
   ensureColumn(
     db,
     'user_ai_provider_settings',
     'vision_model',
     `TEXT NOT NULL DEFAULT '${sqlString(DEFAULT_VISION_MODEL)}'`,
   )
-  ensureColumn(
-    db,
-    'user_ai_provider_settings',
-    'primary_api_key_provider',
-    'TEXT',
-  )
-  ensureColumn(
-    db,
-    'user_ai_provider_settings',
-    'primary_api_key_encrypted',
-    'TEXT',
-  )
+  ensureColumn(db, 'user_ai_provider_settings', 'primary_api_key_provider', 'TEXT')
+  ensureColumn(db, 'user_ai_provider_settings', 'primary_api_key_encrypted', 'TEXT')
   ensureColumn(
     db,
     'user_ai_provider_settings',
@@ -303,12 +283,7 @@ export function ensureAppTables(db: AppDatabase) {
   )
 }
 
-function ensureColumn(
-  db: AppDatabase,
-  table: string,
-  column: string,
-  definition: string,
-) {
+function ensureColumn(db: AppDatabase, table: string, column: string, definition: string) {
   const columns = db
     .prepare<[], { name: string }>(`PRAGMA table_info(${table})`)
     .all()
@@ -322,9 +297,7 @@ function ensureColumn(
 export function getAppMeta(db: AppDatabase, key: string): string | null {
   ensureAppTables(db)
   const row = db
-    .prepare<{ key: string }, { value: string }>(
-      'SELECT value FROM app_meta WHERE key = @key',
-    )
+    .prepare<{ key: string }, { value: string }>('SELECT value FROM app_meta WHERE key = @key')
     .get({ key })
 
   return row?.value ?? null
@@ -341,10 +314,7 @@ export function setAppMeta(db: AppDatabase, key: string, value: string) {
   ).run({ key, value })
 }
 
-export function getUserSettingsRecord(
-  db: AppDatabase,
-  userId: string,
-): AISettings {
+export function getUserSettingsRecord(db: AppDatabase, userId: string): AISettings {
   ensureAppTables(db)
   const row = db
     .prepare<{ userId: string }, UserSettingsRow>(
@@ -386,12 +356,10 @@ export function upsertUserSettingsRecord(
   const settings = normalizeAISettings({
     tone: input.tone ?? currentSettings.tone,
     focus: input.focus ?? currentSettings.focus,
-    externalOpenness:
-      input.externalOpenness ?? currentSettings.externalOpenness,
+    externalOpenness: input.externalOpenness ?? currentSettings.externalOpenness,
     responseStyle: input.responseStyle ?? currentSettings.responseStyle,
     language: input.language ?? currentSettings.language,
-    additionalInstructions:
-      input.additionalInstructions ?? currentSettings.additionalInstructions,
+    additionalInstructions: input.additionalInstructions ?? currentSettings.additionalInstructions,
   })
   db.prepare(
     `
@@ -446,10 +414,7 @@ export function upsertUserSettings(userId: string, input: AISettingsInput) {
   return upsertUserSettingsRecord(getDatabase(), userId, input)
 }
 
-export function getUserLibrarySettingsRecord(
-  db: AppDatabase,
-  userId: string,
-): UserLibrarySettings {
+export function getUserLibrarySettingsRecord(db: AppDatabase, userId: string): UserLibrarySettings {
   ensureAppTables(db)
   const row = db
     .prepare<{ userId: string }, UserLibrarySettingsRow>(
@@ -527,17 +492,14 @@ export function getUserAIProviderSettingsRecord(
     .get({ userId })
 
   const primaryProvider = normalizeAIPrimaryProvider(row?.primary_provider)
-  const primaryApiKeyProvider = normalizeAIPrimaryProvider(
-    row?.primary_api_key_provider,
-  )
+  const primaryApiKeyProvider = normalizeAIPrimaryProvider(row?.primary_api_key_provider)
   const primaryApiKeyConfigured = Boolean(
     row?.primary_api_key_encrypted && primaryApiKeyProvider === primaryProvider,
   )
 
   return {
     anthropicModel: row?.anthropic_model ?? DEFAULT_ANTHROPIC_MODEL,
-    compatibleBaseUrl:
-      row?.compatible_base_url ?? DEFAULT_COMPATIBLE_BASE_URL,
+    compatibleBaseUrl: row?.compatible_base_url ?? DEFAULT_COMPATIBLE_BASE_URL,
     compatibleModel: row?.compatible_model ?? DEFAULT_COMPATIBLE_MODEL,
     fallbackApiKeyConfigured: Boolean(row?.fallback_api_key_encrypted),
     fallbackEnabled: Boolean(row?.fallback_enabled ?? 0),
@@ -563,10 +525,7 @@ export function getUserAIPrimaryProviderSecretRecord(
   const row = db
     .prepare<
       { userId: string },
-      Pick<
-        UserAIProviderSettingsRow,
-        'primary_api_key_encrypted' | 'primary_api_key_provider'
-      >
+      Pick<UserAIProviderSettingsRow, 'primary_api_key_encrypted' | 'primary_api_key_provider'>
     >(
       `
         SELECT primary_api_key_encrypted, primary_api_key_provider
@@ -583,10 +542,7 @@ export function getUserAIPrimaryProviderSecretRecord(
   return decryptSecret(row?.primary_api_key_encrypted)
 }
 
-export function getUserAIProviderSecretRecord(
-  db: AppDatabase,
-  userId: string,
-) {
+export function getUserAIProviderSecretRecord(db: AppDatabase, userId: string) {
   ensureAppTables(db)
   const row = db
     .prepare<{ userId: string }, Pick<UserAIProviderSettingsRow, 'fallback_api_key_encrypted'>>(
@@ -611,44 +567,29 @@ export function upsertUserAIProviderSettingsRecord(
   const primaryProvider = normalizeAIPrimaryProvider(
     input.primaryProvider ?? current.primaryProvider,
   )
-  const openaiModel =
-    input.openaiModel?.trim() || current.openaiModel || DEFAULT_OPENAI_MODEL
+  const openaiModel = input.openaiModel?.trim() || current.openaiModel || DEFAULT_OPENAI_MODEL
   const anthropicModel =
-    input.anthropicModel?.trim() ||
-    current.anthropicModel ||
-    DEFAULT_ANTHROPIC_MODEL
+    input.anthropicModel?.trim() || current.anthropicModel || DEFAULT_ANTHROPIC_MODEL
   const openrouterModel =
-    input.openrouterModel?.trim() ||
-    current.openrouterModel ||
-    DEFAULT_OPENROUTER_MODEL
+    input.openrouterModel?.trim() || current.openrouterModel || DEFAULT_OPENROUTER_MODEL
   const compatibleBaseUrl =
     input.compatibleBaseUrl?.trim().replace(/\/+$/, '') ||
     current.compatibleBaseUrl ||
     DEFAULT_COMPATIBLE_BASE_URL
   const compatibleModel =
-    input.compatibleModel?.trim() ||
-    current.compatibleModel ||
-    DEFAULT_COMPATIBLE_MODEL
+    input.compatibleModel?.trim() || current.compatibleModel || DEFAULT_COMPATIBLE_MODEL
   const fallbackModel =
-    input.fallbackModel?.trim() ||
-    current.fallbackModel ||
-    DEFAULT_OPENROUTER_MODEL
+    input.fallbackModel?.trim() || current.fallbackModel || DEFAULT_OPENROUTER_MODEL
   const ollamaBaseUrl =
     input.ollamaBaseUrl?.trim().replace(/\/+$/, '') ||
     current.ollamaBaseUrl ||
     DEFAULT_OLLAMA_BASE_URL
-  const ollamaModel =
-    input.ollamaModel?.trim() || current.ollamaModel || DEFAULT_OLLAMA_MODEL
+  const ollamaModel = input.ollamaModel?.trim() || current.ollamaModel || DEFAULT_OLLAMA_MODEL
   const fallbackEnabled =
-    typeof input.fallbackEnabled === 'boolean'
-      ? input.fallbackEnabled
-      : current.fallbackEnabled
+    typeof input.fallbackEnabled === 'boolean' ? input.fallbackEnabled : current.fallbackEnabled
   const visionEnabled =
-    typeof input.visionEnabled === 'boolean'
-      ? input.visionEnabled
-      : current.visionEnabled
-  const visionModel =
-    input.visionModel?.trim() || current.visionModel || DEFAULT_VISION_MODEL
+    typeof input.visionEnabled === 'boolean' ? input.visionEnabled : current.visionEnabled
+  const visionModel = input.visionModel?.trim() || current.visionModel || DEFAULT_VISION_MODEL
   const encryptedKey =
     input.fallbackApiKey && input.fallbackApiKey.trim()
       ? encryptSecret(input.fallbackApiKey.trim())
@@ -663,9 +604,7 @@ export function upsertUserAIProviderSettingsRecord(
       { userId: string },
       Pick<
         UserAIProviderSettingsRow,
-        | 'fallback_api_key_encrypted'
-        | 'primary_api_key_encrypted'
-        | 'primary_api_key_provider'
+        'fallback_api_key_encrypted' | 'primary_api_key_encrypted' | 'primary_api_key_provider'
       >
     >(
       `
@@ -744,8 +683,7 @@ export function upsertUserAIProviderSettingsRecord(
     anthropicModel,
     compatibleBaseUrl,
     compatibleModel,
-    fallbackApiKeyEncrypted:
-      encryptedKey ?? existingSecrets?.fallback_api_key_encrypted ?? null,
+    fallbackApiKeyEncrypted: encryptedKey ?? existingSecrets?.fallback_api_key_encrypted ?? null,
     fallbackEnabled: fallbackEnabled ? 1 : 0,
     fallbackModel,
     ollamaBaseUrl,
@@ -753,12 +691,10 @@ export function upsertUserAIProviderSettingsRecord(
     openaiModel,
     openrouterModel,
     primaryApiKeyEncrypted:
-      encryptedPrimaryKey ??
-      existingSecrets?.primary_api_key_encrypted ??
-      null,
+      encryptedPrimaryKey ?? existingSecrets?.primary_api_key_encrypted ?? null,
     primaryApiKeyProvider: encryptedPrimaryKey
       ? primaryProvider
-      : existingSecrets?.primary_api_key_provider ?? null,
+      : (existingSecrets?.primary_api_key_provider ?? null),
     primaryProvider,
     updatedAt: new Date().toISOString(),
     userId,
@@ -777,17 +713,11 @@ export function getUserAIProviderSecret(userId: string) {
   return getUserAIProviderSecretRecord(getDatabase(), userId)
 }
 
-export function getUserAIPrimaryProviderSecret(
-  userId: string,
-  provider: AIPrimaryProvider,
-) {
+export function getUserAIPrimaryProviderSecret(userId: string, provider: AIPrimaryProvider) {
   return getUserAIPrimaryProviderSecretRecord(getDatabase(), userId, provider)
 }
 
-export function upsertUserAIProviderSettings(
-  userId: string,
-  input: AIProviderSettingsInput,
-) {
+export function upsertUserAIProviderSettings(userId: string, input: AIProviderSettingsInput) {
   return upsertUserAIProviderSettingsRecord(getDatabase(), userId, input)
 }
 

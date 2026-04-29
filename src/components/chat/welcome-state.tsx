@@ -29,10 +29,7 @@ export function WelcomeState({ bookCount }: WelcomeStateProps) {
   return (
     <div className="flex flex-1 flex-col items-center justify-start gap-5 px-4 pb-10 pt-24 text-center sm:justify-center sm:py-16 md:py-24">
       <div className="brand-inset hidden h-14 w-14 items-center justify-center text-muted-foreground sm:flex sm:h-18 sm:w-18">
-        <BookHeart
-          className="h-6 w-6 sm:h-8 sm:w-8"
-          aria-hidden="true"
-        />
+        <BookHeart className="h-6 w-6 sm:h-8 sm:w-8" aria-hidden="true" />
       </div>
       <h2 className="section-title max-w-2xl text-balance text-foreground">
         {copy.welcome.heading}

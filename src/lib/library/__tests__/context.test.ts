@@ -137,7 +137,7 @@ describe('loadLibraryContext', () => {
     await fs.writeFile(
       filepath,
       `---\ntitle: Livro Longo\nauthor: Autor\nstatus: lido\nadded_at: "2026-01-01"\n---\n\n${longBody}\n`,
-      'utf-8'
+      'utf-8',
     )
     try {
       process.env.LIBRARY_DIR = longDir
@@ -169,8 +169,8 @@ describe('loadLibraryContext', () => {
     // warning must have been emitted
     expect(warnSpy).toHaveBeenCalled()
     const warnCalls = warnSpy.mock.calls.map((args) => args.join(' '))
-    const hasParseWarn = warnCalls.some((msg) =>
-      msg.includes('[LibraryContext]') && msg.toLowerCase().includes('z-malformado')
+    const hasParseWarn = warnCalls.some(
+      (msg) => msg.includes('[LibraryContext]') && msg.toLowerCase().includes('z-malformado'),
     )
     expect(hasParseWarn).toBe(true)
   })

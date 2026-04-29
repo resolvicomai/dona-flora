@@ -20,12 +20,8 @@ export function SidebarEmptyState() {
       <div className="brand-inset flex h-16 w-16 items-center justify-center text-muted-foreground">
         <MessagesSquare className="h-7 w-7" aria-hidden="true" />
       </div>
-      <h2 className="text-xl font-semibold text-foreground">
-        {copy.sidebar.emptyTitle}
-      </h2>
-      <p className="max-w-sm text-sm leading-7 text-muted-foreground">
-        {copy.sidebar.emptyBody}
-      </p>
+      <h2 className="text-xl font-semibold text-foreground">{copy.sidebar.emptyTitle}</h2>
+      <p className="max-w-sm text-sm leading-7 text-muted-foreground">{copy.sidebar.emptyBody}</p>
     </div>
   )
 }

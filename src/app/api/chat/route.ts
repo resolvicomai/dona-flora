@@ -9,10 +9,7 @@ import {
   type UIDataTypes,
 } from 'ai'
 import { z } from 'zod'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
 import { getUserSettings } from '@/lib/auth/db'
 import { buildAISettingsDirective } from '@/lib/ai/settings'
 import { loadLibraryContext } from '@/lib/library/context'
@@ -24,10 +21,7 @@ import {
   ExternalPreferenceSchema,
 } from '@/lib/ai/external-preference'
 import { librarianTools, type LibrarianTools } from '@/lib/ai/tools'
-import {
-  AIProviderConfigurationError,
-  resolveChatModelForUser,
-} from '@/lib/ai/provider'
+import { AIProviderConfigurationError, resolveChatModelForUser } from '@/lib/ai/provider'
 import type { LibrarianMessage } from '@/lib/chats/types'
 
 /**
@@ -53,11 +47,7 @@ const MAX_OUTPUT_TOKENS = 3000
 
 // Re-exported client types (Plan 06 client imports from this route).
 export type { LibrarianTools }
-export type LibrarianClientMessage = UIMessage<
-  never,
-  UIDataTypes,
-  LibrarianTools
->
+export type LibrarianClientMessage = UIMessage<never, UIDataTypes, LibrarianTools>
 
 // CR-02: Shape-validate inbound `messages` at the boundary instead of
 // trusting client JSON. A malicious client could otherwise persist
@@ -85,62 +75,61 @@ const MAX_MESSAGES = 200
 // for forward-compat but refuse completely unknown tool-* shapes so a
 // malicious client cannot smuggle arbitrary tool outputs into the
 // persistence layer.
-const MessagePartSchema: z.ZodType<unknown> = z.unknown().superRefine(
-  (raw, ctx) => {
-    if (!raw || typeof raw !== 'object') {
-      ctx.addIssue({ code: 'custom', message: 'part must be an object' })
+const MessagePartSchema: z.ZodType<unknown> = z.unknown().superRefine((raw, ctx) => {
+  if (!raw || typeof raw !== 'object') {
+    ctx.addIssue({ code: 'custom', message: 'part must be an object' })
+    return
+  }
+  const part = raw as { type?: unknown; text?: unknown; output?: unknown }
+  const t = part.type
+  if (typeof t !== 'string') {
+    ctx.addIssue({ code: 'custom', message: 'part.type must be a string' })
+    return
+  }
+  if (t === 'text') {
+    if (typeof part.text !== 'string') {
+      ctx.addIssue({ code: 'custom', message: 'text part missing .text' })
       return
     }
-    const part = raw as { type?: unknown; text?: unknown; output?: unknown }
-    const t = part.type
-    if (typeof t !== 'string') {
-      ctx.addIssue({ code: 'custom', message: 'part.type must be a string' })
-      return
+    if (part.text.length > MAX_TEXT_CHARS) {
+      ctx.addIssue({ code: 'custom', message: 'text exceeds MAX_TEXT_CHARS' })
     }
-    if (t === 'text') {
-      if (typeof part.text !== 'string') {
-        ctx.addIssue({ code: 'custom', message: 'text part missing .text' })
-        return
+    return
+  }
+  if (t === 'tool-render_library_book_card') {
+    const out = part.output as { slug?: unknown } | undefined
+    if (out && out.slug !== undefined) {
+      if (typeof out.slug !== 'string' || !KEBAB_SLUG.test(out.slug) || out.slug.length > 200) {
+        ctx.addIssue({ code: 'custom', message: 'invalid slug in library-card part' })
       }
-      if (part.text.length > MAX_TEXT_CHARS) {
-        ctx.addIssue({ code: 'custom', message: 'text exceeds MAX_TEXT_CHARS' })
+    }
+    return
+  }
+  if (t === 'tool-render_external_book_mention') {
+    const out = part.output as { title?: unknown; author?: unknown; reason?: unknown } | undefined
+    if (out) {
+      if (out.title !== undefined && (typeof out.title !== 'string' || out.title.length > 500)) {
+        ctx.addIssue({ code: 'custom', message: 'external title too long' })
       }
-      return
-    }
-    if (t === 'tool-render_library_book_card') {
-      const out = part.output as { slug?: unknown } | undefined
-      if (out && out.slug !== undefined) {
-        if (typeof out.slug !== 'string' || !KEBAB_SLUG.test(out.slug) || out.slug.length > 200) {
-          ctx.addIssue({ code: 'custom', message: 'invalid slug in library-card part' })
-        }
+      if (out.author !== undefined && (typeof out.author !== 'string' || out.author.length > 500)) {
+        ctx.addIssue({ code: 'custom', message: 'external author too long' })
       }
-      return
-    }
-    if (t === 'tool-render_external_book_mention') {
-      const out = part.output as
-        | { title?: unknown; author?: unknown; reason?: unknown }
-        | undefined
-      if (out) {
-        if (out.title !== undefined && (typeof out.title !== 'string' || out.title.length > 500)) {
-          ctx.addIssue({ code: 'custom', message: 'external title too long' })
-        }
-        if (out.author !== undefined && (typeof out.author !== 'string' || out.author.length > 500)) {
-          ctx.addIssue({ code: 'custom', message: 'external author too long' })
-        }
-        if (out.reason !== undefined && (typeof out.reason !== 'string' || out.reason.length > 1000)) {
-          ctx.addIssue({ code: 'custom', message: 'external reason too long' })
-        }
+      if (
+        out.reason !== undefined &&
+        (typeof out.reason !== 'string' || out.reason.length > 1000)
+      ) {
+        ctx.addIssue({ code: 'custom', message: 'external reason too long' })
       }
-      return
     }
-    // Forward-compat: accept other useChat-emitted parts (reasoning,
-    // step-start, dynamic-tool, etc.) opaquely — but still bound any
-    // stringy `text` field if present.
-    if (typeof part.text === 'string' && part.text.length > MAX_TEXT_CHARS) {
-      ctx.addIssue({ code: 'custom', message: 'generic part text exceeds MAX_TEXT_CHARS' })
-    }
-  },
-)
+    return
+  }
+  // Forward-compat: accept other useChat-emitted parts (reasoning,
+  // step-start, dynamic-tool, etc.) opaquely — but still bound any
+  // stringy `text` field if present.
+  if (typeof part.text === 'string' && part.text.length > MAX_TEXT_CHARS) {
+    ctx.addIssue({ code: 'custom', message: 'generic part text exceeds MAX_TEXT_CHARS' })
+  }
+})
 
 const InboundMessageSchema = z
   .object({
@@ -178,7 +167,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -197,8 +186,7 @@ export async function POST(request: NextRequest) {
       loadConversationMemoryContext(storageContext, chatId),
       Promise.resolve(getUserSettings(session.user.id)),
     ])
-    const externalPreferenceDirective =
-      buildExternalPreferenceDirective(externalPreference)
+    const externalPreferenceDirective = buildExternalPreferenceDirective(externalPreference)
     const aiSettingsDirective = buildAISettingsDirective(aiSettings)
     const resolvedModel = await resolveChatModelForUser(session.user.id)
 
@@ -221,14 +209,11 @@ export async function POST(request: NextRequest) {
     //   a future minor release.
     const systemMessage = {
       role: 'system' as const,
-      content: buildSystemPrompt(
-        libraryContext,
-        {
-          aiSettingsDirective,
-          conversationMemory,
-          externalPreferenceDirective,
-        },
-      ),
+      content: buildSystemPrompt(libraryContext, {
+        aiSettingsDirective,
+        conversationMemory,
+        externalPreferenceDirective,
+      }),
       ...(resolvedModel.provider === 'openrouter'
         ? {
             providerOptions: {
@@ -277,9 +262,6 @@ export async function POST(request: NextRequest) {
     }
 
     console.error('[API] POST /api/chat error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao gerar resposta.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro ao gerar resposta.' }, { status: 500 })
   }
 }

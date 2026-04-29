@@ -30,10 +30,7 @@ interface ProviderTestResult {
   ok: boolean
 }
 
-export async function listOpenAICompatibleModels(
-  baseUrl: string,
-  apiKey?: string | null,
-) {
+export async function listOpenAICompatibleModels(baseUrl: string, apiKey?: string | null) {
   const response = await fetch(`${baseUrl.replace(/\/+$/, '')}/models`, {
     headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined,
     signal: AbortSignal.timeout(2500),
@@ -120,9 +117,7 @@ async function listOpenRouterModels(apiKey?: string | null) {
   })
 
   if (!response.ok) {
-    throw new AIProviderConfigurationError(
-      `OpenRouter respondeu com status ${response.status}.`,
-    )
+    throw new AIProviderConfigurationError(`OpenRouter respondeu com status ${response.status}.`)
   }
 
   const payload = (await response.json()) as {
@@ -139,10 +134,7 @@ async function listOpenRouterModels(apiKey?: string | null) {
     .filter((model): model is OpenAICompatibleModelInfo => model !== null)
 }
 
-export async function testOpenAICompatibleProvider(
-  baseUrl: string,
-  apiKey?: string | null,
-) {
+export async function testOpenAICompatibleProvider(baseUrl: string, apiKey?: string | null) {
   try {
     const models = await listOpenAICompatibleModels(baseUrl, apiKey)
     return {
@@ -151,10 +143,7 @@ export async function testOpenAICompatibleProvider(
     }
   } catch (err) {
     return {
-      error:
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível conectar ao provedor local.',
+      error: err instanceof Error ? err.message : 'Não foi possível conectar ao provedor local.',
       models: [],
       ok: false as const,
     }
@@ -198,20 +187,14 @@ export async function testAIProviderConnection({
     return { models: await listOpenRouterModels(apiKey), ok: true }
   } catch (err) {
     return {
-      error:
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível conectar ao provedor.',
+      error: err instanceof Error ? err.message : 'Não foi possível conectar ao provedor.',
       models: [],
       ok: false,
     }
   }
 }
 
-async function isOpenAICompatibleServerReachable(
-  baseUrl: string,
-  apiKey?: string | null,
-) {
+async function isOpenAICompatibleServerReachable(baseUrl: string, apiKey?: string | null) {
   try {
     const response = await fetch(`${baseUrl.replace(/\/+$/, '')}/models`, {
       headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined,
@@ -269,16 +252,8 @@ export async function resolveChatModelForUser(userId: string) {
   }
 
   if (settings.primaryProvider === 'openai-compatible') {
-    const apiKey = getUserAIPrimaryProviderSecret(
-      userId,
-      settings.primaryProvider,
-    )
-    if (
-      await isOpenAICompatibleServerReachable(
-        settings.compatibleBaseUrl,
-        apiKey,
-      )
-    ) {
+    const apiKey = getUserAIPrimaryProviderSecret(userId, settings.primaryProvider)
+    if (await isOpenAICompatibleServerReachable(settings.compatibleBaseUrl, apiKey)) {
       const compatible = createOpenAICompatible({
         ...(apiKey ? { apiKey } : {}),
         baseURL: settings.compatibleBaseUrl,
@@ -334,8 +309,7 @@ export async function resolveChatModelForUser(userId: string) {
 
   if (settings.primaryProvider === 'openrouter') {
     const apiKey =
-      getUserAIPrimaryProviderSecret(userId, 'openrouter') ??
-      getUserAIProviderSecret(userId)
+      getUserAIPrimaryProviderSecret(userId, 'openrouter') ?? getUserAIProviderSecret(userId)
     if (!apiKey) {
       throw new AIProviderConfigurationError(
         'OpenRouter foi escolhido, mas nenhuma chave foi configurada.',
@@ -381,8 +355,7 @@ export function resolveVisionModelForUser(userId: string) {
   }
 
   const apiKey =
-    getUserAIProviderSecret(userId) ??
-    getUserAIPrimaryProviderSecret(userId, 'openrouter')
+    getUserAIProviderSecret(userId) ?? getUserAIPrimaryProviderSecret(userId, 'openrouter')
   if (!apiKey) {
     throw new AIProviderConfigurationError(
       'Importação por foto exige uma chave externa configurada pelo usuário.',

@@ -51,9 +51,7 @@ export function MessageErrorState({ error, onRetry }: MessageErrorStateProps) {
         <AlertCircle className="h-4 w-4" aria-hidden="true" />
         <p className="text-sm font-semibold">{copy.error.title}</p>
       </div>
-      <p className="text-sm leading-7 text-muted-foreground">
-        {helpfulMessage}
-      </p>
+      <p className="text-sm leading-7 text-muted-foreground">{helpfulMessage}</p>
       <Button onClick={onRetry} variant="secondary" size="sm">
         {copy.error.retry}
       </Button>

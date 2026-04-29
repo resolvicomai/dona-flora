@@ -12,10 +12,7 @@
  */
 export function TypingDots() {
   return (
-    <span
-      className="inline-flex items-center gap-1.5 px-1 py-2"
-      aria-hidden="true"
-    >
+    <span className="inline-flex items-center gap-1.5 px-1 py-2" aria-hidden="true">
       {[0, 200, 400].map((delay) => (
         <span
           key={delay}

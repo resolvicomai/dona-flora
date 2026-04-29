@@ -363,8 +363,7 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       cancel: '取消',
       deleteAria: (title) => `删除对话 ${title}`,
       deleteConfirm: '删除对话',
-      deleteDescription: (title) =>
-        `对话“${title}”将从磁盘永久删除。此操作无法撤销。`,
+      deleteDescription: (title) => `对话“${title}”将从磁盘永久删除。此操作无法撤销。`,
       deleteError: '无法删除此对话。',
       deleteTitle: '删除此对话？',
       deleting: '删除中…',
@@ -383,8 +382,7 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       newConversation: '新对话',
       openHistoryAria: '打开对话历史',
       responding: 'Dona Flora 正在回复。',
-      seedBook: (title, author) =>
-        `请和我聊聊 ${author} 的《${title}》。你觉得我这次选择怎么样？`,
+      seedBook: (title, author) => `请和我聊聊 ${author} 的《${title}》。你觉得我这次选择怎么样？`,
     },
     messageList: {
       thinkingAria: 'Dona Flora 正在思考',
@@ -417,8 +415,7 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       heading: '你好！我是 Dona Flora，你的图书管理员。',
       pluralBody: (count) =>
         `这里有 ${count} 本书。我可以帮你选择下一本、围绕某个主题整理阅读路线，或者聊聊你已经读过的书。你现在想从哪里开始？`,
-      singularBody:
-        '这里有 1 本书。我可以帮你思考它，也可以聊聊之后的阅读。你想怎么开始？',
+      singularBody: '这里有 1 本书。我可以帮你思考它，也可以聊聊之后的阅读。你想怎么开始？',
     },
   },
 }

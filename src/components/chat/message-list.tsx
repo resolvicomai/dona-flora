@@ -37,13 +37,7 @@ type LooseMessagePart = any
  *    when the scroll position changes — we just need the latest flag when
  *    deciding whether to auto-scroll on new messages.
  */
-export function MessageList({
-  messages,
-  status,
-  error,
-  onRetry,
-  bookCount,
-}: MessageListProps) {
+export function MessageList({ messages, status, error, onRetry, bookCount }: MessageListProps) {
   const { locale } = useAppLanguage()
   const copy = getChatCopy(locale)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -52,8 +46,7 @@ export function MessageList({
   function handleScroll() {
     const el = scrollRef.current
     if (!el) return
-    const near =
-      el.scrollTop + el.clientHeight >= el.scrollHeight - 120
+    const near = el.scrollTop + el.clientHeight >= el.scrollHeight - 120
     isAtBottomRef.current = near
   }
 
@@ -67,24 +60,16 @@ export function MessageList({
 
   const visibleMessages = messages.filter(hasVisibleMessageContent)
   const lastMessage = visibleMessages[visibleMessages.length - 1]
-  const lastMessageText =
-    lastMessage?.role === 'assistant'
-      ? getMessageText(lastMessage)
-      : ''
+  const lastMessageText = lastMessage?.role === 'assistant' ? getMessageText(lastMessage) : ''
   const isAssistantStreaming =
-    status === 'streaming' &&
-    lastMessage?.role === 'assistant' &&
-    lastMessageText.trim().length > 0
+    status === 'streaming' && lastMessage?.role === 'assistant' && lastMessageText.trim().length > 0
   const shouldShowThinkingBubble =
     (status === 'submitted' || status === 'streaming') &&
     (!lastMessage || lastMessage.role === 'user')
 
   // aria-live mirror of the current assistant message's text; browsers throttle
   // polite announcements natively, so we just reflect the latest concatenated text.
-  const announceText =
-    lastMessage?.role === 'assistant'
-      ? lastMessageText
-      : ''
+  const announceText = lastMessage?.role === 'assistant' ? lastMessageText : ''
 
   return (
     <div
@@ -101,9 +86,7 @@ export function MessageList({
               <MessageBubble
                 key={m.id ?? i}
                 message={m}
-                isLastAssistantStreaming={
-                  isAssistantStreaming && i === visibleMessages.length - 1
-                }
+                isLastAssistantStreaming={isAssistantStreaming && i === visibleMessages.length - 1}
               />
             ))}
             {shouldShowThinkingBubble && (
@@ -118,17 +101,11 @@ export function MessageList({
                 </div>
               </div>
             )}
-            {status === 'error' && (
-              <MessageErrorState error={error} onRetry={onRetry} />
-            )}
+            {status === 'error' && <MessageErrorState error={error} onRetry={onRetry} />}
           </>
         )}
 
-        <div
-          aria-live="polite"
-          aria-atomic="false"
-          className="sr-only"
-        >
+        <div aria-live="polite" aria-atomic="false" className="sr-only">
           {announceText}
         </div>
       </div>

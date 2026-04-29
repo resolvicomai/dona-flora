@@ -4,11 +4,7 @@ import type { ReactNode } from 'react'
 import { Check, Star } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import {
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-} from '@/components/ui/popover'
+import { PopoverDescription, PopoverHeader, PopoverTitle } from '@/components/ui/popover'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FilterChip } from '@/components/filter-chip'
 import { FilterResetButton } from '@/components/filter-reset-button'
@@ -270,7 +266,10 @@ export function FilterBar({
               {statusOptions.map((opt) => (
                 <ToggleGroupItem key={opt.value} value={opt.value} className={groupOptionClassName}>
                   <span>{opt.label}</span>
-                  <Check className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100" aria-hidden="true" />
+                  <Check
+                    className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100"
+                    aria-hidden="true"
+                  />
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
@@ -308,9 +307,7 @@ export function FilterBar({
               value={ratingStringValue}
               onValueChange={(next) =>
                 onChange({
-                  rating: next
-                    .map((n) => Number(n))
-                    .filter((n) => !Number.isNaN(n)),
+                  rating: next.map((n) => Number(n)).filter((n) => !Number.isNaN(n)),
                 })
               }
               spacing={4}
@@ -322,7 +319,10 @@ export function FilterBar({
                     {opt.leading}
                     <span>{copy.rating.option(opt.value)}</span>
                   </span>
-                  <Check className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100" aria-hidden="true" />
+                  <Check
+                    className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100"
+                    aria-hidden="true"
+                  />
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
@@ -365,9 +365,16 @@ export function FilterBar({
                   className="flex flex-col gap-1"
                 >
                   {genreOptions.map((opt) => (
-                    <ToggleGroupItem key={opt.value} value={opt.value} className={groupOptionClassName}>
+                    <ToggleGroupItem
+                      key={opt.value}
+                      value={opt.value}
+                      className={groupOptionClassName}
+                    >
                       <span className="truncate">{opt.label}</span>
-                      <Check className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100" aria-hidden="true" />
+                      <Check
+                        className="size-3.5 opacity-0 transition-opacity group-data-[pressed]:opacity-100"
+                        aria-hidden="true"
+                      />
                     </ToggleGroupItem>
                   ))}
                 </ToggleGroup>

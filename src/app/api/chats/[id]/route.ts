@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
 import { deleteChat, updateChatMetadata } from '@/lib/chats/store'
 
 /**
@@ -29,10 +26,7 @@ const UpdateChatSchema = z
     message: 'Informe título ou fixação.',
   })
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await requireVerifiedRequestSession(request)
   if (!authResult.ok) {
     return authResult.response
@@ -72,17 +66,11 @@ export async function PATCH(
     return NextResponse.json({ ok: true, chat })
   } catch (err) {
     console.error('[API] PATCH /api/chats/[id] error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao atualizar conversa.' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'Erro ao atualizar conversa.' }, { status: 500 })
   }
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await requireVerifiedRequestSession(_request)
   if (!authResult.ok) {
     return authResult.response
@@ -96,19 +84,13 @@ export async function DELETE(
   }
 
   try {
-    const removed = await deleteChat(
-      parsed.data,
-      getSessionStorageContext(session),
-    )
+    const removed = await deleteChat(parsed.data, getSessionStorageContext(session))
     if (!removed) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
     return new NextResponse(null, { status: 204 })
   } catch (err) {
     console.error('[API] DELETE /api/chats/[id] error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao excluir conversa.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro ao excluir conversa.' }, { status: 500 })
   }
 }

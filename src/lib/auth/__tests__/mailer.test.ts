@@ -1,10 +1,7 @@
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
-import {
-  findLatestLocalAuthLink,
-  isLocalAuthInboxEnabled,
-} from '@/lib/auth/mailer'
+import { findLatestLocalAuthLink, isLocalAuthInboxEnabled } from '@/lib/auth/mailer'
 
 describe('local auth inbox helpers', () => {
   const originalDataDir = process.env.DATA_DIR
@@ -38,19 +35,13 @@ describe('local auth inbox helpers', () => {
     await fs.mkdir(outboxDir, { recursive: true })
 
     await fs.writeFile(
-      path.join(
-        outboxDir,
-        '2026-04-20T10-00-00-000Z-verify-email-voce@example.com.txt',
-      ),
+      path.join(outboxDir, '2026-04-20T10-00-00-000Z-verify-email-voce@example.com.txt'),
       'url: http://localhost:3000/verify-email?token=older\n',
       'utf-8',
     )
 
     await fs.writeFile(
-      path.join(
-        outboxDir,
-        '2026-04-20T10-05-00-000Z-verify-email-voce@example.com.txt',
-      ),
+      path.join(outboxDir, '2026-04-20T10-05-00-000Z-verify-email-voce@example.com.txt'),
       'url: http://localhost:3000/verify-email?token=newer\n',
       'utf-8',
     )

@@ -17,11 +17,7 @@ const APP_LANGUAGE_SWITCH_OPTIONS: Array<{
   { label: '中文', value: 'zh-CN' },
 ]
 
-export function AppLanguageSwitcher({
-  mode = 'remote',
-}: {
-  mode?: 'local' | 'remote'
-}) {
+export function AppLanguageSwitcher({ mode = 'remote' }: { mode?: 'local' | 'remote' }) {
   const router = useRouter()
   const { copy, locale, setLocale } = useAppLanguage()
   const [activeLocale, setActiveLocale] = useState(locale)

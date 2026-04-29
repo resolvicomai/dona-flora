@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
 import { getBook, updateBook } from '@/lib/books/library-service'
 import { BookStatusEnum } from '@/lib/books/schema'
 
 export const dynamic = 'force-dynamic'
 
-const BookSlugSchema = z
-  .string()
-  .regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/, 'Slug invalido.')
+const BookSlugSchema = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/, 'Slug invalido.')
 
 const TagsSchema = z.array(z.string().trim().min(1)).max(40)
 
@@ -27,9 +22,7 @@ const BulkBookUpdatesSchema = z
     tags: TagsSchema.optional().nullable(),
   })
   .superRefine((updates, ctx) => {
-    const keys = Object.entries(updates).filter(
-      ([, value]) => value !== undefined,
-    )
+    const keys = Object.entries(updates).filter(([, value]) => value !== undefined)
     if (keys.length === 0) {
       ctx.addIssue({
         code: 'custom',
@@ -72,9 +65,7 @@ function mergeTags(
   mode: 'replace' | 'add' | 'remove' | undefined,
 ) {
   if (incoming === undefined) return undefined
-  const normalizedIncoming = (incoming ?? [])
-    .map(normalizeTag)
-    .filter(Boolean)
+  const normalizedIncoming = (incoming ?? []).map(normalizeTag).filter(Boolean)
 
   if (!mode || mode === 'replace') {
     return normalizedIncoming.length > 0 ? normalizedIncoming : null
@@ -152,9 +143,6 @@ export async function PATCH(request: NextRequest) {
     )
   } catch (err) {
     console.error('[API] PATCH /api/books/bulk error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao atualizar livros em massa.' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: 'Erro ao atualizar livros em massa.' }, { status: 500 })
   }
 }

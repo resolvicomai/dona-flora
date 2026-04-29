@@ -26,70 +26,48 @@ export async function POST(request: NextRequest) {
     body = await request.json()
   } catch (err) {
     console.error('[API] POST /api/books/search invalid JSON:', err)
-    return NextResponse.json(
-      { error: 'Invalid JSON body' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
   const result = SearchSchema.safeParse(body)
   if (!result.success) {
     return NextResponse.json(
       { error: 'Validation failed', details: result.error.flatten() },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
   const limit = 20
-  const requestedLanguage =
-    result.data.language === 'all' ? undefined : result.data.language
+  const requestedLanguage = result.data.language === 'all' ? undefined : result.data.language
   let results: BookSearchResult[] = []
   let googleError: unknown = null
   try {
     results = requestedLanguage
-      ? await searchGoogleBooks(
-          result.data.query,
-          limit,
-          result.data.startIndex,
-          requestedLanguage,
-        )
-      : await searchGoogleBooks(
-          result.data.query,
-          limit,
-          result.data.startIndex,
-        )
+      ? await searchGoogleBooks(result.data.query, limit, result.data.startIndex, requestedLanguage)
+      : await searchGoogleBooks(result.data.query, limit, result.data.startIndex)
   } catch (err) {
     googleError = err
     console.warn(
       '[API] Google Books failed, falling back to Open Library:',
-      err instanceof Error ? err.message : err
+      err instanceof Error ? err.message : err,
     )
   }
 
   if (results.length === 0) {
     try {
       results = requestedLanguage
-        ? await searchOpenLibrary(
-            result.data.query,
-            limit,
-            result.data.page,
-            requestedLanguage,
-          )
-        : await searchOpenLibrary(
-            result.data.query,
-            limit,
-            result.data.page,
-          )
+        ? await searchOpenLibrary(result.data.query, limit, result.data.page, requestedLanguage)
+        : await searchOpenLibrary(result.data.query, limit, result.data.page)
     } catch (err) {
       console.error(
         '[API] Both providers failed. Google error:',
         googleError,
         'Open Library error:',
-        err
+        err,
       )
       return NextResponse.json(
         { error: 'Erro ao buscar livros. Tente novamente em instantes.' },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }

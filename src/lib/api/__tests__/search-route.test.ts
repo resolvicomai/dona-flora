@@ -29,12 +29,8 @@ import type { BookSearchResult } from '@/lib/api/google-books'
 jest.mock('@/lib/api/google-books')
 jest.mock('@/lib/api/open-library')
 
-const mockedSearchGoogleBooks = searchGoogleBooks as jest.MockedFunction<
-  typeof searchGoogleBooks
->
-const mockedSearchOpenLibrary = searchOpenLibrary as jest.MockedFunction<
-  typeof searchOpenLibrary
->
+const mockedSearchGoogleBooks = searchGoogleBooks as jest.MockedFunction<typeof searchGoogleBooks>
+const mockedSearchOpenLibrary = searchOpenLibrary as jest.MockedFunction<typeof searchOpenLibrary>
 
 function makeRequest(query: unknown): NextRequest {
   return new NextRequest('http://localhost/api/books/search', {
@@ -103,9 +99,7 @@ describe('POST /api/books/search — resilient fallback', () => {
 
   it('falls back to Open Library when Google throws (503/429/missing key)', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
-    mockedSearchGoogleBooks.mockRejectedValueOnce(
-      new Error('[GoogleBooks] API error: 503')
-    )
+    mockedSearchGoogleBooks.mockRejectedValueOnce(new Error('[GoogleBooks] API error: 503'))
     mockedSearchOpenLibrary.mockResolvedValueOnce([
       { title: 'Dom Casmurro (OL)', authors: ['Machado'], language: 'pt-BR' },
     ])
@@ -125,9 +119,7 @@ describe('POST /api/books/search — resilient fallback', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {})
     jest.spyOn(console, 'warn').mockImplementation(() => {})
     mockedSearchGoogleBooks.mockRejectedValueOnce(new Error('Google down'))
-    mockedSearchOpenLibrary.mockRejectedValueOnce(
-      new Error('Open Library down')
-    )
+    mockedSearchOpenLibrary.mockRejectedValueOnce(new Error('Open Library down'))
 
     const res = await POST(makeRequest('any query'))
     const body = await res.json()
@@ -151,57 +143,35 @@ describe('POST /api/books/search — pagination', () => {
       { title: 'Tolkien', authors: ['JRRT'], language: 'en' },
     ])
 
-    const res = await POST(
-      makeRequestBody({ query: 'tolkien', startIndex: 20 }),
-    )
+    const res = await POST(makeRequestBody({ query: 'tolkien', startIndex: 20 }))
 
     expect(res.status).toBe(200)
-    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith(
-      'tolkien',
-      expect.any(Number),
-      20,
-    )
+    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith('tolkien', expect.any(Number), 20)
   })
 
   it('threads page to searchOpenLibrary on fallback when provided', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
     mockedSearchGoogleBooks.mockResolvedValueOnce([])
-    mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Tolkien OL', authors: ['JRRT'] },
-    ])
+    mockedSearchOpenLibrary.mockResolvedValueOnce([{ title: 'Tolkien OL', authors: ['JRRT'] }])
 
-    const res = await POST(
-      makeRequestBody({ query: 'tolkien', page: 3 }),
-    )
+    const res = await POST(makeRequestBody({ query: 'tolkien', page: 3 }))
 
     expect(res.status).toBe(200)
-    expect(mockedSearchOpenLibrary).toHaveBeenCalledWith(
-      'tolkien',
-      expect.any(Number),
-      3,
-    )
+    expect(mockedSearchOpenLibrary).toHaveBeenCalledWith('tolkien', expect.any(Number), 3)
     warnSpy.mockRestore()
   })
 
   it('defaults startIndex=0 and page=1 when omitted', async () => {
-    mockedSearchGoogleBooks.mockResolvedValueOnce([
-      { title: 'Tolkien', authors: ['JRRT'] },
-    ])
+    mockedSearchGoogleBooks.mockResolvedValueOnce([{ title: 'Tolkien', authors: ['JRRT'] }])
 
     const res = await POST(makeRequestBody({ query: 'tolkien' }))
 
     expect(res.status).toBe(200)
-    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith(
-      'tolkien',
-      expect.any(Number),
-      0,
-    )
+    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith('tolkien', expect.any(Number), 0)
   })
 
   it('returns 400 when startIndex is negative', async () => {
-    const res = await POST(
-      makeRequestBody({ query: 'tolkien', startIndex: -1 }),
-    )
+    const res = await POST(makeRequestBody({ query: 'tolkien', startIndex: -1 }))
 
     expect(res.status).toBe(400)
     expect(mockedSearchGoogleBooks).not.toHaveBeenCalled()
@@ -221,17 +191,10 @@ describe('POST /api/books/search — pagination', () => {
       { title: 'Dune', authors: ['Frank Herbert'], language: 'en' },
     ])
 
-    const res = await POST(
-      makeRequestBody({ query: 'dune', language: 'en' }),
-    )
+    const res = await POST(makeRequestBody({ query: 'dune', language: 'en' }))
 
     expect(res.status).toBe(200)
-    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith(
-      'dune',
-      expect.any(Number),
-      0,
-      'en',
-    )
+    expect(mockedSearchGoogleBooks).toHaveBeenCalledWith('dune', expect.any(Number), 0, 'en')
   })
 
   it('threads language to Open Library on fallback when a book-language filter is provided', async () => {
@@ -240,9 +203,7 @@ describe('POST /api/books/search — pagination', () => {
       { title: 'Cem anos de soledad', authors: ['García Márquez'], language: 'es' },
     ])
 
-    const res = await POST(
-      makeRequestBody({ query: 'garcia marquez', language: 'es' }),
-    )
+    const res = await POST(makeRequestBody({ query: 'garcia marquez', language: 'es' }))
 
     expect(res.status).toBe(200)
     expect(mockedSearchOpenLibrary).toHaveBeenCalledWith(

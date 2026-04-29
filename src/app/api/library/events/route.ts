@@ -1,12 +1,6 @@
 import { NextRequest } from 'next/server'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
-import {
-  isLibraryWatchEnabled,
-  subscribeToLibraryChanges,
-} from '@/lib/library/watch'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
+import { isLibraryWatchEnabled, subscribeToLibraryChanges } from '@/lib/library/watch'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'

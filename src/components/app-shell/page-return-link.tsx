@@ -11,11 +11,7 @@ interface PageReturnLinkProps {
   className?: string
 }
 
-export function PageReturnLink({
-  href = '/',
-  label,
-  className,
-}: PageReturnLinkProps) {
+export function PageReturnLink({ href = '/', label, className }: PageReturnLinkProps) {
   const { locale } = useAppLanguage()
   const defaultLabel = {
     'pt-BR': 'Voltar para Biblioteca',

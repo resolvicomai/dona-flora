@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
-import {
-  BookStatusEnum,
-  DateOnlySchema,
-  ISBN10Schema,
-  ISBN13Schema,
-} from '@/lib/books/schema'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
+import { BookStatusEnum, DateOnlySchema, ISBN10Schema, ISBN13Schema } from '@/lib/books/schema'
 import { writeBook } from '@/lib/books/library-service'
 
 export const dynamic = 'force-dynamic'
 
-const AuthorInputSchema = z.union([
-  z.string().min(1),
-  z.array(z.string().min(1)).min(1),
-])
+const AuthorInputSchema = z.union([z.string().min(1), z.array(z.string().min(1)).min(1)])
 
 const CreateBookSchema = z.object({
   title: z.string().min(1),
@@ -60,19 +49,13 @@ export async function POST(request: NextRequest) {
     if (!result.success) {
       return NextResponse.json(
         { error: 'Validation failed', details: result.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       )
     }
-    const { slug } = await writeBook(
-      result.data,
-      getSessionStorageContext(session),
-    )
+    const { slug } = await writeBook(result.data, getSessionStorageContext(session))
     return NextResponse.json({ slug }, { status: 201 })
   } catch (err) {
     console.error('[API] POST /api/books error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao criar livro.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro ao criar livro.' }, { status: 500 })
   }
 }

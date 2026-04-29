@@ -1,7 +1,4 @@
-import {
-  SYSTEM_PROMPT_STATIC_HEADER,
-  buildSystemPrompt,
-} from '@/lib/ai/system-prompt'
+import { SYSTEM_PROMPT_STATIC_HEADER, buildSystemPrompt } from '@/lib/ai/system-prompt'
 import { librarianTools } from '@/lib/ai/tools'
 
 describe('SYSTEM_PROMPT_STATIC_HEADER', () => {
@@ -13,7 +10,7 @@ describe('SYSTEM_PROMPT_STATIC_HEADER', () => {
     expect(SYSTEM_PROMPT_STATIC_HEADER).toContain('REGRAS INVIOLÁVEIS')
   })
 
-  it("mentions both tool names (render_library_book_card and render_external_book_mention)", () => {
+  it('mentions both tool names (render_library_book_card and render_external_book_mention)', () => {
     expect(SYSTEM_PROMPT_STATIC_HEADER).toContain('render_library_book_card')
     expect(SYSTEM_PROMPT_STATIC_HEADER).toContain('render_external_book_mention')
   })
@@ -69,17 +66,13 @@ describe('buildSystemPrompt', () => {
     expect(out).toContain(
       '<CONVERSATION_MEMORY>\nConversa fixada sobre Tolkien\n</CONVERSATION_MEMORY>',
     )
-    expect(out.indexOf('<CONVERSATION_MEMORY>')).toBeLessThan(
-      out.lastIndexOf('<LIBRARY>'),
-    )
+    expect(out.indexOf('<CONVERSATION_MEMORY>')).toBeLessThan(out.lastIndexOf('<LIBRARY>'))
   })
 })
 
 describe('librarianTools structural shape', () => {
   it('exposes exactly the two expected tool keys', () => {
     const keys = Object.keys(librarianTools).sort()
-    expect(keys).toEqual(
-      ['render_external_book_mention', 'render_library_book_card'].sort()
-    )
+    expect(keys).toEqual(['render_external_book_mention', 'render_library_book_card'].sort())
   })
 })

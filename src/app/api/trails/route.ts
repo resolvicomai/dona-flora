@@ -1,10 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import {
-  getSessionStorageContext,
-  requireVerifiedRequestSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
 import { saveTrail } from '@/lib/trails/store'
 import { loadKnownSlugs } from '@/lib/library/slug-set'
 
@@ -42,10 +39,7 @@ const CreateTrailSchema = z.object({
       message: 'título precisa conter pelo menos uma letra ou número',
     }),
   goal: z.string().max(500).optional(),
-  book_refs: z
-    .array(z.string().regex(KEBAB_SLUG, 'slug deve ser kebab-case ASCII'))
-    .min(1)
-    .max(20),
+  book_refs: z.array(z.string().regex(KEBAB_SLUG, 'slug deve ser kebab-case ASCII')).min(1).max(20),
   notes: z.string().max(2000).optional(),
 })
 
@@ -69,7 +63,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -84,7 +78,7 @@ export async function POST(request: NextRequest) {
           fieldErrors: { book_refs: [`slug(s) desconhecido(s): ${unknownRefs.join(', ')}`] },
         },
       },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -93,9 +87,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ slug }, { status: 201 })
   } catch (err) {
     console.error('[API] POST /api/trails error:', err)
-    return NextResponse.json(
-      { error: 'Erro ao salvar trilha.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro ao salvar trilha.' }, { status: 500 })
   }
 }

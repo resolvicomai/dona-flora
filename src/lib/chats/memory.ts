@@ -30,9 +30,7 @@ export async function loadConversationMemoryContext(
   currentChatId: string,
 ) {
   const chats = await listChats(storageContext)
-  const candidates = chats
-    .filter((chat) => chat.id !== currentChatId)
-    .slice(0, MAX_MEMORY_CHATS)
+  const candidates = chats.filter((chat) => chat.id !== currentChatId).slice(0, MAX_MEMORY_CHATS)
 
   if (candidates.length === 0) return ''
 

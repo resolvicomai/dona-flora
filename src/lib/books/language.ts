@@ -67,9 +67,7 @@ export function matchesBookLanguageFilter(
   }
 }
 
-export function resolveGoogleBooksLanguageRestrict(
-  filter?: string | null,
-): string | undefined {
+export function resolveGoogleBooksLanguageRestrict(filter?: string | null): string | undefined {
   const normalizedFilter = normalizeBookLanguageFilter(filter)
   if (normalizedFilter === 'all') {
     return undefined

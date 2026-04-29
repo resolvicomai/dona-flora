@@ -10,31 +10,31 @@ import type { BookStatus } from './schema'
 export const STATUS_LABELS: Record<AppLanguage, Record<BookStatus, string>> = {
   'pt-BR': {
     'quero-ler': 'Quero ler',
-    'lendo': 'Lendo',
-    'lido': 'Lido',
+    lendo: 'Lendo',
+    lido: 'Lido',
     'quero-reler': 'Quero reler',
-    'abandonado': 'Abandonado',
+    abandonado: 'Abandonado',
   },
   en: {
     'quero-ler': 'Want to read',
-    'lendo': 'Reading',
-    'lido': 'Read',
+    lendo: 'Reading',
+    lido: 'Read',
     'quero-reler': 'Want to reread',
-    'abandonado': 'Dropped',
+    abandonado: 'Dropped',
   },
   es: {
     'quero-ler': 'Quiero leer',
-    'lendo': 'Leyendo',
-    'lido': 'Leído',
+    lendo: 'Leyendo',
+    lido: 'Leído',
     'quero-reler': 'Quiero releer',
-    'abandonado': 'Abandonado',
+    abandonado: 'Abandonado',
   },
   'zh-CN': {
     'quero-ler': '想读',
-    'lendo': '在读',
-    'lido': '已读',
+    lendo: '在读',
+    lido: '已读',
     'quero-reler': '想重读',
-    'abandonado': '已弃读',
+    abandonado: '已弃读',
   },
 }
 
@@ -49,13 +49,7 @@ const STATUS_PLACEHOLDERS: Record<AppLanguage, string> = {
  * Ordered option list for dropdowns. Preserves the preferred display order:
  * backlog (quero-ler) -> active (lendo) -> done (lido) -> replay (quero-reler) -> dropped (abandonado).
  */
-const STATUS_ORDER: BookStatus[] = [
-  'quero-ler',
-  'lendo',
-  'lido',
-  'quero-reler',
-  'abandonado',
-]
+const STATUS_ORDER: BookStatus[] = ['quero-ler', 'lendo', 'lido', 'quero-reler', 'abandonado']
 
 export function getStatusOptions(locale: AppLanguage = 'pt-BR') {
   return STATUS_ORDER.map((value) => ({

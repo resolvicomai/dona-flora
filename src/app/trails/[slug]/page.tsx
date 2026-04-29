@@ -11,10 +11,7 @@ import { getBookAuthorsDisplay } from '@/lib/books/authors'
 import { listBooks } from '@/lib/books/library-service'
 import type { Book } from '@/lib/books/schema'
 import { getCoverRoute } from '@/lib/covers/url'
-import {
-  getSessionStorageContext,
-  requireVerifiedServerSession,
-} from '@/lib/auth/server'
+import { getSessionStorageContext, requireVerifiedServerSession } from '@/lib/auth/server'
 import { getUserSettings } from '@/lib/auth/db'
 import { getTrail } from '@/lib/trails/store'
 import type { AppLanguage } from '@/lib/i18n/app-language'
@@ -85,11 +82,7 @@ const COPY: Record<
   },
 }
 
-export default async function TrailDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function TrailDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   noStore()
   const session = await requireVerifiedServerSession()
   const storageContext = getSessionStorageContext(session)
@@ -107,10 +100,7 @@ export default async function TrailDetailPage({
   const done = trail.book_refs.filter(
     (bookSlug) => bookBySlug.get(bookSlug)?.status === 'lido',
   ).length
-  const percent =
-    trail.book_refs.length > 0
-      ? Math.round((done / trail.book_refs.length) * 100)
-      : 0
+  const percent = trail.book_refs.length > 0 ? Math.round((done / trail.book_refs.length) * 100) : 0
 
   return (
     <div className="page-column flex flex-1 flex-col gap-6 pt-7 md:gap-8 md:pt-9">
@@ -120,9 +110,7 @@ export default async function TrailDetailPage({
         <div className="grid gap-6 border-b border-hairline p-6 md:grid-cols-[minmax(0,1fr)_18rem] md:p-8">
           <div>
             <p className="eyebrow">{copy.progress(done, trail.book_refs.length)}</p>
-            <h1 className="section-title mt-4 text-balance text-foreground">
-              {trail.title}
-            </h1>
+            <h1 className="section-title mt-4 text-balance text-foreground">{trail.title}</h1>
             {trail.goal ? (
               <p className="mt-4 max-w-2xl text-base leading-8 text-muted-foreground">
                 {trail.goal}
@@ -138,19 +126,12 @@ export default async function TrailDetailPage({
             </div>
           </div>
           <aside className="brand-guide p-4">
-            <h2 className="text-base font-semibold text-foreground">
-              {copy.howTitle}
-            </h2>
-            <p className="mt-3 text-sm leading-7 text-muted-foreground">
-              {copy.howBody}
-            </p>
+            <h2 className="text-base font-semibold text-foreground">{copy.howTitle}</h2>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">{copy.howBody}</p>
           </aside>
         </div>
         <div className="h-2 bg-surface-strong">
-          <div
-            className="h-full bg-primary"
-            style={{ width: `${percent}%` }}
-          />
+          <div className="h-full bg-primary" style={{ width: `${percent}%` }} />
         </div>
       </section>
 
@@ -168,12 +149,7 @@ export default async function TrailDetailPage({
           const book = bookBySlug.get(bookSlug)
           return (
             <li key={`${bookSlug}-${index}`}>
-              <TrailStep
-                book={book}
-                copy={copy}
-                index={index}
-                locale={settings.language}
-              />
+              <TrailStep book={book} copy={copy} index={index} locale={settings.language} />
             </li>
           )
         })}
@@ -193,12 +169,7 @@ function TrailStep({
   index: number
   locale: AppLanguage
 }) {
-  const state =
-    book?.status === 'lido'
-      ? 'done'
-      : book?.status === 'lendo'
-        ? 'reading'
-        : 'todo'
+  const state = book?.status === 'lido' ? 'done' : book?.status === 'lendo' ? 'reading' : 'todo'
 
   return (
     <article className="brand-window grid gap-4 p-4 md:grid-cols-[4rem_5rem_minmax(0,1fr)_auto] md:items-center">
@@ -210,11 +181,7 @@ function TrailStep({
       </div>
 
       {book ? (
-        <BookCover
-          src={getCoverRoute(book._filename) ?? book.cover}
-          alt={book.title}
-          size="sm"
-        />
+        <BookCover src={getCoverRoute(book._filename) ?? book.cover} alt={book.title} size="sm" />
       ) : (
         <div className="brand-panel h-[84px] w-[56px]" />
       )}
@@ -222,20 +189,14 @@ function TrailStep({
       <div className="min-w-0">
         {book ? (
           <>
-            <h2 className="truncate text-xl font-semibold text-foreground">
-              {book.title}
-            </h2>
+            <h2 className="truncate text-xl font-semibold text-foreground">{book.title}</h2>
             <p className="mt-1 truncate text-sm text-muted-foreground">
               {getBookAuthorsDisplay(book)}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge status={book.status} locale={locale} />
               <span className="text-xs font-medium text-muted-foreground">
-                {state === 'done'
-                  ? copy.done
-                  : state === 'reading'
-                    ? copy.reading
-                    : copy.todo}
+                {state === 'done' ? copy.done : state === 'reading' ? copy.reading : copy.todo}
               </span>
             </div>
           </>

@@ -94,9 +94,7 @@ export function applyFilters(books: Book[], f: FilterState): Book[] {
 export function applySearch(fuse: Fuse<Book>, books: Book[], q: string): Book[] {
   const trimmed = q.trim()
   if (!trimmed) return books
-  const allowed = new Set(
-    books.map((b) => b._filename).filter((f): f is string => Boolean(f)),
-  )
+  const allowed = new Set(books.map((b) => b._filename).filter((f): f is string => Boolean(f)))
   return fuse
     .search(trimmed)
     .map((r) => r.item)
@@ -122,10 +120,7 @@ export function applySort(
     added_at: (a, b) => (a.added_at || '').localeCompare(b.added_at || '') * mul,
     title: (a, b) => a.title.localeCompare(b.title, 'pt-BR') * mul,
     author: (a, b) =>
-      getBookAuthorsDisplay(a).localeCompare(
-        getBookAuthorsDisplay(b),
-        'pt-BR',
-      ) * mul,
+      getBookAuthorsDisplay(a).localeCompare(getBookAuthorsDisplay(b), 'pt-BR') * mul,
     rating: (a, b) => ((a.rating ?? 0) - (b.rating ?? 0)) * mul,
   }
   return [...books].sort(cmp[sort])

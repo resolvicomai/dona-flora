@@ -5,18 +5,14 @@ export function normalizeAuthors(value: string | string[] | undefined | null) {
     return []
   }
 
-  return (Array.isArray(value) ? value : [value])
-    .map((author) => author.trim())
-    .filter(Boolean)
+  return (Array.isArray(value) ? value : [value]).map((author) => author.trim()).filter(Boolean)
 }
 
 export function getBookAuthorsDisplay(
   bookOrAuthors: Pick<Book, 'author'> | string | string[] | undefined | null,
 ) {
   const authors =
-    typeof bookOrAuthors === 'object' &&
-    bookOrAuthors !== null &&
-    'author' in bookOrAuthors
+    typeof bookOrAuthors === 'object' && bookOrAuthors !== null && 'author' in bookOrAuthors
       ? bookOrAuthors.author
       : bookOrAuthors
 
@@ -32,11 +28,11 @@ export function getBookAuthorsDisplay(
 export function getBookPrimaryAuthor(
   bookOrAuthors: Pick<Book, 'author'> | string | string[] | undefined | null,
 ) {
-  return normalizeAuthors(
-    typeof bookOrAuthors === 'object' &&
-      bookOrAuthors !== null &&
-      'author' in bookOrAuthors
-      ? bookOrAuthors.author
-      : bookOrAuthors,
-  )[0] ?? ''
+  return (
+    normalizeAuthors(
+      typeof bookOrAuthors === 'object' && bookOrAuthors !== null && 'author' in bookOrAuthors
+        ? bookOrAuthors.author
+        : bookOrAuthors,
+    )[0] ?? ''
+  )
 }

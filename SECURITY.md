@@ -6,9 +6,9 @@ Obrigado por ajudar a manter a Dona Flora segura.
 
 Enquanto o projeto estiver em beta, a versão suportada é sempre a branch `main`.
 
-| Versão | Suporte |
-| --- | --- |
-| `main` | Sim |
+| Versão                | Suporte       |
+| --------------------- | ------------- |
+| `main`                | Sim           |
 | versões antigas/forks | Não garantido |
 
 ## Como Reportar Vulnerabilidades
@@ -53,4 +53,3 @@ Fora do escopo:
 - Não versionar `.env`, `.env.local`, `data/`, banco SQLite ou cache de capas.
 - Use providers locais se quiser manter o chat 100% local.
 - Revise permissões da pasta de livros antes de apontar o app para um vault grande.
-

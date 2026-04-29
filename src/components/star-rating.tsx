@@ -42,15 +42,13 @@ export function StarRating({ value, onChange, readonly }: StarRatingProps) {
           aria-label={copy.star(star)}
           className={cn(
             'surface-transition flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md',
-            readonly ? 'cursor-default' : 'cursor-pointer hover:bg-foreground/[0.04]'
+            readonly ? 'cursor-default' : 'cursor-pointer hover:bg-foreground/[0.04]',
           )}
         >
           <Star
             className={cn(
               'h-5 w-5',
-              star <= value
-                ? 'fill-foreground text-foreground'
-                : 'text-foreground/22'
+              star <= value ? 'fill-foreground text-foreground' : 'text-foreground/22',
             )}
           />
         </button>

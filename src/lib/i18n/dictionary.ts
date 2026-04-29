@@ -1,8 +1,4 @@
-import {
-  DEFAULT_APP_LANGUAGE,
-  normalizeAppLanguage,
-  type AppLanguage,
-} from './app-language'
+import { DEFAULT_APP_LANGUAGE, normalizeAppLanguage, type AppLanguage } from './app-language'
 
 export type Dictionary = {
   nav: {

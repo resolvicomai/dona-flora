@@ -9,9 +9,7 @@
  * when the SDK lands.
  */
 
-export type LibrarianToolName =
-  | 'render_library_book_card'
-  | 'render_external_book_mention'
+export type LibrarianToolName = 'render_library_book_card' | 'render_external_book_mention'
 
 export interface LibrarianMessageTextPart {
   type: 'text'

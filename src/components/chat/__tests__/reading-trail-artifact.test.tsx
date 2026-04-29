@@ -4,10 +4,7 @@
 import '@testing-library/jest-dom'
 import { render, screen, act, fireEvent, waitFor } from '@testing-library/react'
 import type { ReactElement } from 'react'
-import {
-  KnownLibraryProvider,
-  type ChatBookMeta,
-} from '../known-library-context'
+import { KnownLibraryProvider, type ChatBookMeta } from '../known-library-context'
 import { ReadingTrailArtifact } from '../reading-trail-artifact'
 
 // next/image: render plain <img> to skip Next's runtime optimizer in jsdom.
@@ -78,9 +75,7 @@ describe('ReadingTrailArtifact', () => {
   })
 
   test('renders 3 ordered items for 3 slugs with numeric positions', () => {
-    renderWithLibrary(
-      <ReadingTrailArtifact slugs={['a-um', 'b-dois', 'c-tres']} />,
-    )
+    renderWithLibrary(<ReadingTrailArtifact slugs={['a-um', 'b-dois', 'c-tres']} />)
     const items = screen.getAllByRole('listitem')
     expect(items).toHaveLength(3)
     // Numeric chip for each position.
@@ -90,9 +85,7 @@ describe('ReadingTrailArtifact', () => {
   })
 
   test('each item renders a LibraryBookCardInline link to /books/{slug}', () => {
-    renderWithLibrary(
-      <ReadingTrailArtifact slugs={['a-um', 'b-dois', 'c-tres']} />,
-    )
+    renderWithLibrary(<ReadingTrailArtifact slugs={['a-um', 'b-dois', 'c-tres']} />)
     const links = screen.getAllByRole('link')
     expect(links[0]).toHaveAttribute('href', '/books/a-um')
     expect(links[1]).toHaveAttribute('href', '/books/b-dois')
@@ -102,15 +95,11 @@ describe('ReadingTrailArtifact', () => {
   test('renders the trail heading and Salvar trilha button in idle state', () => {
     renderWithLibrary(<ReadingTrailArtifact slugs={['a-um', 'b-dois']} />)
     expect(screen.getByText('Trilha de leitura sugerida')).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /Salvar trilha/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Salvar trilha/i })).toBeInTheDocument()
   })
 
   test('clicking Salvar trilha POSTs /api/trails with title + book_refs', async () => {
-    renderWithLibrary(
-      <ReadingTrailArtifact slugs={['a-um', 'b-dois', 'c-tres']} />,
-    )
+    renderWithLibrary(<ReadingTrailArtifact slugs={['a-um', 'b-dois', 'c-tres']} />)
     const btn = screen.getByRole('button', { name: /Salvar trilha/i })
     await act(async () => {
       fireEvent.click(btn)
@@ -133,12 +122,11 @@ describe('ReadingTrailArtifact', () => {
     await act(async () => {
       fireEvent.click(btn)
     })
-    await waitFor(() =>
-      expect(screen.getByText('Trilha salva')).toBeInTheDocument(),
+    await waitFor(() => expect(screen.getByText('Trilha salva')).toBeInTheDocument())
+    expect(screen.getByRole('link', { name: /Abrir trilha/i })).toHaveAttribute(
+      'href',
+      '/trails/trilha-1',
     )
-    expect(
-      screen.getByRole('link', { name: /Abrir trilha/i }),
-    ).toHaveAttribute('href', '/trails/trilha-1')
   })
 
   test('calls router.refresh() after a successful save', async () => {
@@ -163,22 +151,15 @@ describe('ReadingTrailArtifact', () => {
       fireEvent.click(btn)
     })
     await waitFor(() =>
-      expect(
-        screen.getByText(/Não consegui salvar a trilha/i),
-      ).toBeInTheDocument(),
+      expect(screen.getByText(/Não consegui salvar a trilha/i)).toBeInTheDocument(),
     )
     // Retry button appears next to the error copy.
-    expect(
-      screen.getByRole('button', { name: /Tentar novamente/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Tentar novamente/i })).toBeInTheDocument()
   })
 
   test('uses suggestedTitle when provided as the POST body title', async () => {
     renderWithLibrary(
-      <ReadingTrailArtifact
-        slugs={['a-um', 'b-dois']}
-        suggestedTitle="Trilha do estoicismo"
-      />,
+      <ReadingTrailArtifact slugs={['a-um', 'b-dois']} suggestedTitle="Trilha do estoicismo" />,
     )
     const btn = screen.getByRole('button', { name: /Salvar trilha/i })
     await act(async () => {
