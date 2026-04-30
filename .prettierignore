@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+build
+coverage
+data
+*.sqlite
+*.db
+package-lock.json
+docs/superpowers
+dona-flora-teste
+src/lib/**/__tests__/fixtures/**/*.md

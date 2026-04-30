@@ -1,0 +1,7 @@
+# Keep local/agent-only material out of exported release archives.
+CLAUDE.md export-ignore
+AGENTS.md export-ignore
+.planning/ export-ignore
+docs/superpowers/ export-ignore
+data/ export-ignore
+dona-flora-teste/ export-ignore

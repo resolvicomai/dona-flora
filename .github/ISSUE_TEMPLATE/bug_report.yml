@@ -1,0 +1,59 @@
+name: Bug report
+description: Relate algo que quebrou ou se comportou diferente do esperado.
+title: '[Bug]: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar. Tente não incluir caminhos privados, tokens, `.env`, banco SQLite ou conteúdo pessoal do seu Obsidian.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: O que aconteceu?
+      description: Conte o comportamento observado e o que você esperava.
+      placeholder: 'Ex.: Ao salvar a pasta de livros, o app mostra erro mesmo com arquivos .md válidos.'
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir?
+      description: Liste os passos mínimos.
+      placeholder: |
+        1. Abrir Ajustes
+        2. Escolher Pasta dos livros
+        3. Clicar em Conectar pasta
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versão ou commit
+      placeholder: 'Ex.: main em 5e292a2'
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afetada
+      options:
+        - Onboarding/login
+        - Biblioteca/livros
+        - Obsidian/pasta local
+        - Chat/IA
+        - Trilhas
+        - Capas/metadados
+        - Configurações
+        - Docker/deploy
+        - Outro
+  - type: textarea
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Sistema, navegador, Node.js e provider de IA, se relevante.
+      placeholder: 'macOS 15, Chrome, Node 22, Ollama local'
+  - type: textarea
+    id: extra
+    attributes:
+      label: Contexto adicional
+      description: Prints são úteis, mas esconda dados pessoais.
