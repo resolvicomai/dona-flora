@@ -23,12 +23,23 @@ const EXTENSION_BY_CONTENT_TYPE: Record<string, string> = {
   'image/webp': 'webp',
 }
 
+const EXTERNAL_PLACEHOLDER_HOSTS = new Set(['placehold.co', 'placehold.it', 'via.placeholder.com'])
+
 function safeSlug(slug: string) {
   if (!/^[a-z0-9][a-z0-9-]*$/i.test(slug)) {
     return null
   }
 
   return slug
+}
+
+export function isExternalPlaceholderCover(url: string) {
+  try {
+    const parsed = new URL(url)
+    return EXTERNAL_PLACEHOLDER_HOSTS.has(parsed.hostname.toLowerCase())
+  } catch {
+    return false
+  }
 }
 
 export async function findCachedCover(context: StorageContext, slug: string) {
@@ -111,6 +122,67 @@ function hashString(value: string) {
   return hash
 }
 
+function splitLongWord(word: string, maxLength: number) {
+  const chunks: string[] = []
+  for (let index = 0; index < word.length; index += maxLength) {
+    chunks.push(word.slice(index, index + maxLength))
+  }
+  return chunks
+}
+
+function ellipsize(value: string, maxLength: number) {
+  if (value.length <= maxLength) return value
+  return `${value.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`
+}
+
+function wrapText(value: string, maxLineLength: number, maxLines: number) {
+  const normalized = value.replace(/\s+/g, ' ').trim()
+  if (!normalized) return []
+
+  const words = normalized
+    .split(' ')
+    .flatMap((word) => (word.length > maxLineLength ? splitLongWord(word, maxLineLength) : [word]))
+  const lines: string[] = []
+  let current = ''
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word
+    if (next.length <= maxLineLength) {
+      current = next
+      continue
+    }
+
+    if (current) lines.push(current)
+    current = word
+
+    if (lines.length === maxLines) break
+  }
+
+  if (lines.length < maxLines && current) {
+    lines.push(current)
+  }
+
+  if (lines.length > maxLines) {
+    lines.length = maxLines
+  }
+
+  const consumed = lines.join(' ')
+  if (consumed.length < normalized.length && lines.length > 0) {
+    lines[lines.length - 1] = ellipsize(lines[lines.length - 1], maxLineLength)
+  }
+
+  return lines
+}
+
+function renderTextLines(lines: string[], startY: number, lineHeight: number) {
+  return lines
+    .map(
+      (line, index) =>
+        `<tspan x="300" y="${startY + index * lineHeight}">${escapeSVG(line)}</tspan>`,
+    )
+    .join('')
+}
+
 export function buildCoverPlaceholderSVG(book: Pick<Book, 'author' | 'title'>) {
   const title = book.title.trim() || 'Livro'
   const author = getBookAuthorsDisplay(book)
@@ -121,17 +193,21 @@ export function buildCoverPlaceholderSVG(book: Pick<Book, 'author' | 'title'>) {
     ['#dde6df', '#172c2a', '#9a6b2e'],
   ] as const
   const [background, foreground, accent] = palette[hashString(`${title}${author}`) % palette.length]
+  const titleLines = wrapText(title, 20, 4)
+  const authorLines = wrapText(author, 24, 2)
+  const titleStartY = 336 - Math.max(0, titleLines.length - 1) * 26
+  const authorStartY = 522 + Math.max(0, titleLines.length - 2) * 12
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900" role="img">
   <rect width="600" height="900" fill="${background}"/>
   <rect x="42" y="42" width="516" height="816" rx="28" fill="none" stroke="${foreground}" stroke-opacity="0.22" stroke-width="3"/>
   <path d="M84 157h432M84 744h432" stroke="${accent}" stroke-width="8" stroke-linecap="round"/>
-  <text x="300" y="390" text-anchor="middle" fill="${foreground}" font-family="Georgia, serif" font-size="54" font-weight="700">
-    ${escapeSVG(title).slice(0, 42)}
+  <text text-anchor="middle" fill="${foreground}" font-family="Georgia, serif" font-size="42" font-weight="700" letter-spacing="-0.8">
+    ${renderTextLines(titleLines, titleStartY, 52)}
   </text>
-  <text x="300" y="472" text-anchor="middle" fill="${foreground}" fill-opacity="0.75" font-family="Georgia, serif" font-size="30">
-    ${escapeSVG(author).slice(0, 44)}
+  <text text-anchor="middle" fill="${foreground}" fill-opacity="0.75" font-family="Georgia, serif" font-size="27">
+    ${renderTextLines(authorLines, authorStartY, 38)}
   </text>
 </svg>`
 }

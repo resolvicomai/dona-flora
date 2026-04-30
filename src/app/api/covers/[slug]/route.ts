@@ -2,7 +2,12 @@ import fs from 'fs/promises'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSessionStorageContext, requireVerifiedRequestSession } from '@/lib/auth/server'
 import { getBook } from '@/lib/books/library-service'
-import { buildCoverPlaceholderSVG, cacheRemoteCover, findCachedCover } from '@/lib/covers/cache'
+import {
+  buildCoverPlaceholderSVG,
+  cacheRemoteCover,
+  findCachedCover,
+  isExternalPlaceholderCover,
+} from '@/lib/covers/cache'
 import { ensureStorageContext } from '@/lib/storage/context'
 
 export const dynamic = 'force-dynamic'
@@ -20,33 +25,36 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   const context = await ensureStorageContext(getSessionStorageContext(authResult.session))
-  const cached = await findCachedCover(context, slug)
-  if (cached) {
-    const body = await fs.readFile(cached.filepath)
-    return new NextResponse(body, {
-      headers: {
-        'cache-control': 'private, max-age=86400',
-        'content-type': cached.contentType,
-      },
-    })
-  }
-
   const book = await getBook(slug, context)
   if (!book) {
     return NextResponse.json({ error: 'Livro não encontrado.' }, { status: 404 })
   }
 
-  if (book.cover) {
+  const remoteCoverUrl =
+    book.cover && !isExternalPlaceholderCover(book.cover) ? book.cover : undefined
+
+  if (remoteCoverUrl) {
+    const cached = await findCachedCover(context, slug)
+    if (cached) {
+      const body = await fs.readFile(cached.filepath)
+      return new NextResponse(body, {
+        headers: {
+          'cache-control': 'private, max-age=86400',
+          'content-type': cached.contentType,
+        },
+      })
+    }
+
     void cacheRemoteCover({
       context,
       slug,
-      url: book.cover,
+      url: remoteCoverUrl,
     }).catch(() => {})
   }
 
   return new NextResponse(buildCoverPlaceholderSVG(book), {
     headers: {
-      'cache-control': `private, max-age=${book.cover ? 60 : 3600}`,
+      'cache-control': `private, max-age=${remoteCoverUrl ? 60 : 3600}`,
       'content-type': 'image/svg+xml; charset=utf-8',
     },
   })
