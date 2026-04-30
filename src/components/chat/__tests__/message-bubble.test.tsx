@@ -106,6 +106,34 @@ describe('MessageBubble', () => {
     expect(screen.getByText(/depois me conte/)).toBeInTheDocument()
   })
 
+  test('renders local-model pseudo tool calls with python-style arguments', () => {
+    const msg = makeMessage('assistant', [
+      {
+        type: 'text',
+        text: "Sem suavizar: o pior livro é o [render_library_book_card(slug='real')].",
+      },
+    ])
+    renderWithLibrary(<MessageBubble message={msg} isLastAssistantStreaming={false} />)
+
+    expect(screen.queryByText(/render_library_book_card/)).toBeNull()
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/books/real')
+    expect(screen.getByText(/Sem suavizar/)).toBeInTheDocument()
+  })
+
+  test('renders local-model pseudo tool calls with unwrapped python-style arguments', () => {
+    const msg = makeMessage('assistant', [
+      {
+        type: 'text',
+        text: "O pior livro é render_library_book_card(slug='real') sem muita disputa.",
+      },
+    ])
+    renderWithLibrary(<MessageBubble message={msg} isLastAssistantStreaming={false} />)
+
+    expect(screen.queryByText(/render_library_book_card/)).toBeNull()
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/books/real')
+    expect(screen.getByText(/sem muita disputa/)).toBeInTheDocument()
+  })
+
   test('renders neutral fallback for unknown slug tool-output (AI-08 layered guard)', () => {
     const msg = makeMessage('assistant', [
       {

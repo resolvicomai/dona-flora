@@ -28,10 +28,10 @@ type PseudoToolSegment =
   | { type: 'external-book'; title: string; author: string; reason: string }
 
 const PSEUDO_TOOL_CALL_REGEX =
-  /\[?\s*(?:chama\s+)?(render_library_book_card|render_external_book_mention)\(\{([^{}]*)\}\)\s*\]?/g
+  /\[?\s*(?:chama\s+)?(render_library_book_card|render_external_book_mention)\((\{[^)]*\}|[^)]*)\)\s*\]?/g
 
 function readQuotedField(input: string, field: string) {
-  const match = new RegExp(`${field}\\s*:\\s*(['"])(.*?)\\1`).exec(input)
+  const match = new RegExp(`${field}\\s*[:=]\\s*(['"])(.*?)\\1`).exec(input)
   return match?.[2]?.trim()
 }
 

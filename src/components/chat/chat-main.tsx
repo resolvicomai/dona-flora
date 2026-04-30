@@ -132,6 +132,7 @@ export function ChatMain({
         submitLocked.current = false
         setRemoteGenerationStatus('complete')
         setRemoteLastError('')
+        void hydratePersistedChat({ requireAssistantTurn: true })
         // Refresh once so the sidebar list picks up the newly persisted
         // conversation (ChatPage re-reads listChats()). Skip on subsequent
         // turns: the entry is already rendered and listChats() is O(N files).
@@ -144,6 +145,44 @@ export function ChatMain({
         router.refresh()
       },
     })
+
+  function hasAssistantTurn(nextMessages: LibrarianClientMessage[]) {
+    return nextMessages[nextMessages.length - 1]?.role === 'assistant'
+  }
+
+  async function hydratePersistedChat({
+    requireAssistantTurn = false,
+  }: {
+    requireAssistantTurn?: boolean
+  } = {}) {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      try {
+        const res = await fetch(`/api/chats/${effectiveChatId}`, { cache: 'no-store' })
+        if (res.ok) {
+          const payload = (await res.json()) as {
+            chat?: { generation_status?: ChatGenerationStatus; last_error?: string }
+            messages?: LibrarianClientMessage[]
+          }
+          if (Array.isArray(payload.messages)) {
+            const shouldHydrate = !requireAssistantTurn || hasAssistantTurn(payload.messages)
+            if (shouldHydrate) {
+              setMessages(payload.messages)
+              setRemoteGenerationStatus(payload.chat?.generation_status ?? 'complete')
+              setRemoteLastError(payload.chat?.last_error ?? '')
+              return
+            }
+          }
+        }
+      } catch {
+        // The stream already finished; this hydration pass is best-effort and
+        // retries briefly because the server may still be flushing Markdown.
+      }
+
+      if (attempt < 4) {
+        await new Promise((resolve) => window.setTimeout(resolve, 250))
+      }
+    }
+  }
 
   const shouldShowExternalPreference =
     externalPreference === 'ambos' ||

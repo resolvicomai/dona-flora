@@ -133,6 +133,44 @@ describe('ChatMain layout chrome', () => {
     await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(serverMessages))
   })
 
+  test('hydrates the persisted assistant turn when the stream finishes', async () => {
+    const finalMessages: LibrarianMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        parts: [{ type: 'text', text: 'Oi' }],
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'Oi, Mauro. Estou aqui.' }],
+      },
+    ]
+
+    global.fetch = jest.fn(async (url: string) => {
+      if (url === '/api/chats/chat-123') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            chat: { generation_status: 'complete' },
+            messages: finalMessages,
+          }),
+        }
+      }
+
+      return { ok: true }
+    }) as jest.Mock
+
+    render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
+
+    await act(async () => {
+      mockUseChatOptions.onFinish()
+    })
+
+    await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(finalMessages))
+  })
+
   test('does not overwrite a live new-chat stream with the server draft after route navigation', async () => {
     const draftMessages: LibrarianMessage[] = [
       {
