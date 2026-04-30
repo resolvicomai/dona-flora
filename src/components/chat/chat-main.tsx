@@ -183,6 +183,7 @@ export function ChatMain({
 
   useEffect(() => {
     if (!chatId || hydratedChatId.current === chatId) return
+    if (localGenerationInFlight.current) return
     hydratedChatId.current = chatId
     setMessages((initialMessages ?? []) as unknown as LibrarianClientMessage[])
   }, [chatId, initialMessages, setMessages])

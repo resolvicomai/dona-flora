@@ -133,6 +133,43 @@ describe('ChatMain layout chrome', () => {
     await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(serverMessages))
   })
 
+  test('does not overwrite a live new-chat stream with the server draft after route navigation', async () => {
+    const draftMessages: LibrarianMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        parts: [{ type: 'text', text: 'Oi Dona Flora' }],
+      },
+    ]
+
+    const { rerender } = render(<ChatMain chats={[]} bookCount={3} seedBook={null} />)
+
+    await act(async () => {
+      mockComposerProps.onInputChange('Oi Dona Flora')
+    })
+    await waitFor(() => expect(mockComposerProps.input).toBe('Oi Dona Flora'))
+
+    await act(async () => {
+      mockComposerProps.onSubmit()
+    })
+
+    mockSetMessages.mockClear()
+
+    rerender(
+      <ChatMain
+        chatId="chat-123"
+        initialGenerationStatus="generating"
+        initialMessages={draftMessages}
+        chats={[]}
+        bookCount={3}
+        seedBook={null}
+      />,
+    )
+
+    await waitFor(() => expect(mockReplace).toHaveBeenCalled())
+    expect(mockSetMessages).not.toHaveBeenCalledWith(draftMessages)
+  })
+
   test('does not wait for draft persistence before sending the message to the model', async () => {
     let resolveDraft!: () => void
     global.fetch = jest.fn(
