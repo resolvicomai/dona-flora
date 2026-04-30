@@ -198,6 +198,39 @@ describe('ChatMain layout chrome', () => {
     })
   })
 
+  test('does not navigate a new conversation before the draft file exists', async () => {
+    let resolveDraft!: () => void
+    global.fetch = jest.fn(
+      () =>
+        new Promise((resolve) => {
+          resolveDraft = () => resolve({ ok: true })
+        }),
+    ) as jest.Mock
+
+    render(<ChatMain chats={[]} bookCount={3} seedBook={null} />)
+
+    await act(async () => {
+      mockComposerProps.onInputChange('Oi')
+    })
+    await waitFor(() => expect(mockComposerProps.input).toBe('Oi'))
+
+    await act(async () => {
+      mockComposerProps.onSubmit()
+    })
+
+    expect(mockSendMessage).toHaveBeenCalledTimes(1)
+    expect(mockReplace).not.toHaveBeenCalled()
+
+    await act(async () => {
+      resolveDraft()
+    })
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledTimes(1)
+      expect(mockReplace.mock.calls[0][0]).toMatch(/^\/chat\/[A-Za-z0-9][A-Za-z0-9_-]*$/)
+    })
+  })
+
   test('ignores duplicate submits while the same turn is being sent', async () => {
     render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
 

@@ -262,14 +262,19 @@ export function ChatMain({
     setRemoteLastError('')
 
     const nextMessages = [...messages, createDraftUserMessage(text)]
-    void persistDraft(nextMessages).catch(() => {
+    const draftSave = persistDraft(nextMessages)
+    void draftSave.catch(() => {
       // /api/chat also persists before model generation; this is a fast-path
       // so navigation never shows an empty chat while the stream is starting.
     })
 
     void sendMessage({ text })
     if (!chatId) {
-      router.replace(`/chat/${effectiveChatId}`)
+      void draftSave
+        .then(() => {
+          router.replace(`/chat/${effectiveChatId}`)
+        })
+        .catch(() => {})
     }
   }
 
