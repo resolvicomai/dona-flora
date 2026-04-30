@@ -284,4 +284,66 @@ describe('ChatMain layout chrome', () => {
 
     expect(mockSendMessage).toHaveBeenCalledTimes(1)
   })
+
+  test('polls the persisted chat while a local generation is still in flight', async () => {
+    jest.useFakeTimers()
+
+    const finalMessages: LibrarianMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        parts: [{ type: 'text', text: 'Oi' }],
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'Oi, Mauro. Estou aqui.' }],
+      },
+    ]
+    let pollCount = 0
+
+    global.fetch = jest.fn(async (url: string, init?: RequestInit) => {
+      if (url === '/api/chats/chat-123' && init?.method === 'PUT') {
+        return { ok: true, json: async () => ({ ok: true }) }
+      }
+
+      if (url === '/api/chats/chat-123') {
+        pollCount += 1
+        return {
+          ok: true,
+          json: async () =>
+            pollCount === 1
+              ? {
+                  ok: true,
+                  chat: { generation_status: 'generating' },
+                  messages: finalMessages.slice(0, 1),
+                }
+              : { ok: true, chat: { generation_status: 'complete' }, messages: finalMessages },
+        }
+      }
+
+      return { ok: true }
+    }) as jest.Mock
+
+    render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
+
+    await act(async () => {
+      mockComposerProps.onInputChange('Oi')
+    })
+    await waitFor(() => expect(mockComposerProps.input).toBe('Oi'))
+
+    await act(async () => {
+      mockComposerProps.onSubmit()
+    })
+
+    expect(mockSendMessage).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000)
+    })
+
+    await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(finalMessages))
+
+    jest.useRealTimers()
+  })
 })
