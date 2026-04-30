@@ -339,14 +339,23 @@ export function ChatMain({
     setRemoteGenerationStatus('generating')
     setRemoteLastError('')
 
-    const nextMessages = [...messages, createDraftUserMessage(text)]
+    const draftMessage = createDraftUserMessage(text)
+    const nextMessages = [...messages, draftMessage]
+    setMessages(nextMessages)
     const draftSave = persistDraft(nextMessages)
     void draftSave.catch(() => {
       // /api/chat also persists before model generation; this is a fast-path
       // so navigation never shows an empty chat while the stream is starting.
     })
 
-    void sendMessage({ text })
+    void Promise.resolve(sendMessage({ text, messageId: draftMessage.id })).catch((err) => {
+      localGenerationInFlight.current = false
+      submitLocked.current = false
+      setRemoteGenerationStatus('error')
+      setRemoteLastError(
+        err instanceof Error ? err.message : 'A Dona Flora não conseguiu iniciar a resposta.',
+      )
+    })
     if (!chatId) {
       void draftSave
         .then(() => {

@@ -75,6 +75,7 @@ describe('ChatMain layout chrome', () => {
     mockReplace.mockClear()
     mockSetMessages.mockClear()
     mockSendMessage.mockClear()
+    mockSendMessage.mockResolvedValue(undefined)
     mockStop.mockClear()
     mockUseChatOptions = null
     mockComposerProps = null
@@ -229,7 +230,50 @@ describe('ChatMain layout chrome', () => {
     })
 
     expect(mockSendMessage).toHaveBeenCalledTimes(1)
-    expect(mockSendMessage).toHaveBeenCalledWith({ text: 'Uma pergunta' })
+    expect(mockSendMessage).toHaveBeenCalledWith({
+      text: 'Uma pergunta',
+      messageId: expect.stringMatching(/^local-/),
+    })
+
+    await act(async () => {
+      resolveDraft()
+    })
+  })
+
+  test('shows the user draft immediately before transport or persistence settles', async () => {
+    let resolveDraft!: () => void
+    global.fetch = jest.fn(
+      () =>
+        new Promise((resolve) => {
+          resolveDraft = () => resolve({ ok: true })
+        }),
+    ) as jest.Mock
+    mockSendMessage.mockImplementation(() => new Promise(() => {}))
+
+    render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
+
+    await act(async () => {
+      mockComposerProps.onInputChange('Oi agora')
+    })
+    await waitFor(() => expect(mockComposerProps.input).toBe('Oi agora'))
+
+    await act(async () => {
+      mockComposerProps.onSubmit()
+    })
+
+    expect(mockSetMessages).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.stringMatching(/^local-/),
+          role: 'user',
+          parts: [{ type: 'text', text: 'Oi agora' }],
+        }),
+      ]),
+    )
+    expect(mockSendMessage).toHaveBeenCalledWith({
+      text: 'Oi agora',
+      messageId: expect.stringMatching(/^local-/),
+    })
 
     await act(async () => {
       resolveDraft()
