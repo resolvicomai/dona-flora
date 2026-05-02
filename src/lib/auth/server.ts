@@ -106,8 +106,10 @@ export async function requireVerifiedRequestSession(request: Request | NextReque
 
 export function getSessionStorageContext(session: AuthenticatedAppSession) {
   const librarySettings = getUserLibrarySettings(session.user.id)
+  const defaultLibraryDir = process.env.LIBRARY_DIR?.trim() || null
+
   return createStorageContext(session.user.id, undefined, {
-    booksDir: librarySettings.booksDir,
+    booksDir: librarySettings.booksDir ?? defaultLibraryDir,
   })
 }
 

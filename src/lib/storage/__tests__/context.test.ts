@@ -122,4 +122,41 @@ describe('claimLegacyDataForUser', () => {
     expect(second.migrated).toBe(false)
     expect(second.markerPath).toBe(first.markerPath)
   })
+
+  it('leaves legacy books untouched when an external library is configured', async () => {
+    const externalBooksDir = path.join(tmpDir, 'obsidian', 'livros')
+    await fs.mkdir(externalBooksDir, { recursive: true })
+    await fs.mkdir(path.join(tmpDir, 'books'), { recursive: true })
+    await fs.mkdir(path.join(tmpDir, 'chats'), { recursive: true })
+    await fs.writeFile(path.join(tmpDir, 'books', 'book-a.md'), 'book-a')
+    await fs.writeFile(path.join(tmpDir, 'chats', 'chat-a.md'), 'chat-a')
+
+    const originalLibraryDir = process.env.LIBRARY_DIR
+    process.env.LIBRARY_DIR = externalBooksDir
+
+    try {
+      const result = await claimLegacyDataForUser({
+        dataRoot: tmpDir,
+        userId: 'owner-1',
+      })
+
+      expect(result.migrated).toBe(true)
+      expect(result.storageContext.booksDir).toBe(externalBooksDir)
+
+      const ownerCtx = createStorageContext('owner-1', tmpDir)
+      await expect(fs.readFile(path.join(tmpDir, 'books', 'book-a.md'), 'utf-8')).resolves.toBe(
+        'book-a',
+      )
+      await expect(fs.readFile(path.join(ownerCtx.chatsDir, 'chat-a.md'), 'utf-8')).resolves.toBe(
+        'chat-a',
+      )
+      await expect(fs.access(path.join(ownerCtx.booksDir, 'book-a.md'))).rejects.toThrow()
+    } finally {
+      if (originalLibraryDir === undefined) {
+        delete process.env.LIBRARY_DIR
+      } else {
+        process.env.LIBRARY_DIR = originalLibraryDir
+      }
+    }
+  })
 })

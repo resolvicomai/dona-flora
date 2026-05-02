@@ -126,7 +126,10 @@ export async function ensureLocalUserReady(userId: string): Promise<UserRole> {
 
   const role = assignOwnerIfNeeded(userId)
   if (role === 'owner') {
-    await claimLegacyDataForUser({ userId })
+    await claimLegacyDataForUser({
+      skipLegacyBooks: Boolean(process.env.LIBRARY_DIR?.trim()),
+      userId,
+    })
   }
 
   return role

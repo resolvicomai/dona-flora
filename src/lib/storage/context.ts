@@ -14,6 +14,7 @@ export interface StorageContext {
 
 export interface ClaimLegacyDataForUserInput {
   dataRoot?: string
+  skipLegacyBooks?: boolean
   userId: string
 }
 
@@ -70,11 +71,16 @@ export async function ensureStorageContext(context: StorageContext) {
 
 export async function claimLegacyDataForUser({
   dataRoot,
+  skipLegacyBooks = Boolean(process.env.LIBRARY_DIR?.trim()),
   userId,
 }: ClaimLegacyDataForUserInput): Promise<ClaimLegacyDataForUserResult> {
   const resolvedRoot = getDataRoot(dataRoot)
   const markerPath = getLegacyMigrationMarkerPath(resolvedRoot)
-  const storageContext = await ensureStorageContext(createStorageContext(userId, resolvedRoot))
+  const storageContext = await ensureStorageContext(
+    createStorageContext(userId, resolvedRoot, {
+      booksDir: skipLegacyBooks ? (process.env.LIBRARY_DIR?.trim() ?? null) : null,
+    }),
+  )
 
   try {
     const existingMarker = JSON.parse(await fs.readFile(markerPath, 'utf-8')) as {
@@ -94,6 +100,10 @@ export async function claimLegacyDataForUser({
   const existingLegacyDirs: Array<(typeof LEGACY_DIR_NAMES)[number]> = []
 
   for (const dirName of LEGACY_DIR_NAMES) {
+    if (dirName === 'books' && skipLegacyBooks) {
+      continue
+    }
+
     try {
       const entries = await fs.readdir(path.join(/* turbopackIgnore: true */ resolvedRoot, dirName))
       if (entries.length > 0) {
@@ -122,16 +132,24 @@ export async function claimLegacyDataForUser({
 
     if (backupRoot) {
       await fs.cp(sourceDir, path.join(/* turbopackIgnore: true */ backupRoot, dirName), {
+        errorOnExist: false,
+        force: true,
         recursive: true,
       })
     }
 
     const entries = await fs.readdir(sourceDir)
     for (const entry of entries) {
-      await fs.rename(
-        path.join(/* turbopackIgnore: true */ sourceDir, entry),
-        path.join(/* turbopackIgnore: true */ targetDir, entry),
-      )
+      try {
+        await fs.rename(
+          path.join(/* turbopackIgnore: true */ sourceDir, entry),
+          path.join(/* turbopackIgnore: true */ targetDir, entry),
+        )
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+          throw error
+        }
+      }
     }
 
     await fs.rm(sourceDir, { recursive: true, force: true })
@@ -144,6 +162,7 @@ export async function claimLegacyDataForUser({
         ownerUserId: userId,
         backupRoot,
         migratedAt: new Date().toISOString(),
+        skippedLegacyBooks: skipLegacyBooks,
       },
       null,
       2,
