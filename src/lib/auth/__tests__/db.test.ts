@@ -195,6 +195,37 @@ describe('local-first settings persistence', () => {
     }
   })
 
+  it('allows deployments to override the default Ollama endpoint through env', () => {
+    const db = openDatabase(path.join(tmpDir, 'app.sqlite'))
+    const originalBaseUrl = process.env.DONA_FLORA_OLLAMA_BASE_URL
+    const originalModel = process.env.DONA_FLORA_OLLAMA_MODEL
+
+    process.env.DONA_FLORA_OLLAMA_BASE_URL = 'http://172.20.0.1:11434/v1/'
+    process.env.DONA_FLORA_OLLAMA_MODEL = 'chat:latest'
+
+    try {
+      ensureAppTables(db)
+
+      const settings = getUserAIProviderSettingsRecord(db, 'user-1')
+
+      expect(settings.ollamaBaseUrl).toBe('http://172.20.0.1:11434/v1')
+      expect(settings.ollamaModel).toBe('chat:latest')
+    } finally {
+      closeDatabase(db)
+      if (originalBaseUrl === undefined) {
+        delete process.env.DONA_FLORA_OLLAMA_BASE_URL
+      } else {
+        process.env.DONA_FLORA_OLLAMA_BASE_URL = originalBaseUrl
+      }
+
+      if (originalModel === undefined) {
+        delete process.env.DONA_FLORA_OLLAMA_MODEL
+      } else {
+        process.env.DONA_FLORA_OLLAMA_MODEL = originalModel
+      }
+    }
+  })
+
   it('encrypts optional fallback API keys and never stores the raw value', () => {
     const db = openDatabase(path.join(tmpDir, 'app.sqlite'))
     try {

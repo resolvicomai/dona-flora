@@ -117,6 +117,16 @@ function normalizeAIPrimaryProvider(value: string | null | undefined): AIPrimary
     : 'ollama'
 }
 
+function getDefaultOllamaBaseUrl() {
+  return (
+    process.env.DONA_FLORA_OLLAMA_BASE_URL?.trim().replace(/\/+$/, '') || DEFAULT_OLLAMA_BASE_URL
+  )
+}
+
+function getDefaultOllamaModel() {
+  return process.env.DONA_FLORA_OLLAMA_MODEL?.trim() || DEFAULT_OLLAMA_MODEL
+}
+
 function sqlString(value: string) {
   return value.replace(/'/g, "''")
 }
@@ -526,8 +536,8 @@ export function getUserAIProviderSettingsRecord(
     fallbackEnabled: Boolean(row?.fallback_enabled ?? 0),
     fallbackModel: row?.fallback_model ?? DEFAULT_OPENROUTER_MODEL,
     fallbackProvider: 'openrouter',
-    ollamaBaseUrl: row?.ollama_base_url ?? DEFAULT_OLLAMA_BASE_URL,
-    ollamaModel: row?.ollama_model ?? DEFAULT_OLLAMA_MODEL,
+    ollamaBaseUrl: row?.ollama_base_url ?? getDefaultOllamaBaseUrl(),
+    ollamaModel: row?.ollama_model ?? getDefaultOllamaModel(),
     openaiModel: row?.openai_model ?? DEFAULT_OPENAI_MODEL,
     openrouterModel: row?.openrouter_model ?? DEFAULT_OPENROUTER_MODEL,
     primaryApiKeyConfigured,
@@ -604,8 +614,8 @@ export function upsertUserAIProviderSettingsRecord(
   const ollamaBaseUrl =
     input.ollamaBaseUrl?.trim().replace(/\/+$/, '') ||
     current.ollamaBaseUrl ||
-    DEFAULT_OLLAMA_BASE_URL
-  const ollamaModel = input.ollamaModel?.trim() || current.ollamaModel || DEFAULT_OLLAMA_MODEL
+    getDefaultOllamaBaseUrl()
+  const ollamaModel = input.ollamaModel?.trim() || current.ollamaModel || getDefaultOllamaModel()
   const fallbackEnabled =
     typeof input.fallbackEnabled === 'boolean' ? input.fallbackEnabled : current.fallbackEnabled
   const visionEnabled =
