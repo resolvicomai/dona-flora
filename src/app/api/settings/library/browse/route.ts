@@ -2,8 +2,7 @@ import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserLibrarySettings } from '@/lib/auth/db'
-import { requireVerifiedRequestSession } from '@/lib/auth/server'
+import { getEffectiveUserLibrarySettings, requireVerifiedRequestSession } from '@/lib/auth/server'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -104,7 +103,7 @@ export async function GET(request: NextRequest) {
     return authResult.response
   }
 
-  const settings = getUserLibrarySettings(authResult.session.user.id)
+  const settings = getEffectiveUserLibrarySettings(authResult.session.user.id)
   const requestedPath = request.nextUrl.searchParams.get('path')
   const targetPath = requestedPath?.trim() || settings.booksDir || os.homedir()
 

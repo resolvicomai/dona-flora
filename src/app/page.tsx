@@ -4,8 +4,12 @@ import { Suspense } from 'react'
 import { listBooks } from '@/lib/books/library-service'
 import { listChats } from '@/lib/chats/list'
 import { listTrails } from '@/lib/trails/store'
-import { getUserAIProviderSettings, getUserLibrarySettings } from '@/lib/auth/db'
-import { getSessionStorageContext, requireVerifiedServerSession } from '@/lib/auth/server'
+import { getUserAIProviderSettings } from '@/lib/auth/db'
+import {
+  getEffectiveUserLibrarySettings,
+  getSessionStorageContext,
+  requireVerifiedServerSession,
+} from '@/lib/auth/server'
 import { BookBrowser } from '@/components/books/book-browser'
 
 export const dynamic = 'force-dynamic'
@@ -29,7 +33,7 @@ export default async function HomePage() {
     listChats(storageContext),
     listTrails(storageContext),
   ])
-  const librarySettings = getUserLibrarySettings(session.user.id)
+  const librarySettings = getEffectiveUserLibrarySettings(session.user.id)
   const aiProviderSettings = getUserAIProviderSettings(session.user.id)
 
   return (

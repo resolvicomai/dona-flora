@@ -105,12 +105,20 @@ export async function requireVerifiedRequestSession(request: Request | NextReque
 }
 
 export function getSessionStorageContext(session: AuthenticatedAppSession) {
-  const librarySettings = getUserLibrarySettings(session.user.id)
-  const defaultLibraryDir = process.env.LIBRARY_DIR?.trim() || null
+  const librarySettings = getEffectiveUserLibrarySettings(session.user.id)
 
   return createStorageContext(session.user.id, undefined, {
-    booksDir: librarySettings.booksDir ?? defaultLibraryDir,
+    booksDir: librarySettings.booksDir,
   })
+}
+
+export function getEffectiveUserLibrarySettings(userId: string) {
+  const librarySettings = getUserLibrarySettings(userId)
+  const defaultLibraryDir = process.env.LIBRARY_DIR?.trim() || null
+
+  return {
+    booksDir: librarySettings.booksDir ?? defaultLibraryDir,
+  }
 }
 
 export function toUserProfile(session: AuthenticatedAppSession): UserProfile {

@@ -1,12 +1,12 @@
 import { PageReturnLink } from '@/components/app-shell/page-return-link'
 import { SettingsForm } from '@/components/account/settings-form'
-import { getUserAIProviderSettings, getUserLibrarySettings, getUserSettings } from '@/lib/auth/db'
-import { requireVerifiedServerSession } from '@/lib/auth/server'
+import { getUserAIProviderSettings, getUserSettings } from '@/lib/auth/db'
+import { getEffectiveUserLibrarySettings, requireVerifiedServerSession } from '@/lib/auth/server'
 
 export default async function SettingsPage() {
   const session = await requireVerifiedServerSession()
   const initialSettings = getUserSettings(session.user.id)
-  const initialLibrarySettings = getUserLibrarySettings(session.user.id)
+  const initialLibrarySettings = getEffectiveUserLibrarySettings(session.user.id)
   const initialAIProviderSettings = getUserAIProviderSettings(session.user.id)
 
   return (
