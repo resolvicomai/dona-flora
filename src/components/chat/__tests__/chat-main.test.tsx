@@ -50,7 +50,7 @@ jest.mock('next/navigation', () => ({
 }))
 
 jest.mock('@ai-sdk/react', () => ({
-  useChat: (options: MockUseChatOptions & { id?: string; messages?: LibrarianMessage[] }) => {
+  useChat: (options: MockUseChatOptions) => {
     mockUseChatOptions = options
     return {
       error: null,
@@ -345,5 +345,4 @@ describe('ChatMain layout chrome', () => {
 
     expect(mockSendMessage).toHaveBeenCalledTimes(1)
   })
-
 })

@@ -43,36 +43,19 @@ export interface ChatMainProps {
 }
 
 /**
- * Returns a stable chat id for the lifetime of this component instance.
+ * Generates a fresh id with a stable, alphanumeric-first shape that satisfies
+ * the chat API's `^[A-Za-z0-9][A-Za-z0-9_-]*$` regex (used by both the local
+ * chat id and the optimistic user draft). Prefers `crypto.randomUUID()` when
+ * available; falls back to a `${prefix}-${rand}-${ts}` form otherwise.
  *
- * - If `chatId` is provided (i.e. the URL is `/chat/[id]`), use it unchanged.
- * - Otherwise generate one via `crypto.randomUUID()` on first render and keep
- *   the same id across re-renders (the useChat hook keys its state by id).
- *
- * crypto.randomUUID() yields values starting with alphanumerics and containing
- * only `[0-9A-Fa-f-]`, which passes the Plan 03 Zod regex
- * `^[A-Za-z0-9][A-Za-z0-9_-]*$`.
+ * The same id is reused as `sendMessage({ messageId })` so AI SDK v6's
+ * reconciler replaces the draft in place instead of leaving a duplicate.
  */
-function createLocalChatId() {
+function createId(prefix: 'chat' | 'draft'): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID()
   }
-
-  return `chat-${Math.random().toString(36).slice(2, 10)}`
-}
-
-/**
- * Stable id for the optimistic user draft. AI SDK v6 reconciles messages by
- * `messageId`; we pass this same id to `sendMessage({ messageId })` so the
- * server-echoed message replaces the draft in place rather than appearing as
- * a duplicate or letting the draft vanish during the swap.
- */
-function createDraftMessageId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
-  }
-
-  return `draft-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`
 }
 
 function useStableChatId(chatId?: string): string {
@@ -88,7 +71,7 @@ function useStableChatId(chatId?: string): string {
     return chatId
   }
 
-  generatedChatId.current ??= createLocalChatId()
+  generatedChatId.current ??= createId('chat')
   return generatedChatId.current
 }
 
@@ -117,7 +100,6 @@ export function ChatMain({
   const [remoteLastError, setRemoteLastError] = useState(initialLastError ?? '')
   const seedApplied = useRef(false)
   const externalPreferenceRef = useRef<ExternalPreference | null>(null)
-  const localGenerationInFlight = useRef(false)
   const submitLocked = useRef(false)
   // Whether the new-chat → /chat/[id] one-shot navigation has already fired.
   // Both call sites (`handleSubmit`'s draftSave.then and `onFinish`) already
@@ -153,21 +135,19 @@ export function ChatMain({
         }),
       }),
       onFinish: () => {
-        localGenerationInFlight.current = false
         submitLocked.current = false
         setPendingTurn(false)
         setRemoteLastError('')
-        // Refresh once so the sidebar list picks up the newly persisted
-        // conversation (ChatPage re-reads listChats()). Skip on subsequent
-        // turns: the entry is already rendered and listChats() is O(N files).
-        if (hasRefreshedSidebar.current) return
+        // First completion of a brand-new chat: navigate to the explicit
+        // /chat/[id] route (so the sidebar entry appears via the page's
+        // listChats() server fetch). Subsequent turns and existing chats
+        // already have their entry — no refresh needed because key-based
+        // remount in ChatShell drives any chatId-driven re-render.
+        if (chatId || hasRefreshedSidebar.current) return
         hasRefreshedSidebar.current = true
-        if (!chatId && !openedExplicitRoute.current) {
-          openedExplicitRoute.current = true
-          router.replace(`/chat/${effectiveChatId}`)
-          return
-        }
-        router.refresh()
+        if (openedExplicitRoute.current) return
+        openedExplicitRoute.current = true
+        router.replace(`/chat/${effectiveChatId}`)
       },
     })
 
@@ -209,7 +189,6 @@ export function ChatMain({
 
   useEffect(() => {
     if (status === 'error' || (status === 'ready' && !pendingTurn)) {
-      localGenerationInFlight.current = false
       submitLocked.current = false
     }
   }, [pendingTurn, status])
@@ -227,7 +206,7 @@ export function ChatMain({
 
   function createDraftUserMessage(text: string): LibrarianClientMessage {
     return {
-      id: createDraftMessageId(),
+      id: createId('draft'),
       role: 'user',
       parts: [{ type: 'text', text }],
     } as unknown as LibrarianClientMessage
@@ -239,7 +218,6 @@ export function ChatMain({
     if (submitLocked.current) return
 
     submitLocked.current = true
-    localGenerationInFlight.current = true
     setInput('')
     setPendingTurn(true)
     setRemoteLastError('')
@@ -254,7 +232,6 @@ export function ChatMain({
     })
 
     void Promise.resolve(sendMessage({ text, messageId: draftMessage.id })).catch((err) => {
-      localGenerationInFlight.current = false
       submitLocked.current = false
       setPendingTurn(false)
       setRemoteLastError(
