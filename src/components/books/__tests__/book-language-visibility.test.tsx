@@ -12,7 +12,7 @@ function makeBook(overrides: Partial<Book> = {}): Book {
     _filename: 'dom-casmurro.md',
     _notes: '',
     added_at: '2026-04-20',
-    author: 'Machado de Assis',
+    author: ['Machado de Assis'],
     status: 'lido',
     title: 'Dom Casmurro',
     ...overrides,

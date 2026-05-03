@@ -55,7 +55,7 @@ beforeEach(() => {
 describe('POST /api/books/search — resilient fallback', () => {
   it('returns Google results when Google Books succeeds', async () => {
     const googleResults: BookSearchResult[] = [
-      { title: 'Dom Casmurro', authors: ['Machado de Assis'], language: 'pt-BR' },
+      { title: 'Dom Casmurro', authors: ['Machado de Assis'], source: 'google-books', language: 'pt-BR' },
     ]
     mockedSearchGoogleBooks.mockResolvedValueOnce(googleResults)
     mockedSearchOpenLibrary.mockResolvedValueOnce([])
@@ -73,7 +73,7 @@ describe('POST /api/books/search — resilient fallback', () => {
   it('falls back to Open Library when Google returns empty', async () => {
     mockedSearchGoogleBooks.mockResolvedValueOnce([])
     mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Rare Book', authors: ['Unknown'], language: 'en' },
+      { title: 'Rare Book', authors: ['Unknown'], source: 'google-books', language: 'en' },
     ])
 
     const res = await POST(makeRequest('rare query'))
@@ -101,7 +101,7 @@ describe('POST /api/books/search — resilient fallback', () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
     mockedSearchGoogleBooks.mockRejectedValueOnce(new Error('[GoogleBooks] API error: 503'))
     mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Dom Casmurro (OL)', authors: ['Machado'], language: 'pt-BR' },
+      { title: 'Dom Casmurro (OL)', authors: ['Machado'], source: 'google-books', language: 'pt-BR' },
     ])
 
     const res = await POST(makeRequest('dom casmurro'))
@@ -140,7 +140,7 @@ describe('POST /api/books/search — resilient fallback', () => {
 describe('POST /api/books/search — pagination', () => {
   it('threads startIndex to searchGoogleBooks when provided', async () => {
     mockedSearchGoogleBooks.mockResolvedValueOnce([
-      { title: 'Tolkien', authors: ['JRRT'], language: 'en' },
+      { title: 'Tolkien', authors: ['JRRT'], source: 'google-books', language: 'en' },
     ])
 
     const res = await POST(makeRequestBody({ query: 'tolkien', startIndex: 20 }))
@@ -152,7 +152,7 @@ describe('POST /api/books/search — pagination', () => {
   it('threads page to searchOpenLibrary on fallback when provided', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
     mockedSearchGoogleBooks.mockResolvedValueOnce([])
-    mockedSearchOpenLibrary.mockResolvedValueOnce([{ title: 'Tolkien OL', authors: ['JRRT'] }])
+    mockedSearchOpenLibrary.mockResolvedValueOnce([{ title: 'Tolkien OL', authors: ['JRRT'], source: 'google-books' }])
 
     const res = await POST(makeRequestBody({ query: 'tolkien', page: 3 }))
 
@@ -162,7 +162,7 @@ describe('POST /api/books/search — pagination', () => {
   })
 
   it('defaults startIndex=0 and page=1 when omitted', async () => {
-    mockedSearchGoogleBooks.mockResolvedValueOnce([{ title: 'Tolkien', authors: ['JRRT'] }])
+    mockedSearchGoogleBooks.mockResolvedValueOnce([{ title: 'Tolkien', authors: ['JRRT'], source: 'google-books' }])
 
     const res = await POST(makeRequestBody({ query: 'tolkien' }))
 
@@ -188,7 +188,7 @@ describe('POST /api/books/search — pagination', () => {
 
   it('threads language to Google Books when a book-language filter is provided', async () => {
     mockedSearchGoogleBooks.mockResolvedValueOnce([
-      { title: 'Dune', authors: ['Frank Herbert'], language: 'en' },
+      { title: 'Dune', authors: ['Frank Herbert'], source: 'google-books', language: 'en' },
     ])
 
     const res = await POST(makeRequestBody({ query: 'dune', language: 'en' }))
@@ -200,7 +200,7 @@ describe('POST /api/books/search — pagination', () => {
   it('threads language to Open Library on fallback when a book-language filter is provided', async () => {
     mockedSearchGoogleBooks.mockResolvedValueOnce([])
     mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Cem anos de soledad', authors: ['García Márquez'], language: 'es' },
+      { title: 'Cem anos de soledad', authors: ['García Márquez'], source: 'google-books', language: 'es' },
     ])
 
     const res = await POST(makeRequestBody({ query: 'garcia marquez', language: 'es' }))

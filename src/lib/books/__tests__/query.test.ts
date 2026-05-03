@@ -11,7 +11,7 @@ import {
 
 const base: Book = {
   title: 'X',
-  author: 'Y',
+  author: ['Y'],
   status: 'quero-ler' as BookStatus,
   added_at: '2026-01-01',
   _notes: '',
@@ -85,12 +85,12 @@ describe('applyFilters', () => {
 
 describe('applySearch', () => {
   const corpus: Book[] = [
-    mk({ _filename: 'a.md', title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien' }),
-    mk({ _filename: 'b.md', title: 'Clean Code', author: 'Robert C. Martin' }),
+    mk({ _filename: 'a.md', title: 'O Senhor dos Anéis', author: ['J.R.R. Tolkien'] }),
+    mk({ _filename: 'b.md', title: 'Clean Code', author: ['Robert C. Martin'] }),
     mk({
       _filename: 'c.md',
       title: 'Meditações',
-      author: 'Marco Aurélio',
+      author: ['Marco Aurélio'],
       _notes: 'estoicismo e caminhos',
     }),
   ]
@@ -123,9 +123,9 @@ describe('applySearch', () => {
 
 describe('applySort', () => {
   const corpus: Book[] = [
-    mk({ _filename: 'a.md', title: 'Árvore', author: 'A', rating: 3, added_at: '2026-04-01' }),
-    mk({ _filename: 'b.md', title: 'Balé', author: 'B', rating: 5, added_at: '2026-04-10' }),
-    mk({ _filename: 'c.md', title: 'Cão', author: 'C', added_at: '2026-03-30' }),
+    mk({ _filename: 'a.md', title: 'Árvore', author: ['A'], rating: 3, added_at: '2026-04-01' }),
+    mk({ _filename: 'b.md', title: 'Balé', author: ['B'], rating: 5, added_at: '2026-04-10' }),
+    mk({ _filename: 'c.md', title: 'Cão', author: ['C'], added_at: '2026-03-30' }),
   ]
   it('sorts title asc with pt-BR collation', () => {
     const out = applySort(corpus, 'title', 'asc')

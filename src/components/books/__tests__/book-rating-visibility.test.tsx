@@ -12,7 +12,7 @@ function makeBook(overrides: Partial<Book> = {}): Book {
     _filename: 'cartas-diabo.md',
     _notes: '',
     added_at: '2026-04-20',
-    author: 'C. S. Lewis',
+    author: ['C. S. Lewis'],
     status: 'lido',
     title: 'Cartas de um diabo a seu aprendiz',
     ...overrides,

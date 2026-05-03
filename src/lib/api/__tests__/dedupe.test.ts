@@ -4,6 +4,7 @@ import type { BookSearchResult } from '../google-books'
 const book = (overrides: Partial<BookSearchResult> = {}): BookSearchResult => ({
   title: 'Test',
   authors: ['A'],
+  source: 'google-books',
   ...overrides,
 })
 
