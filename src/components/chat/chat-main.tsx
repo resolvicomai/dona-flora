@@ -119,7 +119,11 @@ export function ChatMain({
   const externalPreferenceRef = useRef<ExternalPreference | null>(null)
   const localGenerationInFlight = useRef(false)
   const submitLocked = useRef(false)
-  const openedExplicitRoute = useRef(Boolean(chatId))
+  // Whether the new-chat → /chat/[id] one-shot navigation has already fired.
+  // Both call sites (`handleSubmit`'s draftSave.then and `onFinish`) already
+  // gate on `!chatId`, so initializing `false` is correct even when the
+  // component mounts on /chat/[id] directly.
+  const openedExplicitRoute = useRef(false)
   // WR-02: listChats() readdirs data/chats/ + parses every .md on every
   // refresh. The sidebar entry for this conversation appears after the
   // FIRST persisted assistant turn; subsequent turns only update
@@ -201,7 +205,6 @@ export function ChatMain({
     setExternalPreference(null)
     setPendingTurn(initialGenerationStatus === 'generating')
     setRemoteLastError(initialLastError ?? '')
-    openedExplicitRoute.current = Boolean(chatId)
   }, [chatId, effectiveChatId, initialGenerationStatus, initialLastError])
 
   useEffect(() => {
