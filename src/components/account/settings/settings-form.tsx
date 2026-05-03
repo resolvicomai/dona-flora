@@ -77,11 +77,18 @@ export function SettingsForm({
     setPreferencesStatus(null)
     setIsSavingPreferences(true)
 
-    const response = await fetch('/api/settings', {
-      body: JSON.stringify(settings),
-      headers: { 'content-type': 'application/json' },
-      method: 'PUT',
-    })
+    let response: Response
+    try {
+      response = await fetch('/api/settings', {
+        body: JSON.stringify(settings),
+        headers: { 'content-type': 'application/json' },
+        method: 'PUT',
+      })
+    } catch {
+      setIsSavingPreferences(false)
+      setPreferencesStatus({ kind: 'error', message: copy.settings.error })
+      return
+    }
 
     setIsSavingPreferences(false)
 
@@ -105,11 +112,18 @@ export function SettingsForm({
     setLibraryStatus(null)
     setIsSavingLibrary(true)
 
-    const response = await fetch('/api/settings/library', {
-      body: JSON.stringify({ booksDir: libraryBooksDir }),
-      headers: { 'content-type': 'application/json' },
-      method: 'PUT',
-    })
+    let response: Response
+    try {
+      response = await fetch('/api/settings/library', {
+        body: JSON.stringify({ booksDir: libraryBooksDir }),
+        headers: { 'content-type': 'application/json' },
+        method: 'PUT',
+      })
+    } catch {
+      setIsSavingLibrary(false)
+      setLibraryStatus({ kind: 'error', message: settingsCopy.library.connectError })
+      return
+    }
 
     setIsSavingLibrary(false)
 
@@ -144,9 +158,16 @@ export function SettingsForm({
     const params = new URLSearchParams()
     if (pathToOpen) params.set('path', pathToOpen)
 
-    const response = await fetch(
-      `/api/settings/library/browse${params.size > 0 ? `?${params.toString()}` : ''}`,
-    )
+    let response: Response
+    try {
+      response = await fetch(
+        `/api/settings/library/browse${params.size > 0 ? `?${params.toString()}` : ''}`,
+      )
+    } catch {
+      setIsBrowsingLibrary(false)
+      setLibraryBrowseStatus({ kind: 'error', message: settingsCopy.library.browseError })
+      return
+    }
     const payload = (await response.json().catch(() => null)) as
       | (NonNullable<LibraryBrowseState> & { error?: string })
       | null
@@ -174,9 +195,14 @@ export function SettingsForm({
     setLibraryIndexStatus(null)
     setIsReindexingLibrary(true)
 
-    const response = await fetch('/api/library/reindex', {
-      method: 'POST',
-    })
+    let response: Response
+    try {
+      response = await fetch('/api/library/reindex', { method: 'POST' })
+    } catch {
+      setIsReindexingLibrary(false)
+      setLibraryIndexStatus({ kind: 'error', message: settingsCopy.library.indexError })
+      return
+    }
     const payload = (await response.json().catch(() => null)) as {
       bookCount?: number
       contextChars?: number
@@ -203,27 +229,34 @@ export function SettingsForm({
     setProviderStatus(null)
     setIsSavingProvider(true)
 
-    const response = await fetch('/api/settings/ai-provider', {
-      body: JSON.stringify({
-        anthropicModel: providerSettings.anthropicModel,
-        compatibleBaseUrl: providerSettings.compatibleBaseUrl,
-        compatibleModel: providerSettings.compatibleModel,
-        fallbackApiKey: fallbackApiKey.trim() || undefined,
-        fallbackEnabled: providerSettings.fallbackEnabled,
-        fallbackModel: providerSettings.fallbackModel,
-        fallbackProvider: 'openrouter',
-        ollamaBaseUrl: providerSettings.ollamaBaseUrl,
-        ollamaModel: providerSettings.ollamaModel,
-        openaiModel: providerSettings.openaiModel,
-        openrouterModel: providerSettings.openrouterModel,
-        primaryApiKey: primaryApiKey.trim() || undefined,
-        primaryProvider: providerSettings.primaryProvider,
-        visionEnabled: providerSettings.visionEnabled,
-        visionModel: providerSettings.visionModel,
-      }),
-      headers: { 'content-type': 'application/json' },
-      method: 'PUT',
-    })
+    let response: Response
+    try {
+      response = await fetch('/api/settings/ai-provider', {
+        body: JSON.stringify({
+          anthropicModel: providerSettings.anthropicModel,
+          compatibleBaseUrl: providerSettings.compatibleBaseUrl,
+          compatibleModel: providerSettings.compatibleModel,
+          fallbackApiKey: fallbackApiKey.trim() || undefined,
+          fallbackEnabled: providerSettings.fallbackEnabled,
+          fallbackModel: providerSettings.fallbackModel,
+          fallbackProvider: 'openrouter',
+          ollamaBaseUrl: providerSettings.ollamaBaseUrl,
+          ollamaModel: providerSettings.ollamaModel,
+          openaiModel: providerSettings.openaiModel,
+          openrouterModel: providerSettings.openrouterModel,
+          primaryApiKey: primaryApiKey.trim() || undefined,
+          primaryProvider: providerSettings.primaryProvider,
+          visionEnabled: providerSettings.visionEnabled,
+          visionModel: providerSettings.visionModel,
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'PUT',
+      })
+    } catch {
+      setIsSavingProvider(false)
+      setProviderStatus({ kind: 'error', message: settingsCopy.localAI.providerError })
+      return
+    }
 
     setIsSavingProvider(false)
 
@@ -257,15 +290,22 @@ export function SettingsForm({
     setAvailableProviderModels([])
     setIsTestingProvider(true)
 
-    const response = await fetch('/api/settings/ai-provider/test', {
-      body: JSON.stringify({
-        apiKey: primaryApiKey.trim() || undefined,
-        baseUrl: getProviderBaseUrl(providerSettings),
-        provider: providerSettings.primaryProvider,
-      }),
-      headers: { 'content-type': 'application/json' },
-      method: 'POST',
-    })
+    let response: Response
+    try {
+      response = await fetch('/api/settings/ai-provider/test', {
+        body: JSON.stringify({
+          apiKey: primaryApiKey.trim() || undefined,
+          baseUrl: getProviderBaseUrl(providerSettings),
+          provider: providerSettings.primaryProvider,
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+      })
+    } catch {
+      setIsTestingProvider(false)
+      setProviderTestStatus({ kind: 'error', message: settingsCopy.localAI.providerError })
+      return
+    }
     const payload = (await response.json().catch(() => null)) as {
       error?: string
       models?: Array<{ id: string }>
