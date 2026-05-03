@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { KnownLibraryProvider, type ChatBookMeta } from './known-library-context'
 import { ChatSidebar, NEW_CHAT_RESET_EVENT } from './chat-sidebar'
-import { ChatMain } from './chat-main' // Placeholder in this plan; Plan 06 replaces with streaming UI.
+import { ChatMain } from './chat-main'
 import type { ChatListEntry } from '@/lib/chats/list'
 import type { LibrarianMessage } from '@/lib/chats/types'
 import type { ChatGenerationStatus } from '@/lib/chats/schema'
