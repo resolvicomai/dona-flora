@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
@@ -31,10 +32,21 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
   const { locale } = useAppLanguage()
   const copy = getChatCopy(locale)
   const newChat = useNewChatHandler()
+  const [open, setOpen] = useState(false)
+
+  function handleNewChat() {
+    setOpen(false)
+    newChat()
+  }
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger render={trigger} />
-      <SheetContent side="left" className="!gap-0 p-0">
+      <SheetContent side="left" className="!gap-0 p-0" onClick={(e) => {
+        // Tap on a chat link inside SidebarBody should close the drawer too.
+        const target = e.target as HTMLElement
+        if (target.closest('a[href^="/chat/"]')) setOpen(false)
+      }}>
         <SheetHeader className="flex-row items-center justify-between border-b border-hairline !px-4 !py-4">
           <SheetTitle className="text-lg font-medium text-foreground">
             {copy.sidebar.title}
@@ -43,7 +55,7 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
             size="icon"
             variant="secondary"
             aria-label={copy.sidebar.newConversationAria}
-            onClick={newChat}
+            onClick={handleNewChat}
             className="h-10 w-10 min-h-[44px] min-w-[44px]"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
