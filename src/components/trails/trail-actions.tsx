@@ -122,6 +122,7 @@ export function TrailActions({ goal, notes, slug, title }: TrailActionsProps) {
   const [draftGoal, setDraftGoal] = useState(goal)
   const [draftNotes, setDraftNotes] = useState(notes)
   const [error, setError] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -153,11 +154,12 @@ export function TrailActions({ goal, notes, slug, title }: TrailActionsProps) {
 
   async function handleDelete() {
     setDeleting(true)
+    setDeleteError(null)
     const response = await fetch(`/api/trails/${slug}`, { method: 'DELETE' })
 
     if (!response.ok) {
       setDeleting(false)
-      alert(copy.deleteError)
+      setDeleteError(copy.deleteError)
       return
     }
 
@@ -243,6 +245,14 @@ export function TrailActions({ goal, notes, slug, title }: TrailActionsProps) {
             <AlertDialogTitle>{copy.deleteTitle}</AlertDialogTitle>
             <AlertDialogDescription>{copy.deleteDescription}</AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError ? (
+            <p
+              role="alert"
+              className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
+              {deleteError}
+            </p>
+          ) : null}
           <AlertDialogFooter>
             <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
             <AlertDialogAction disabled={deleting} onClick={handleDelete} variant="destructive">
