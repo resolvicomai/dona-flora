@@ -63,21 +63,27 @@ export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
     },
   }[locale]
   const [deleting, setDeleting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   async function handleDelete() {
     setDeleting(true)
+    setErrorMessage(null)
     try {
       const res = await fetch(`/api/books/${slug}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
       router.push('/')
     } catch {
       setDeleting(false)
-      alert(copy.error)
+      setErrorMessage(copy.error)
     }
   }
 
   return (
-    <AlertDialog>
+    <AlertDialog
+      onOpenChange={(open) => {
+        if (!open) setErrorMessage(null)
+      }}
+    >
       <AlertDialogTrigger
         render={
           <Button
@@ -94,6 +100,14 @@ export function DeleteBookButton({ slug, filename }: DeleteBookButtonProps) {
           <AlertDialogTitle>{copy.title}</AlertDialogTitle>
           <AlertDialogDescription>{copy.description(filename)}</AlertDialogDescription>
         </AlertDialogHeader>
+        {errorMessage ? (
+          <p
+            role="alert"
+            className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
+            {errorMessage}
+          </p>
+        ) : null}
         <AlertDialogFooter>
           <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={deleting} variant="destructive">
