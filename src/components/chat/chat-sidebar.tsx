@@ -15,20 +15,30 @@ import type { ChatListEntry } from '@/lib/chats/list'
 import { cn } from '@/lib/utils'
 
 /**
+ * Custom event fired by `useNewChatHandler` when the user is already on
+ * `/chat` and needs the chat surface to reset its in-memory state. ChatShell
+ * listens for it and bumps a key on ChatMain, forcing a clean remount of the
+ * `useChat` hook without a full page reload.
+ */
+export const NEW_CHAT_RESET_EVENT = 'donaflora:new-chat-reset'
+
+/**
  * "Nova conversa" handler.
  *
- * When already on `/chat` (no id), a Next.js soft navigation does NOT remount
- * ChatMain, so the `useChat` hook keeps prior messages/state and the user sees
- * "nothing happened". A full-page navigation resets client state reliably. If
- * we are elsewhere (e.g. `/chat/{id}`), a normal `router.push` is enough —
- * chatId changes and the downstream components react accordingly.
+ * On `/chat/{id}` a normal `router.push('/chat')` is enough — the segment
+ * changes, ChatShell remounts the page, and downstream components reset.
+ *
+ * On `/chat` itself, a Next.js soft navigation is a no-op so ChatMain would
+ * keep its `useChat` state. Instead of a full reload (which loses scroll
+ * position and flashes the layout), we dispatch a window event that
+ * ChatShell turns into a `key` bump on ChatMain — a cheap React remount.
  */
 export function useNewChatHandler() {
   const router = useRouter()
   const pathname = usePathname()
   return () => {
     if (pathname === '/chat') {
-      window.location.assign('/chat')
+      window.dispatchEvent(new Event(NEW_CHAT_RESET_EVENT))
     } else {
       router.push('/chat')
     }
