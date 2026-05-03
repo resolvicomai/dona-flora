@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { useChat } from '@ai-sdk/react'
@@ -92,15 +92,6 @@ function useStableChatId(chatId?: string): string {
   return generatedChatId.current
 }
 
-type PersistedChatPayload = {
-  chat?: { generation_status?: ChatGenerationStatus; last_error?: string }
-  messages?: LibrarianClientMessage[]
-}
-
-function hasAssistantTurn(nextMessages: LibrarianClientMessage[]) {
-  return nextMessages[nextMessages.length - 1]?.role === 'assistant'
-}
-
 export function ChatMain({
   chatId,
   initialGenerationStatus = 'complete',
@@ -154,11 +145,8 @@ export function ChatMain({
       onFinish: () => {
         localGenerationInFlight.current = false
         submitLocked.current = false
-        // Do not mark the turn complete until the persisted Markdown record
-        // confirms an assistant turn. Some local providers finish the client
-        // stream before the server-side save is observable; the polling effect
-        // below keeps the UI honest and hydrates the saved answer.
-        void hydratePersistedChat({ requireAssistantTurn: true })
+        setRemoteGenerationStatus('complete')
+        setRemoteLastError('')
         // Refresh once so the sidebar list picks up the newly persisted
         // conversation (ChatPage re-reads listChats()). Skip on subsequent
         // turns: the entry is already rendered and listChats() is O(N files).
@@ -172,79 +160,6 @@ export function ChatMain({
         router.refresh()
       },
     })
-
-  const applyPersistedChatPayload = useCallback(
-    (
-      payload: PersistedChatPayload,
-      {
-        requireAssistantTurn = false,
-        allowGeneratingMessages = false,
-      }: { requireAssistantTurn?: boolean; allowGeneratingMessages?: boolean } = {},
-    ) => {
-      const nextStatus = payload.chat?.generation_status ?? 'complete'
-      const nextError = payload.chat?.last_error ?? ''
-      const nextMessages = Array.isArray(payload.messages) ? payload.messages : null
-
-      if (nextStatus === 'error') {
-        if (nextMessages) {
-          setMessages(nextMessages)
-        }
-        setRemoteGenerationStatus('error')
-        setRemoteLastError(nextError)
-        localGenerationInFlight.current = false
-        submitLocked.current = false
-        return true
-      }
-
-      if (nextStatus === 'complete') {
-        const canHydrate = nextMessages && (!requireAssistantTurn || hasAssistantTurn(nextMessages))
-        if (!canHydrate) return false
-
-        setMessages(nextMessages)
-        setRemoteGenerationStatus('complete')
-        setRemoteLastError('')
-        localGenerationInFlight.current = false
-        submitLocked.current = false
-        return true
-      }
-
-      setRemoteGenerationStatus('generating')
-      setRemoteLastError(nextError)
-
-      if (allowGeneratingMessages && nextMessages) {
-        setMessages(nextMessages)
-      }
-
-      return false
-    },
-    [setMessages],
-  )
-
-  async function hydratePersistedChat({
-    requireAssistantTurn = false,
-  }: {
-    requireAssistantTurn?: boolean
-  } = {}) {
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      try {
-        const res = await fetch(`/api/chats/${effectiveChatId}`, { cache: 'no-store' })
-        if (res.ok) {
-          const payload = (await res.json()) as PersistedChatPayload
-          const hydrated = applyPersistedChatPayload(payload, { requireAssistantTurn })
-          if (hydrated) {
-            return
-          }
-        }
-      } catch {
-        // The stream already finished; this hydration pass is best-effort and
-        // retries briefly because the server may still be flushing Markdown.
-      }
-
-      if (attempt < 9) {
-        await new Promise((resolve) => window.setTimeout(resolve, 500))
-      }
-    }
-  }
 
   const shouldShowExternalPreference =
     externalPreference === 'ambos' ||
@@ -296,32 +211,6 @@ export function ChatMain({
       submitLocked.current = false
     }
   }, [remoteGenerationStatus, status])
-
-  useEffect(() => {
-    if (remoteGenerationStatus !== 'generating') return
-    if (!chatId && !openedExplicitRoute.current) return
-
-    let cancelled = false
-
-    async function pollChat() {
-      try {
-        const res = await fetch(`/api/chats/${effectiveChatId}`, { cache: 'no-store' })
-        if (!res.ok) return
-        const payload = (await res.json()) as PersistedChatPayload
-        if (cancelled || !payload.chat) return
-        applyPersistedChatPayload(payload, { requireAssistantTurn: true })
-      } catch {
-        // Polling is a visual affordance; the next tick can recover.
-      }
-    }
-
-    void pollChat()
-    const interval = window.setInterval(() => void pollChat(), 1000)
-    return () => {
-      cancelled = true
-      window.clearInterval(interval)
-    }
-  }, [applyPersistedChatPayload, chatId, effectiveChatId, remoteGenerationStatus])
 
   async function persistDraft(nextMessages: LibrarianClientMessage[]) {
     const res = await fetch(`/api/chats/${effectiveChatId}`, {

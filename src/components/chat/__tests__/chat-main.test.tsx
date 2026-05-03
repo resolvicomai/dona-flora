@@ -28,6 +28,16 @@ let mockComposerProps: MockComposerProps | null = null
 let mockMessages: LibrarianMessage[] = []
 let mockStatus: 'ready' | 'submitted' | 'streaming' | 'error' = 'ready'
 
+function composer(): MockComposerProps {
+  if (!mockComposerProps) throw new Error('Composer mock has not been rendered yet')
+  return mockComposerProps
+}
+
+function useChatOptions(): MockUseChatOptions {
+  if (!mockUseChatOptions) throw new Error('useChat mock has not been called yet')
+  return mockUseChatOptions
+}
+
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     refresh: mockRefresh,
@@ -104,7 +114,7 @@ describe('ChatMain layout chrome', () => {
   test('moves a newly saved /chat conversation to its explicit /chat/{id} route', () => {
     render(<ChatMain chats={[]} bookCount={3} seedBook={null} />)
 
-    mockUseChatOptions.onFinish()
+    useChatOptions().onFinish?.()
 
     expect(mockReplace).toHaveBeenCalledTimes(1)
     expect(mockReplace.mock.calls[0][0]).toMatch(/^\/chat\/[A-Za-z0-9][A-Za-z0-9_-]*$/)
@@ -140,42 +150,32 @@ describe('ChatMain layout chrome', () => {
     await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(serverMessages))
   })
 
-  test('hydrates the persisted assistant turn when the stream finishes', async () => {
-    const finalMessages: LibrarianMessage[] = [
-      {
-        id: 'user-1',
-        role: 'user',
-        parts: [{ type: 'text', text: 'Oi' }],
-      },
-      {
-        id: 'assistant-1',
-        role: 'assistant',
-        parts: [{ type: 'text', text: 'Oi, Mauro. Estou aqui.' }],
-      },
-    ]
-
-    global.fetch = jest.fn(async (url: string) => {
-      if (url === '/api/chats/chat-123') {
-        return {
-          ok: true,
-          json: async () => ({
-            ok: true,
-            chat: { generation_status: 'complete' },
-            messages: finalMessages,
-          }),
-        }
-      }
-
+  test('does not issue any GET fetch to /api/chats/{id} during a streaming turn', async () => {
+    const fetchMock = jest.fn(async (url: string, init?: RequestInit) => {
+      if (init?.method === 'PUT') return { ok: true }
       return { ok: true }
     }) as jest.Mock
+    global.fetch = fetchMock
 
     render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
 
     await act(async () => {
-      mockUseChatOptions.onFinish()
+      composer().onInputChange('Oi')
+    })
+    await waitFor(() => expect(composer().input).toBe('Oi'))
+
+    await act(async () => {
+      composer().onSubmit()
     })
 
-    await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(finalMessages))
+    await act(async () => {
+      useChatOptions().onFinish?.()
+    })
+
+    const getCalls = fetchMock.mock.calls.filter(
+      ([, init]) => !init || (init as RequestInit | undefined)?.method !== 'PUT',
+    )
+    expect(getCalls).toEqual([])
   })
 
   test('does not overwrite a live new-chat stream with the server draft after route navigation', async () => {
@@ -190,12 +190,12 @@ describe('ChatMain layout chrome', () => {
     const { rerender } = render(<ChatMain chats={[]} bookCount={3} seedBook={null} />)
 
     await act(async () => {
-      mockComposerProps.onInputChange('Oi Dona Flora')
+      composer().onInputChange('Oi Dona Flora')
     })
-    await waitFor(() => expect(mockComposerProps.input).toBe('Oi Dona Flora'))
+    await waitFor(() => expect(composer().input).toBe('Oi Dona Flora'))
 
     await act(async () => {
-      mockComposerProps.onSubmit()
+      composer().onSubmit()
     })
 
     mockSetMessages.mockClear()
@@ -227,12 +227,12 @@ describe('ChatMain layout chrome', () => {
     render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
 
     await act(async () => {
-      mockComposerProps.onInputChange('Uma pergunta')
+      composer().onInputChange('Uma pergunta')
     })
-    await waitFor(() => expect(mockComposerProps.input).toBe('Uma pergunta'))
+    await waitFor(() => expect(composer().input).toBe('Uma pergunta'))
 
     await act(async () => {
-      mockComposerProps.onSubmit()
+      composer().onSubmit()
     })
 
     expect(mockSendMessage).toHaveBeenCalledTimes(1)
@@ -259,12 +259,12 @@ describe('ChatMain layout chrome', () => {
     render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
 
     await act(async () => {
-      mockComposerProps.onInputChange('Oi agora')
+      composer().onInputChange('Oi agora')
     })
-    await waitFor(() => expect(mockComposerProps.input).toBe('Oi agora'))
+    await waitFor(() => expect(composer().input).toBe('Oi agora'))
 
     await act(async () => {
-      mockComposerProps.onSubmit()
+      composer().onSubmit()
     })
 
     expect(mockSetMessages).toHaveBeenCalledWith(
@@ -298,12 +298,12 @@ describe('ChatMain layout chrome', () => {
     render(<ChatMain chats={[]} bookCount={3} seedBook={null} />)
 
     await act(async () => {
-      mockComposerProps.onInputChange('Oi')
+      composer().onInputChange('Oi')
     })
-    await waitFor(() => expect(mockComposerProps.input).toBe('Oi'))
+    await waitFor(() => expect(composer().input).toBe('Oi'))
 
     await act(async () => {
-      mockComposerProps.onSubmit()
+      composer().onSubmit()
     })
 
     expect(mockSendMessage).toHaveBeenCalledTimes(1)
@@ -323,77 +323,16 @@ describe('ChatMain layout chrome', () => {
     render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
 
     await act(async () => {
-      mockComposerProps.onInputChange('Uma pergunta')
+      composer().onInputChange('Uma pergunta')
     })
-    await waitFor(() => expect(mockComposerProps.input).toBe('Uma pergunta'))
+    await waitFor(() => expect(composer().input).toBe('Uma pergunta'))
 
     await act(async () => {
-      mockComposerProps.onSubmit()
-      mockComposerProps.onSubmit()
+      composer().onSubmit()
+      composer().onSubmit()
     })
 
     expect(mockSendMessage).toHaveBeenCalledTimes(1)
   })
 
-  test('polls the persisted chat while a local generation is still in flight', async () => {
-    jest.useFakeTimers()
-
-    const finalMessages: LibrarianMessage[] = [
-      {
-        id: 'user-1',
-        role: 'user',
-        parts: [{ type: 'text', text: 'Oi' }],
-      },
-      {
-        id: 'assistant-1',
-        role: 'assistant',
-        parts: [{ type: 'text', text: 'Oi, Mauro. Estou aqui.' }],
-      },
-    ]
-    let pollCount = 0
-
-    global.fetch = jest.fn(async (url: string, init?: RequestInit) => {
-      if (url === '/api/chats/chat-123' && init?.method === 'PUT') {
-        return { ok: true, json: async () => ({ ok: true }) }
-      }
-
-      if (url === '/api/chats/chat-123') {
-        pollCount += 1
-        return {
-          ok: true,
-          json: async () =>
-            pollCount === 1
-              ? {
-                  ok: true,
-                  chat: { generation_status: 'generating' },
-                  messages: finalMessages.slice(0, 1),
-                }
-              : { ok: true, chat: { generation_status: 'complete' }, messages: finalMessages },
-        }
-      }
-
-      return { ok: true }
-    }) as jest.Mock
-
-    render(<ChatMain chatId="chat-123" chats={[]} bookCount={3} seedBook={null} />)
-
-    await act(async () => {
-      mockComposerProps.onInputChange('Oi')
-    })
-    await waitFor(() => expect(mockComposerProps.input).toBe('Oi'))
-
-    await act(async () => {
-      mockComposerProps.onSubmit()
-    })
-
-    expect(mockSendMessage).toHaveBeenCalledTimes(1)
-
-    await act(async () => {
-      jest.advanceTimersByTime(1000)
-    })
-
-    await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(finalMessages))
-
-    jest.useRealTimers()
-  })
 })
