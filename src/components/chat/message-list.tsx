@@ -124,6 +124,13 @@ function hasVisibleMessageContent(message: LibrarianClientMessage): boolean {
   const parts = (message.parts ?? []) as LooseMessagePart[]
 
   if (message.role === 'user') {
+    // A user message with id but no parts yet is in the brief swap window
+    // between the optimistic draft and AI SDK's reconciled message. Render
+    // an empty bubble shell rather than hide the row, so the user never
+    // sees their message vanish — the bubble fills in within a frame.
+    if (parts.length === 0 && typeof message.id === 'string' && message.id.length > 0) {
+      return true
+    }
     return getMessageText(message).trim().length > 0
   }
 

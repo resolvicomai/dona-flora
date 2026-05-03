@@ -57,6 +57,24 @@ describe('MessageList pending and error feedback', () => {
     expect(screen.getByRole('status', { name: 'Dona Flora está pensando' })).toBeInTheDocument()
   })
 
+  test('renders user message with id but empty parts (mid-swap) instead of hiding it', () => {
+    const draftWithEmptyParts = {
+      id: 'draft-uuid-123',
+      role: 'user',
+      parts: [],
+    } as unknown as LibrarianClientMessage
+
+    renderMessageList({
+      messages: [draftWithEmptyParts],
+      status: 'submitted',
+    })
+
+    // Render path is: any user message with an id renders, even if parts
+    // momentarily empty — so the user never sees "my message vanished."
+    // The Welcome state would otherwise paint, so its sentinel must be absent.
+    expect(screen.queryByText(/Sou a Dona Flora/)).not.toBeInTheDocument()
+  })
+
   test('shows a clearer local provider error when chat generation fails', () => {
     renderMessageList({
       messages: [makeMessage('user', 'Oi')],
