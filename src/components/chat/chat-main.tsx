@@ -245,7 +245,13 @@ export function ChatMain({
           openedExplicitRoute.current = true
           router.replace(`/chat/${effectiveChatId}`)
         })
-        .catch(() => {})
+        .catch(() => {
+          // Draft PUT failure is reported by the sendMessage path (which
+          // also persists) — see remoteLastError above. Skipping the
+          // navigation here means the user stays on /chat and can retry
+          // from the same composer instance instead of getting an
+          // orphan /chat/{id} URL with no record on disk.
+        })
     }
   }
 
