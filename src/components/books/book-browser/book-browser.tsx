@@ -232,11 +232,11 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
       {initialBooks.length > 0 ? (
         <div className="brand-toolbar flex flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-5">
           <div>
-            <p className="eyebrow">Ações do acervo</p>
+            <p className="eyebrow">{copy.selectionEyebrow}</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {selectionMode
-                ? `${selectedSlugs.length} livro(s) selecionado(s).`
-                : 'Ative a seleção para alterar vários livros de uma vez.'}
+                ? copy.selectionActiveBody(selectedSlugs.length)
+                : copy.selectionInactiveBody}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -245,7 +245,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
               type="button"
               variant={selectionMode ? 'outline' : 'secondary'}
             >
-              {selectionMode ? 'Sair da seleção' : 'Selecionar livros'}
+              {selectionMode ? copy.exitSelection : copy.enterSelection}
             </Button>
             {selectionMode ? (
               <>
@@ -255,7 +255,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
                   type="button"
                   variant="outline"
                 >
-                  Selecionar visíveis
+                  {copy.selectVisible}
                 </Button>
                 <Button
                   disabled={selectedSlugs.length === 0}
@@ -263,7 +263,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
                   type="button"
                   variant="ghost"
                 >
-                  Limpar
+                  {copy.clearSelection}
                 </Button>
                 <BulkEditBooksDialog onComplete={completeBulkEdit} selectedSlugs={selectedSlugs} />
               </>
