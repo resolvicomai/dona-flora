@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { useChat } from '@ai-sdk/react'
@@ -117,7 +117,6 @@ export function ChatMain({
   const [remoteLastError, setRemoteLastError] = useState(initialLastError ?? '')
   const seedApplied = useRef(false)
   const externalPreferenceRef = useRef<ExternalPreference | null>(null)
-  const hydratedChatId = useRef<string | null>(null)
   const localGenerationInFlight = useRef(false)
   const submitLocked = useRef(false)
   const openedExplicitRoute = useRef(Boolean(chatId))
@@ -128,13 +127,15 @@ export function ChatMain({
   // (chatId provided via URL) are already in the sidebar on mount.
   const hasRefreshedSidebar = useRef<boolean>(Boolean(chatId))
 
-  // Memoize initialMessages to stabilize the useChat prop reference across
-  // renders (WR-04). useChat v6 does not guarantee behavior when `messages`
-  // changes identity mid-session; freezing to the first-mount value matches
-  // the "hydrate once" Plan 06 contract.
-  const memoInitialMessages = useRef(
-    (initialMessages ?? []) as unknown as LibrarianClientMessage[],
-  ).current
+  // Memoize initialMessages so useChat re-keys cleanly on `effectiveChatId`
+  // change without thrashing the messages reference within a single chat.
+  // The useChat hook owns the live state; this prop is only the seed for a
+  // freshly-mounted (or freshly-keyed) instance.
+  const memoInitialMessages = useMemo(
+    () => (initialMessages ?? []) as unknown as LibrarianClientMessage[],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [effectiveChatId],
+  )
 
   const { messages, sendMessage, setMessages, status, stop, regenerate, error } =
     useChat<LibrarianClientMessage>({
@@ -202,13 +203,6 @@ export function ChatMain({
     setRemoteLastError(initialLastError ?? '')
     openedExplicitRoute.current = Boolean(chatId)
   }, [chatId, effectiveChatId, initialGenerationStatus, initialLastError])
-
-  useEffect(() => {
-    if (!chatId || hydratedChatId.current === chatId) return
-    if (localGenerationInFlight.current) return
-    hydratedChatId.current = chatId
-    setMessages((initialMessages ?? []) as unknown as LibrarianClientMessage[])
-  }, [chatId, initialMessages, setMessages])
 
   useEffect(() => {
     if (status === 'error' || (status === 'ready' && !pendingTurn)) {
