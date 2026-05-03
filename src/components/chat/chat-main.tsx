@@ -61,6 +61,20 @@ function createLocalChatId() {
   return `chat-${Math.random().toString(36).slice(2, 10)}`
 }
 
+/**
+ * Stable id for the optimistic user draft. AI SDK v6 reconciles messages by
+ * `messageId`; we pass this same id to `sendMessage({ messageId })` so the
+ * server-echoed message replaces the draft in place rather than appearing as
+ * a duplicate or letting the draft vanish during the swap.
+ */
+function createDraftMessageId(): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID()
+  }
+
+  return `draft-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`
+}
+
 function useStableChatId(chatId?: string): string {
   const generatedChatId = useRef<string | null>(null)
 
@@ -322,7 +336,7 @@ export function ChatMain({
 
   function createDraftUserMessage(text: string): LibrarianClientMessage {
     return {
-      id: `local-${Date.now()}`,
+      id: createDraftMessageId(),
       role: 'user',
       parts: [{ type: 'text', text }],
     } as unknown as LibrarianClientMessage

@@ -6,6 +6,12 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import { ChatMain } from '../chat-main'
 import type { LibrarianMessage } from '@/lib/chats/types'
 
+// Draft messages use crypto.randomUUID() when available (jsdom 30+) and fall
+// back to a `draft-XXXXXX-TS` id otherwise. Tests accept either shape so they
+// stay stable across environments.
+const DRAFT_ID_PATTERN =
+  /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|draft-[a-z0-9]+-[a-z0-9]+)$/i
+
 const mockRefresh = jest.fn()
 const mockReplace = jest.fn()
 const mockSetMessages = jest.fn()
@@ -232,7 +238,7 @@ describe('ChatMain layout chrome', () => {
     expect(mockSendMessage).toHaveBeenCalledTimes(1)
     expect(mockSendMessage).toHaveBeenCalledWith({
       text: 'Uma pergunta',
-      messageId: expect.stringMatching(/^local-/),
+      messageId: expect.stringMatching(DRAFT_ID_PATTERN),
     })
 
     await act(async () => {
@@ -264,7 +270,7 @@ describe('ChatMain layout chrome', () => {
     expect(mockSetMessages).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
-          id: expect.stringMatching(/^local-/),
+          id: expect.stringMatching(DRAFT_ID_PATTERN),
           role: 'user',
           parts: [{ type: 'text', text: 'Oi agora' }],
         }),
@@ -272,7 +278,7 @@ describe('ChatMain layout chrome', () => {
     )
     expect(mockSendMessage).toHaveBeenCalledWith({
       text: 'Oi agora',
-      messageId: expect.stringMatching(/^local-/),
+      messageId: expect.stringMatching(DRAFT_ID_PATTERN),
     })
 
     await act(async () => {
