@@ -15,16 +15,24 @@ export async function fetchLocalAuthLink({ kind, login }: { kind: AuthEmailKind;
     login,
   })
 
-  const response = await fetch(`/api/auth/dev-link?${searchParams.toString()}`, {
-    cache: 'no-store',
-  })
+  let response: Response
+  try {
+    response = await fetch(`/api/auth/dev-link?${searchParams.toString()}`, {
+      cache: 'no-store',
+    })
+  } catch {
+    // Best-effort dev-mode helper; never blow up the auth flow because the
+    // dev-link endpoint was unreachable. Callers already treat null as
+    // "no local link available."
+    return null
+  }
 
   if (!response.ok) {
     return null
   }
 
-  const payload = (await response.json()) as LocalAuthLinkResponse
-  if (!payload.enabled) {
+  const payload = (await response.json().catch(() => null)) as LocalAuthLinkResponse | null
+  if (!payload || !payload.enabled) {
     return null
   }
 

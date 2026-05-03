@@ -131,15 +131,22 @@ export function TrailActions({ goal, notes, slug, title }: TrailActionsProps) {
     setError(null)
     setSaving(true)
 
-    const response = await fetch(`/api/trails/${slug}`, {
-      body: JSON.stringify({
-        goal: draftGoal,
-        notes: draftNotes,
-        title: draftTitle,
-      }),
-      headers: { 'content-type': 'application/json' },
-      method: 'PATCH',
-    })
+    let response: Response
+    try {
+      response = await fetch(`/api/trails/${slug}`, {
+        body: JSON.stringify({
+          goal: draftGoal,
+          notes: draftNotes,
+          title: draftTitle,
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'PATCH',
+      })
+    } catch {
+      setSaving(false)
+      setError(copy.saveError)
+      return
+    }
 
     setSaving(false)
 
@@ -155,7 +162,14 @@ export function TrailActions({ goal, notes, slug, title }: TrailActionsProps) {
   async function handleDelete() {
     setDeleting(true)
     setDeleteError(null)
-    const response = await fetch(`/api/trails/${slug}`, { method: 'DELETE' })
+    let response: Response
+    try {
+      response = await fetch(`/api/trails/${slug}`, { method: 'DELETE' })
+    } catch {
+      setDeleting(false)
+      setDeleteError(copy.deleteError)
+      return
+    }
 
     if (!response.ok) {
       setDeleting(false)
