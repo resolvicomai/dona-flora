@@ -17,7 +17,11 @@ const mockReplace = jest.fn()
 const mockSetMessages = jest.fn()
 const mockSendMessage = jest.fn()
 const mockStop = jest.fn()
-type MockUseChatOptions = { onFinish?: () => void }
+type MockUseChatOptions = {
+  onFinish?: () => void
+  id?: string
+  messages?: LibrarianMessage[]
+}
 type MockComposerProps = {
   input: string
   onInputChange: (value: string) => void
@@ -46,7 +50,7 @@ jest.mock('next/navigation', () => ({
 }))
 
 jest.mock('@ai-sdk/react', () => ({
-  useChat: (options: MockUseChatOptions) => {
+  useChat: (options: MockUseChatOptions & { id?: string; messages?: LibrarianMessage[] }) => {
     mockUseChatOptions = options
     return {
       error: null,
@@ -121,7 +125,7 @@ describe('ChatMain layout chrome', () => {
     expect(mockRefresh).not.toHaveBeenCalled()
   })
 
-  test('hydrates messages when the generated chat route receives server messages', async () => {
+  test('seeds useChat via the messages option when chatId changes (no setMessages overwrite)', async () => {
     const serverMessages: LibrarianMessage[] = [
       {
         id: 'user-1',
@@ -147,7 +151,14 @@ describe('ChatMain layout chrome', () => {
       />,
     )
 
-    await waitFor(() => expect(mockSetMessages).toHaveBeenCalledWith(serverMessages))
+    // Hydration is now via the useChat `messages` option (re-keyed by id),
+    // not a side-effecting setMessages on prop change. The latter could
+    // overwrite a live local stream with stale disk state.
+    await waitFor(() => {
+      expect(useChatOptions().id).toBe('chat-123')
+      expect(useChatOptions().messages).toEqual(serverMessages)
+    })
+    expect(mockSetMessages).not.toHaveBeenCalledWith(serverMessages)
   })
 
   test('does not issue any GET fetch to /api/chats/{id} during a streaming turn', async () => {
