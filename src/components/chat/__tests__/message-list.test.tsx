@@ -14,7 +14,11 @@ const book: ChatBookMeta = {
   status: 'lido',
 }
 
-function makeMessage(role: 'user' | 'assistant', text: string, id = role): LibrarianClientMessage {
+function makeMessage(
+  role: 'user' | 'assistant',
+  text: string,
+  id: string = role,
+): LibrarianClientMessage {
   return {
     id,
     role,

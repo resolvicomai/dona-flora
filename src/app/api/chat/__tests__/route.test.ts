@@ -124,9 +124,11 @@ beforeEach(() => {
   consumeStreamSpy.mockClear()
   mockedSaveChat.mockClear()
   mockedResolveChatModelForUser.mockResolvedValue({
-    model: { modelId: 'qwen3.6:27b' },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: { modelId: 'qwen3.6:27b' } as any,
     provider: 'ollama',
-    settings: {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    settings: {} as any,
   })
 })
 
@@ -289,9 +291,11 @@ describe('POST /api/chat — streamText wiring', () => {
 
   it('adds cacheControl metadata only when the resolved provider is OpenRouter', async () => {
     mockedResolveChatModelForUser.mockResolvedValueOnce({
-      model: { modelId: 'anthropic/claude-sonnet-4.6' },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      model: { modelId: 'anthropic/claude-sonnet-4.6' } as any,
       provider: 'openrouter',
-      settings: {},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      settings: {} as any,
     })
 
     await POST(makeRequest({ chatId: 'abc-123', messages: validMessages() }))

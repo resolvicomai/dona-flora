@@ -28,6 +28,7 @@ function makeChat(overrides: Partial<ChatListEntry> = {}): ChatListEntry {
     book_refs: [],
     pinned: false,
     title_locked: false,
+    generation_status: 'complete',
     content: '## Você — 12:00\n\nQueria falar sobre sertão e travessia.',
     ...overrides,
   }
