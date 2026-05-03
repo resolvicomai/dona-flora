@@ -15,6 +15,13 @@ export type BrowseCopy = {
   readingValue: string
   searchLabel: string
   searchValue: string
+  selectionEyebrow: string
+  selectionInactiveBody: string
+  selectionActiveBody: (count: number) => string
+  enterSelection: string
+  exitSelection: string
+  selectVisible: string
+  clearSelection: string
   startCardBody: string
   startHints: Array<{
     body: string
@@ -64,6 +71,14 @@ export const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
     ],
     summaryCount: (count) => (count === 1 ? 'título catalogado' : 'títulos catalogados'),
     summaryEyebrow: 'Panorama',
+    selectionEyebrow: 'Ações do acervo',
+    selectionInactiveBody: 'Ative a seleção para alterar vários livros de uma vez.',
+    selectionActiveBody: (count) =>
+      count === 1 ? '1 livro selecionado.' : `${count} livros selecionados.`,
+    enterSelection: 'Selecionar livros',
+    exitSelection: 'Sair da seleção',
+    selectVisible: 'Selecionar visíveis',
+    clearSelection: 'Limpar',
   },
   en: {
     collectionBody: 'The books that matter in this slice of your library.',
@@ -103,6 +118,14 @@ export const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
     ],
     summaryCount: (count) => (count === 1 ? 'cataloged title' : 'cataloged titles'),
     summaryEyebrow: 'Overview',
+    selectionEyebrow: 'Library actions',
+    selectionInactiveBody: 'Turn on selection to bulk-edit several books at once.',
+    selectionActiveBody: (count) =>
+      count === 1 ? '1 book selected.' : `${count} books selected.`,
+    enterSelection: 'Select books',
+    exitSelection: 'Exit selection',
+    selectVisible: 'Select visible',
+    clearSelection: 'Clear',
   },
   es: {
     collectionBody: 'Los libros que importan en este recorte de tu biblioteca.',
@@ -142,6 +165,14 @@ export const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
     ],
     summaryCount: (count) => (count === 1 ? 'título catalogado' : 'títulos catalogados'),
     summaryEyebrow: 'Panorama',
+    selectionEyebrow: 'Acciones del acervo',
+    selectionInactiveBody: 'Activa la selección para editar varios libros a la vez.',
+    selectionActiveBody: (count) =>
+      count === 1 ? '1 libro seleccionado.' : `${count} libros seleccionados.`,
+    enterSelection: 'Seleccionar libros',
+    exitSelection: 'Salir de la selección',
+    selectVisible: 'Seleccionar visibles',
+    clearSelection: 'Limpiar',
   },
   'zh-CN': {
     collectionBody: '这个视图里，留下的是此刻最重要的书。',
@@ -178,5 +209,12 @@ export const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
     ],
     summaryCount: () => '已整理图书',
     summaryEyebrow: '概览',
+    selectionEyebrow: '书库操作',
+    selectionInactiveBody: '开启多选以一次修改多本图书。',
+    selectionActiveBody: (count) => `已选择 ${count} 本图书。`,
+    enterSelection: '选择图书',
+    exitSelection: '退出选择',
+    selectVisible: '选择当前显示',
+    clearSelection: '清除',
   },
 }
