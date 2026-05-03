@@ -22,6 +22,16 @@ type ChatCopy = {
     retry: string
     title: string
   }
+  externalPreference: {
+    eyebrow: string
+    groupAria: string
+    optionsAriaHint: string
+    options: {
+      acervo: { label: string; aria: string }
+      ambos: { label: string; aria: string }
+      externo: { label: string; aria: string }
+    }
+  }
   item: {
     cancel: string
     deleteAria: (title: string) => string
@@ -105,6 +115,16 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
         'Ollama local não respondeu. Abra o Ollama, confira se o modelo escolhido está baixado e teste a conexão em Configurações.',
       retry: 'Tentar novamente',
       title: 'Erro ao gerar resposta.',
+    },
+    externalPreference: {
+      eyebrow: 'Preferência de recomendação',
+      groupAria: 'Preferência de recomendação',
+      optionsAriaHint: 'Opções de preferência disponíveis.',
+      options: {
+        acervo: { label: 'Acervo', aria: 'Recomendar apenas do meu acervo' },
+        ambos: { label: 'Ambos', aria: 'Recomendar do acervo ou externos' },
+        externo: { label: 'Externo', aria: 'Recomendar apenas externos' },
+      },
     },
     item: {
       cancel: 'Cancelar',
@@ -193,6 +213,16 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       retry: 'Try again',
       title: 'Could not generate a response.',
     },
+    externalPreference: {
+      eyebrow: 'Recommendation preference',
+      groupAria: 'Recommendation preference',
+      optionsAriaHint: 'Available preference options.',
+      options: {
+        acervo: { label: 'Library', aria: 'Recommend only from my library' },
+        ambos: { label: 'Both', aria: 'Recommend from the library or external sources' },
+        externo: { label: 'External', aria: 'Recommend only external books' },
+      },
+    },
     item: {
       cancel: 'Cancel',
       deleteAria: (title) => `Delete conversation ${title}`,
@@ -279,6 +309,16 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
         'Ollama local no respondió. Abre Ollama, confirma que el modelo elegido esté descargado y prueba la conexión en Configuración.',
       retry: 'Intentar de nuevo',
       title: 'No se pudo generar la respuesta.',
+    },
+    externalPreference: {
+      eyebrow: 'Preferencia de recomendación',
+      groupAria: 'Preferencia de recomendación',
+      optionsAriaHint: 'Opciones de preferencia disponibles.',
+      options: {
+        acervo: { label: 'Acervo', aria: 'Recomendar solo desde mi acervo' },
+        ambos: { label: 'Ambos', aria: 'Recomendar del acervo o externos' },
+        externo: { label: 'Externo', aria: 'Recomendar solo externos' },
+      },
     },
     item: {
       cancel: 'Cancelar',
@@ -367,6 +407,16 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
         '本地 Ollama 没有响应。请打开 Ollama，确认所选模型已经下载，并在设置中测试连接。',
       retry: '重试',
       title: '无法生成回复。',
+    },
+    externalPreference: {
+      eyebrow: '推荐偏好',
+      groupAria: '推荐偏好',
+      optionsAriaHint: '可选偏好。',
+      options: {
+        acervo: { label: '书库', aria: '只推荐我的书库内的书' },
+        ambos: { label: '都可以', aria: '可以推荐书库内或书库外的书' },
+        externo: { label: '书库之外', aria: '只推荐书库之外的书' },
+      },
     },
     item: {
       cancel: '取消',
