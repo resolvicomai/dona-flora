@@ -141,11 +141,18 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
     setProfileMessage(null)
     setIsSavingProfile(true)
 
-    const response = await fetch('/api/profile', {
-      body: JSON.stringify({ displayName }),
-      headers: { 'content-type': 'application/json' },
-      method: 'PATCH',
-    })
+    let response: Response
+    try {
+      response = await fetch('/api/profile', {
+        body: JSON.stringify({ displayName }),
+        headers: { 'content-type': 'application/json' },
+        method: 'PATCH',
+      })
+    } catch {
+      setIsSavingProfile(false)
+      setProfileError(copy.profileSaveError)
+      return
+    }
 
     setIsSavingProfile(false)
 
