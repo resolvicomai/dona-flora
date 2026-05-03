@@ -107,8 +107,13 @@ export function ChatMain({
   const effectiveChatId = useStableChatId(chatId)
   const [input, setInput] = useState('')
   const [externalPreference, setExternalPreference] = useState<ExternalPreference | null>(null)
-  const [remoteGenerationStatus, setRemoteGenerationStatus] =
-    useState<ChatGenerationStatus>(initialGenerationStatus)
+  // `pendingTurn` covers the gap between the user submitting and useChat's
+  // `status` flipping to 'submitted'. It also flags a server-recorded
+  // `'generating'` from a refresh mid-stream so the typing-dots bubble
+  // appears without polling.
+  const [pendingTurn, setPendingTurn] = useState<boolean>(
+    initialGenerationStatus === 'generating',
+  )
   const [remoteLastError, setRemoteLastError] = useState(initialLastError ?? '')
   const seedApplied = useRef(false)
   const externalPreferenceRef = useRef<ExternalPreference | null>(null)
@@ -145,7 +150,7 @@ export function ChatMain({
       onFinish: () => {
         localGenerationInFlight.current = false
         submitLocked.current = false
-        setRemoteGenerationStatus('complete')
+        setPendingTurn(false)
         setRemoteLastError('')
         // Refresh once so the sidebar list picks up the newly persisted
         // conversation (ChatPage re-reads listChats()). Skip on subsequent
@@ -193,7 +198,7 @@ export function ChatMain({
   useEffect(() => {
     externalPreferenceRef.current = null
     setExternalPreference(null)
-    setRemoteGenerationStatus(initialGenerationStatus)
+    setPendingTurn(initialGenerationStatus === 'generating')
     setRemoteLastError(initialLastError ?? '')
     openedExplicitRoute.current = Boolean(chatId)
   }, [chatId, effectiveChatId, initialGenerationStatus, initialLastError])
@@ -206,11 +211,11 @@ export function ChatMain({
   }, [chatId, initialMessages, setMessages])
 
   useEffect(() => {
-    if (status === 'error' || (status === 'ready' && remoteGenerationStatus !== 'generating')) {
+    if (status === 'error' || (status === 'ready' && !pendingTurn)) {
       localGenerationInFlight.current = false
       submitLocked.current = false
     }
-  }, [remoteGenerationStatus, status])
+  }, [pendingTurn, status])
 
   async function persistDraft(nextMessages: LibrarianClientMessage[]) {
     const res = await fetch(`/api/chats/${effectiveChatId}`, {
@@ -239,7 +244,7 @@ export function ChatMain({
     submitLocked.current = true
     localGenerationInFlight.current = true
     setInput('')
-    setRemoteGenerationStatus('generating')
+    setPendingTurn(true)
     setRemoteLastError('')
 
     const draftMessage = createDraftUserMessage(text)
@@ -254,7 +259,7 @@ export function ChatMain({
     void Promise.resolve(sendMessage({ text, messageId: draftMessage.id })).catch((err) => {
       localGenerationInFlight.current = false
       submitLocked.current = false
-      setRemoteGenerationStatus('error')
+      setPendingTurn(false)
       setRemoteLastError(
         err instanceof Error ? err.message : 'A Dona Flora não conseguiu iniciar a resposta.',
       )
@@ -272,9 +277,9 @@ export function ChatMain({
 
   const title = messages.length === 0 ? copy.main.newConversation : copy.main.conversation
   const displayStatus =
-    status === 'ready' && remoteGenerationStatus === 'generating'
+    status === 'ready' && pendingTurn
       ? 'submitted'
-      : status === 'ready' && remoteGenerationStatus === 'error'
+      : status === 'ready' && remoteLastError
         ? 'error'
         : status
   const displayError = error ?? (remoteLastError ? new Error(remoteLastError) : null)
@@ -318,7 +323,7 @@ export function ChatMain({
           if (status === 'submitted' || status === 'streaming') {
             stop()
           }
-          setRemoteGenerationStatus('generating')
+          setPendingTurn(true)
           setRemoteLastError('')
           void regenerate()
         }}
