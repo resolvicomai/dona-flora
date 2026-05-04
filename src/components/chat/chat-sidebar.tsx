@@ -124,7 +124,7 @@ export function SidebarBody({ chats, activeChatId }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label={copy.sidebar.searchAria}
-            className="h-10 pl-10 text-sm"
+            className="h-10 pl-10 text-base md:text-sm"
           />
         </div>
       )}
