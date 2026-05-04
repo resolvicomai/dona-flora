@@ -13,21 +13,38 @@ export interface FilterState {
 
 const FUSE_OPTIONS: IFuseOptions<Book> = {
   keys: [
-    { name: 'title', weight: 3 },
+    // Primary identifying fields — heavy weight so "kai fu" matches
+    // a Kai-Fu Lee book before it matches anything else in the corpus.
+    { name: 'title', weight: 4 },
+    { name: 'author', weight: 4 },
     { name: 'subtitle', weight: 2 },
-    { name: 'author', weight: 2 },
-    { name: 'translator', weight: 1 },
-    { name: 'publisher', weight: 1 },
-    { name: 'series', weight: 1 },
-    { name: 'tags', weight: 1 },
-    { name: '_notes', weight: 1 },
+    { name: 'series', weight: 1.5 },
+    // Secondary fields — present but never alone enough to surface a book.
+    { name: 'translator', weight: 0.5 },
+    { name: 'publisher', weight: 0.5 },
+    { name: 'tags', weight: 0.8 },
+    // Long-form notes have very low weight: searching by free-text inside
+    // notes is useful as a fallback ("aquele livro em que escrevi sobre X")
+    // but should never outrank a real title/author hit.
+    { name: '_notes', weight: 0.2 },
   ],
-  threshold: 0.4,
+  // Threshold tuning: 0.4 (the previous value) was loose enough that a
+  // 2-char overlap inside a long _notes string surfaced unrelated books.
+  // 0.3 was tight enough to break "missing accents" tolerance ("senhor
+  // aneis" → "O Senhor dos Anéis"). 0.35 keeps the diacritic / typo /
+  // missing-stopword cases working while pruning the random hits.
+  threshold: 0.35,
   ignoreLocation: true,
   ignoreDiacritics: true,
-  minMatchCharLength: 2,
+  // 3 chars avoids the "any short token bats anything" failure mode while
+  // still allowing common queries like "ia", "rh", or "uk" against tags.
+  minMatchCharLength: 3,
   includeScore: false,
-  shouldSort: false,
+  // CRITICAL: order results by relevance score. With `shouldSort: false`
+  // Fuse returned matches in the original library order, so the best hit
+  // for "kai fu" could appear after twelve weaker matches — making the
+  // search feel broken.
+  shouldSort: true,
 }
 
 /**
