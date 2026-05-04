@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAppLanguage } from '@/components/app-shell/app-language-provider'
 import { cn } from '@/lib/utils'
 import { getChatCopy } from './chat-language'
+import { useVirtualKeyboard } from './use-virtual-keyboard'
 
 interface ComposerProps {
   input: string
@@ -56,6 +57,7 @@ export function Composer({
   const { locale } = useAppLanguage()
   const copy = getChatCopy(locale)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const keyboardHeight = useVirtualKeyboard()
 
   // Height adjustment: auto → scrollHeight (capped at 192px ≈ max-h-48).
   useEffect(() => {
@@ -97,6 +99,15 @@ export function Composer({
       onSubmit={(e) => {
         e.preventDefault()
         if (canSend) onSubmit()
+      }}
+      // When the on-screen keyboard is open in iOS Safari/Chrome, sticky
+      // bottom-0 alone leaves the composer buried under the keyboard. We lift
+      // it by the obscured height (computed from VisualViewport) and fall back
+      // to safe-area-inset-bottom when there's no keyboard. `transform` is
+      // GPU-accelerated and avoids layout thrash on every visualViewport tick.
+      style={{
+        transform: keyboardHeight > 0 ? `translateY(-${keyboardHeight}px)` : undefined,
+        transition: 'transform 100ms ease-out',
       }}
       className="sticky bottom-0 z-20 shrink-0 border-t border-hairline-strong bg-surface pb-[env(safe-area-inset-bottom)]"
     >
