@@ -139,7 +139,7 @@ export function ChatSidebarItem({ active, chat, onDeleted, onUpdated }: ChatSide
             value={draftTitle}
             onChange={(event) => setDraftTitle(event.target.value)}
             aria-label={copy.item.titleInputAria}
-            className="h-9 bg-background/65 text-sm font-semibold"
+            className="h-9 bg-background/65 text-base font-semibold md:text-sm"
             autoFocus
             maxLength={80}
           />
