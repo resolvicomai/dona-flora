@@ -53,10 +53,39 @@ export function MessageList({ messages, status, error, onRetry, bookCount }: Mes
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-    if (isAtBottomRef.current) {
-      el.scrollTop = el.scrollHeight
-    }
+    if (!isAtBottomRef.current) return
+    // Two rAFs: the first lets the new message paint and the textarea
+    // resize (composer also reflows when the keyboard opens), the second
+    // runs *after* layout has settled so scrollHeight is the final value.
+    // Without this, iOS Safari/Chrome would see an obsolete scrollHeight
+    // when the keyboard transition was mid-flight, leaving the user a
+    // few hundred pixels above the latest bubble.
+    const r1 = requestAnimationFrame(() => {
+      const r2 = requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight
+      })
+      cleanup = () => cancelAnimationFrame(r2)
+    })
+    let cleanup = () => cancelAnimationFrame(r1)
+    return () => cleanup()
   }, [messages, status])
+
+  // When the on-screen keyboard opens or closes, the visual viewport changes
+  // and our `scrollHeight` baseline shifts. Re-snap to bottom if the user
+  // was already pinned there.
+  useEffect(() => {
+    const vv = typeof window !== 'undefined' ? window.visualViewport : null
+    if (!vv) return
+    function snap() {
+      const el = scrollRef.current
+      if (!el || !isAtBottomRef.current) return
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight
+      })
+    }
+    vv.addEventListener('resize', snap)
+    return () => vv.removeEventListener('resize', snap)
+  }, [])
 
   const visibleMessages = messages.filter(hasVisibleMessageContent)
   const lastMessage = visibleMessages[visibleMessages.length - 1]
