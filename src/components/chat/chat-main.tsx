@@ -273,7 +273,7 @@ export function ChatMain({
               variant="secondary"
               size="icon"
               aria-label={copy.main.openHistoryAria}
-              className="h-10 w-10 min-h-[44px] min-w-[44px] xl:hidden"
+              className="h-10 w-10 min-h-[44px] min-w-[44px] lg:hidden"
             >
               <Menu className="h-4 w-4" aria-hidden="true" />
             </Button>
