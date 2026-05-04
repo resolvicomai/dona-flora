@@ -198,7 +198,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="eyebrow">{copy.summaryEyebrow}</p>
-                  <p className="mt-4 font-mono text-5xl font-semibold tracking-normal text-foreground tabular-nums">
+                  <p className="mt-4 font-mono text-4xl font-semibold tracking-normal text-foreground tabular-nums sm:text-5xl">
                     {initialBooks.length}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
@@ -289,7 +289,7 @@ export function BookBrowser({ initialBooks, onboarding }: BookBrowserProps) {
           {visible.length === 0 && hasActiveFilters ? (
             <EmptyResults onClear={clearAll} />
           ) : view === 'grid' ? (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-9 pb-4 md:grid-cols-3 xl:grid-cols-4 xl:gap-y-10">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-7 pb-4 sm:gap-x-4 sm:gap-y-9 md:grid-cols-3 xl:grid-cols-4 xl:gap-y-10">
               {visible.map((book) => (
                 <BookCard
                   book={book}
