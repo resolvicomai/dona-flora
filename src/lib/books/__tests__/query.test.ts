@@ -111,6 +111,41 @@ describe('applySearch', () => {
     const out = applySearch(fuse, corpus, 'estoicismo')
     expect(out.some((b) => b._filename === 'c.md')).toBe(true)
   })
+  it('ranks the most relevant match first (was returning library order)', () => {
+    // Regression: shouldSort was off so a query like "kai fu" surfaced
+    // unrelated books in the library order instead of the actual
+    // matching title at the top.
+    const targetCorpus: Book[] = [
+      mk({ _filename: 'noise-1.md', title: 'Beast in the Machine', author: ['G. Dougherty'] }),
+      mk({ _filename: 'noise-2.md', title: 'A Pequena Fadette', author: ['George Sand'] }),
+      mk({
+        _filename: 'target.md',
+        title: 'AI Superpowers',
+        author: ['Kai-Fu Lee'],
+      }),
+    ]
+    const targetFuse = createFuse(targetCorpus)
+    const out = applySearch(targetFuse, targetCorpus, 'kai fu')
+    // The Kai-Fu Lee book must come first, not buried below noise.
+    expect(out[0]?._filename).toBe('target.md')
+  })
+
+  it('does not return books whose only "match" is a 2-char overlap in notes', () => {
+    // Regression: with threshold 0.4 + minMatchCharLength 2 + _notes weight
+    // 1, every long-form note matched almost any short query.
+    const noisyCorpus: Book[] = [
+      mk({
+        _filename: 'unrelated.md',
+        title: 'Cem Anos de Solidão',
+        author: ['García Márquez'],
+        _notes:
+          'um livro com muitas anotações sobre família, tempo, história, fé e memória '.repeat(8),
+      }),
+    ]
+    const noisyFuse = createFuse(noisyCorpus)
+    expect(applySearch(noisyFuse, noisyCorpus, 'kai fu')).toHaveLength(0)
+  })
+
   it('intersects with pre-filtered set', () => {
     const filtered = [corpus[0]] // only Tolkien
     const out = applySearch(fuse, filtered, 'tolkien')
