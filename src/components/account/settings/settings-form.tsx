@@ -340,8 +340,40 @@ export function SettingsForm({
 
   return (
     <div className="flex flex-1 flex-col gap-6">
+      {/* Mobile/tablet: header summary + horizontal scrollable tabs.
+          Without this the four large nav cards consumed the entire fold
+          before any setting was visible. */}
+      <header className="brand-window p-4 lg:hidden">
+        <p className="eyebrow">{settingsCopy.aside.eyebrow}</p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-normal text-foreground">
+          {settingsCopy.aside.title}
+        </h1>
+      </header>
+      <nav
+        aria-label={settingsCopy.aside.navAria}
+        className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 lg:hidden"
+      >
+        {SETTINGS_PANELS.map((panel) => {
+          const panelCopy = settingsCopy.panels[panel.id]
+          return (
+            <button
+              aria-current={activePanel === panel.id ? 'page' : undefined}
+              className={`surface-transition shrink-0 rounded-md border px-4 py-2 text-sm font-medium ${
+                activePanel === panel.id
+                  ? 'border-transparent bg-primary text-primary-foreground shadow-mac-sm'
+                  : 'border-hairline bg-surface text-foreground hover:bg-surface-elevated'
+              }`}
+              key={panel.id}
+              onClick={() => setActivePanel(panel.id)}
+              type="button"
+            >
+              {panelCopy.title}
+            </button>
+          )
+        })}
+      </nav>
       <section className="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <aside className="brand-window h-fit p-3">
+        <aside className="brand-window hidden h-fit p-3 lg:block">
           <div className="px-3 pb-3 pt-2">
             <p className="eyebrow">{settingsCopy.aside.eyebrow}</p>
             <h1 className="mt-3 text-2xl font-semibold tracking-normal text-foreground">
