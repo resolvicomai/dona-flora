@@ -147,7 +147,7 @@ function TrailCard({
   const percent = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0
 
   return (
-    <article className="brand-window flex min-h-[24rem] flex-col overflow-hidden">
+    <article className="brand-window flex min-h-[18rem] flex-col overflow-hidden sm:min-h-[24rem]">
       <div className="border-b border-hairline p-5">
         <p className="eyebrow">{copy.progress(stats.done, stats.total)}</p>
         <h2 className="mt-3 text-2xl font-semibold leading-tight text-foreground">{trail.title}</h2>
