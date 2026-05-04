@@ -204,7 +204,7 @@ export function MessageBubble({ message, isLastAssistantStreaming }: MessageBubb
       .join('')
     return (
       <div data-role="user" className="my-3 flex justify-end">
-        <div className="chat-user-bubble max-w-[62ch] rounded-lg rounded-br-sm px-4 py-3 whitespace-pre-wrap break-words shadow-mac-sm">
+        <div className="chat-user-bubble max-w-[min(62ch,calc(100vw-3rem))] rounded-lg rounded-br-sm px-4 py-3 whitespace-pre-wrap break-words shadow-mac-sm">
           {text}
         </div>
       </div>
@@ -232,7 +232,7 @@ export function MessageBubble({ message, isLastAssistantStreaming }: MessageBubb
     <div data-role="assistant" className="my-4 flex flex-col items-start gap-0">
       <div className="flex justify-start gap-3">
         <AvatarMonogram />
-        <div className="chat-assistant-panel min-w-0 max-w-[68ch] break-words rounded-bl-sm px-4 py-4">
+        <div className="chat-assistant-panel min-w-0 max-w-[min(68ch,calc(100vw-5rem))] break-words rounded-bl-sm px-4 py-4">
           {parts.map((part, i) => {
             switch (part.type) {
               case 'text':
@@ -288,7 +288,7 @@ export function MessageBubble({ message, isLastAssistantStreaming }: MessageBubb
         </div>
       </div>
       {trailArtifact && (
-        <div className="ml-12 mt-2 w-full max-w-[75ch]">
+        <div className="ml-12 mt-2 w-full max-w-[min(75ch,calc(100vw-5rem))]">
           <ReadingTrailArtifact isPending={trailArtifact.isPending} slugs={trailArtifact.slugs} />
         </div>
       )}
