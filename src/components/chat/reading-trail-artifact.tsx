@@ -42,22 +42,53 @@ export function ReadingTrailArtifact({ isPending = false, slugs, suggestedTitle 
   const copy = getChatCopy(locale)
   const [state, setState] = useState<SaveState>('idle')
   const [savedSlug, setSavedSlug] = useState<string | null>(null)
+  const [errorDetail, setErrorDetail] = useState<string | null>(null)
   const canSave = slugs.length >= 2 && !isPending
 
   async function handleSave() {
     setState('saving')
+    setErrorDetail(null)
     try {
       const title = suggestedTitle?.trim() || copy.trail.defaultTitle
-      const res = await fetch('/api/trails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, book_refs: slugs }),
-      })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      let res: Response
+      try {
+        res = await fetch('/api/trails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, book_refs: slugs }),
+        })
+      } catch (err) {
+        // Network failure (offline, DNS, connection drop). Surface the
+        // raw cause so the user can distinguish it from a server error.
+        setErrorDetail(err instanceof Error ? err.message : 'erro de rede')
+        setState('error')
+        return
+      }
+      if (!res.ok) {
+        // Try to surface the server's specific reason (e.g. unknown slug,
+        // bad title, missing book_refs). The /api/trails route returns a
+        // structured `{ error, details: { fieldErrors } }` on validation
+        // failures and `{ error }` on a 500.
+        const payload = (await res.json().catch(() => null)) as {
+          error?: string
+          details?: { fieldErrors?: Record<string, string[]> }
+        } | null
+        const fieldMessages = payload?.details?.fieldErrors
+          ? Object.values(payload.details.fieldErrors).flat().join(' · ')
+          : null
+        const reason =
+          fieldMessages || payload?.error || `HTTP ${res.status}`
+        setErrorDetail(reason)
+        setState('error')
+        return
+      }
       const payload = (await res.json()) as { slug?: string }
       setSavedSlug(payload.slug ?? null)
       setState('saved')
-    } catch {
+    } catch (err) {
+      // Catch-all for unexpected exceptions during JSON parsing of the
+      // success branch.
+      setErrorDetail(err instanceof Error ? err.message : 'erro inesperado')
       setState('error')
     }
   }
@@ -101,8 +132,13 @@ export function ReadingTrailArtifact({ isPending = false, slugs, suggestedTitle 
           </div>
         )}
         {state === 'error' && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-destructive">{copy.trail.error}</span>
+          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col items-end text-right sm:items-start sm:text-left">
+              <span className="text-sm text-destructive">{copy.trail.error}</span>
+              {errorDetail ? (
+                <span className="text-xs text-destructive/80">{errorDetail}</span>
+              ) : null}
+            </div>
             <Button size="sm" variant="secondary" onClick={handleSave}>
               {copy.trail.retry}
             </Button>
