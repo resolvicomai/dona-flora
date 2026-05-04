@@ -18,7 +18,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={cn('relative flex min-h-screen flex-col', isChatRoute && 'h-dvh overflow-hidden')}
+      className={cn('relative flex min-h-dvh flex-col', isChatRoute && 'h-dvh overflow-hidden')}
     >
       {isAuthRoute ? null : <TopNav />}
       <main
