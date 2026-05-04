@@ -42,11 +42,16 @@ export function ChatSidebarDrawer({ trigger, chats, activeChatId }: Props) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger render={trigger} />
-      <SheetContent side="left" className="!gap-0 p-0" onClick={(e) => {
-        // Tap on a chat link inside SidebarBody should close the drawer too.
-        const target = e.target as HTMLElement
-        if (target.closest('a[href^="/chat/"]')) setOpen(false)
-      }}>
+      <SheetContent
+        side="left"
+        // pt/pb push content past iOS notch / home indicator when present.
+        className="!gap-0 p-0 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+        onClick={(e) => {
+          // Tap on a chat link inside SidebarBody should close the drawer too.
+          const target = e.target as HTMLElement
+          if (target.closest('a[href^="/chat/"]')) setOpen(false)
+        }}
+      >
         <SheetHeader className="flex-row items-center justify-between border-b border-hairline !px-4 !py-4">
           <SheetTitle className="text-lg font-medium text-foreground">
             {copy.sidebar.title}
