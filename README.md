@@ -12,6 +12,7 @@
   <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-1f6f5b.svg" /></a>
   <a href="package.json"><img alt="Node.js >= 22" src="https://img.shields.io/badge/node-%3E%3D22-1f6f5b.svg" /></a>
   <a href="#como-funciona"><img alt="Local-first" src="https://img.shields.io/badge/local--first-Markdown%20%2B%20SQLite-1f6f5b.svg" /></a>
+  <a href="#idiomas"><img alt="Idiomas: pt-BR, en, es, zh-CN" src="https://img.shields.io/badge/idiomas-pt--BR%20%C2%B7%20en%20%C2%B7%20es%20%C2%B7%20zh--CN-1f6f5b.svg" /></a>
   <a href="#status"><img alt="Status beta" src="https://img.shields.io/badge/status-beta-c89b3c.svg" /></a>
 </p>
 
@@ -21,6 +22,8 @@
   <a href="#tour-do-produto">Tour do produto</a>
   ·
   <a href="#como-funciona">Como funciona</a>
+  ·
+  <a href="#idiomas">Idiomas</a>
   ·
   <a href="#privacidade">Privacidade</a>
   ·
@@ -103,6 +106,26 @@ Ela não quer substituir o Obsidian, nem prender seus dados em um banco opaco. E
 - SQLite para conta, preferências, segredos opcionais, chats e trilhas.
 - Markdown como fonte de verdade dos livros.
 - IA local por padrão via Ollama.
+
+### Multiplataforma
+
+- Interface responsiva otimizada para iPhone, Android, iPad e desktop.
+- Composer do chat sobe acima do teclado virtual em iOS Safari/Chrome.
+- Drawer lateral com histórico de conversas em mobile e tablet.
+- Toques mínimos de 44×44px e tipografia que respeita a área segura do iOS (notch e home indicator).
+
+## Idiomas
+
+A Dona Flora fala quatro línguas, escolhidas pelo usuário em `Ajustes -> Preferências`:
+
+| Locale  | Onde se aplica                                                          |
+| ------- | ----------------------------------------------------------------------- |
+| `pt-BR` | Idioma original. Padrão se nenhum outro for configurado.                |
+| `en`    | Tradução completa de UI, prompts da Dona Flora e mensagens de erro.     |
+| `es`    | Tradução completa de UI, prompts da Dona Flora e mensagens de erro.     |
+| `zh-CN` | Tradução completa de UI, prompts da Dona Flora e mensagens de erro.    |
+
+A tradução cobre interface, formulários, mensagens de erro, copy do chat e a persona da bibliotecária. Acervo, notas e highlights ficam intocados no idioma em que você escreveu.
 
 ## Tour do produto
 
@@ -395,6 +418,8 @@ src/
     books/      schema, parser, busca, escrita e cache de livros
     chats/      persistência e serialização das conversas
     covers/     cache local e placeholders de capa
+    i18n/       resolução de locale e copy compartilhada
+    library/    snapshot tolerante do acervo + cache por arquivo
     storage/    contexto de dados por usuário
     trails/     trilhas salvas
 docs/
@@ -420,7 +445,7 @@ Dona Flora está em beta local-first.
 
 Bom para:
 
-- rodar localmente;
+- rodar localmente em desktop, tablet ou celular;
 - catalogar acervo pessoal;
 - usar com Obsidian;
 - conversar com IA local;
@@ -428,11 +453,11 @@ Bom para:
 
 Ainda merece evolução em:
 
-- instalação guiada para pessoas não técnicas;
 - importação por foto mais polida;
 - sincronização entre dispositivos;
-- empacotamento desktop;
-- testes com acervos maiores.
+- empacotamento desktop e PWA instalável;
+- testes com acervos maiores;
+- screenshots oficiais sanitizados em `docs/screenshots/`.
 
 ## Contribuindo
 
