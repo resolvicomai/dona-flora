@@ -158,7 +158,7 @@ export function ChatSidebar({ chats, activeChatId }: Props) {
   return (
     <aside
       className={cn(
-        'brand-window hidden h-full min-h-0 shrink-0 overflow-hidden xl:flex xl:w-[18rem] xl:flex-col 2xl:w-[20rem]',
+        'brand-window hidden h-full min-h-0 shrink-0 overflow-hidden lg:flex lg:w-[16rem] lg:flex-col xl:w-[18rem] 2xl:w-[20rem]',
       )}
     >
       <header className="flex items-center justify-between gap-2 border-b border-hairline px-4 py-4">
