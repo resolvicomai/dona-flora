@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
@@ -29,6 +29,22 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'Dona Flora — Biblioteca Pessoal',
   description: 'Sua biblioteca pessoal com um bibliotecário alimentado por IA',
+}
+
+/**
+ * Mobile foundation: explicit viewport so iOS Safari/Chrome activates
+ * `env(safe-area-inset-*)` (requires `viewport-fit: cover`) and so the
+ * initial scale is locked to 1 — without this the existing safe-area
+ * classes across the app silently resolve to zero.
+ *
+ * `userScalable` is left at the platform default (true) so users with
+ * accessibility needs can still pinch-zoom; we only prevent the implicit
+ * auto-zoom on input focus via 16px font-size on form controls.
+ */
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default async function RootLayout({
