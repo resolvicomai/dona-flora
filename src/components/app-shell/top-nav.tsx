@@ -23,7 +23,7 @@ export function TopNav() {
   return (
     <header className="pointer-events-none sticky top-0 z-40 px-3 pt-3 md:px-5">
       <div className="page-frame">
-        <div className="brand-window pointer-events-auto flex flex-wrap items-center gap-3 px-3 py-3 md:min-h-16 md:flex-nowrap md:px-4 md:py-2">
+        <div className="brand-window pointer-events-auto flex flex-wrap items-center gap-2 px-3 py-2 sm:gap-3 md:min-h-16 md:flex-nowrap md:px-4">
           <Link href="/" aria-label={copy.nav.homeAriaLabel} className="group min-w-0 shrink-0">
             <span className="block text-[1.05rem] font-semibold tracking-normal text-foreground">
               Dona Flora
@@ -77,10 +77,15 @@ export function TopNav() {
             </Link>
           </nav>
 
-          <div className="ml-auto flex shrink-0 items-center gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             <AddBookDialog />
-            <ThemeToggle />
-            <AppLanguageSwitcher />
+            {/* Theme + Language are hidden on small screens to keep the
+                top-nav on a single row; both remain reachable via /settings
+                (linked from the AccountMenu). */}
+            <div className="hidden md:contents">
+              <ThemeToggle />
+              <AppLanguageSwitcher />
+            </div>
             <AccountMenu />
           </div>
         </div>
