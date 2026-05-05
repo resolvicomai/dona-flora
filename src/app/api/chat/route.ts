@@ -45,6 +45,55 @@ import type { StorageContext } from '@/lib/storage/context'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60 // AI-SPEC §3 — streaming can take a while
 const MAX_OUTPUT_TOKENS = 3000
+const MAX_ERROR_MESSAGE_LENGTH = 320
+
+/**
+ * Pull the most informative human-readable string out of a stream error so the
+ * client's `useChat.error` surfaces actionable text instead of "An error
+ * occurred." AI SDK v6 wraps provider failures in `APICallError` whose
+ * `responseBody` typically looks like:
+ *   `{"error":{"message":"model X does not support tools","type":"..."}}`
+ * Falls back through several shapes before giving up.
+ */
+function extractStreamErrorMessage(error: unknown): string {
+  const fallback = 'A Dona Flora não conseguiu concluir a resposta.'
+  if (!error) return fallback
+
+  // Try to read the upstream provider's message field from the response body.
+  if (typeof error === 'object' && error !== null) {
+    const e = error as {
+      responseBody?: unknown
+      data?: { error?: { message?: unknown } }
+      message?: unknown
+    }
+
+    const dataMessage = e.data?.error?.message
+    if (typeof dataMessage === 'string' && dataMessage.trim()) {
+      return dataMessage.slice(0, MAX_ERROR_MESSAGE_LENGTH)
+    }
+
+    if (typeof e.responseBody === 'string' && e.responseBody.trim()) {
+      try {
+        const parsed = JSON.parse(e.responseBody) as {
+          error?: { message?: unknown } | string
+        }
+        const inner = typeof parsed.error === 'string' ? parsed.error : parsed.error?.message
+        if (typeof inner === 'string' && inner.trim()) {
+          return inner.slice(0, MAX_ERROR_MESSAGE_LENGTH)
+        }
+      } catch {
+        // body wasn't JSON — surface the raw text up to the cap
+        return e.responseBody.slice(0, MAX_ERROR_MESSAGE_LENGTH)
+      }
+    }
+
+    if (typeof e.message === 'string' && e.message.trim()) {
+      return e.message.slice(0, MAX_ERROR_MESSAGE_LENGTH)
+    }
+  }
+
+  return fallback
+}
 
 // Re-exported client types (Plan 06 client imports from this route).
 export type { LibrarianTools }
@@ -265,6 +314,14 @@ export async function POST(request: NextRequest) {
         } catch (err) {
           console.error('[API] onFinish saveChat error:', err)
         }
+      },
+      // Errors that fire mid-stream (the provider returning 4xx/5xx after the
+      // outer try/catch has already returned the Response) reach the client
+      // through this hook. Default behavior swallows the message; we extract
+      // the most useful surface text so MessageErrorState can render a real
+      // remediation hint instead of "Erro ao gerar resposta".
+      onError: (error) => {
+        return extractStreamErrorMessage(error)
       },
     })
   } catch (err) {
