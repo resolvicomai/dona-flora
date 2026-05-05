@@ -30,6 +30,26 @@ interface ProviderTestResult {
   ok: boolean
 }
 
+/**
+ * Heuristic: model ids that look like embedding / reranking / autocomplete
+ * specialists rather than chat models. The OpenAI-compatible /models endpoint
+ * (notably Ollama) returns every loaded model regardless of family — including
+ * BERT rerankers and BGE embeddings that have no chat template and reject
+ * tool-calling outright.
+ *
+ * Selecting one of these as the "chat model" produces a confusing 400 from the
+ * provider mid-stream ("model X does not support tools"), so we filter them
+ * out of the list shown in Settings. This is intentionally a name-based
+ * heuristic — there's no reliable capability flag in the OpenAI /models
+ * response — but it covers the real-world id naming conventions.
+ */
+const NON_CHAT_MODEL_PATTERN =
+  /(^|[\/-])(embed|embedding|rerank|reranker|bge|autocomplete|whisper|moderation|tts|stt|voice|clip)([:\-/]|$)/i
+
+export function isLikelyChatModel(id: string): boolean {
+  return !NON_CHAT_MODEL_PATTERN.test(id)
+}
+
 export async function listOpenAICompatibleModels(baseUrl: string, apiKey?: string | null) {
   const response = await fetch(`${baseUrl.replace(/\/+$/, '')}/models`, {
     headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined,
@@ -54,6 +74,7 @@ export async function listOpenAICompatibleModels(baseUrl: string, apiKey?: strin
         : null
     })
     .filter((model): model is OpenAICompatibleModelInfo => model !== null)
+    .filter((model) => isLikelyChatModel(model.id))
 }
 
 async function listOpenAIModels(apiKey: string) {

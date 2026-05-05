@@ -1,5 +1,7 @@
 import {
   AIProviderConfigurationError,
+  isLikelyChatModel,
+  listOpenAICompatibleModels,
   resolveChatModelForUser,
   resolveVisionModelForUser,
 } from '@/lib/ai/provider'
@@ -218,5 +220,71 @@ describe('resolveChatModelForUser', () => {
       AIProviderConfigurationError,
     )
     await expect(resolveChatModelForUser('user-1')).rejects.toThrow('Ollama local não respondeu')
+  })
+})
+
+describe('isLikelyChatModel', () => {
+  it.each([
+    'chat:latest',
+    'flagship:latest',
+    'gpt-oss:20b',
+    'agente:latest',
+    'qwen3.6:35b-a3b',
+    'gemma4:26b',
+    'gpt-4.1-mini',
+    'claude-sonnet-4-6',
+    'meta-llama/Llama-3.1-8B-Instruct',
+    'deepseek-r1:8b',
+  ])('keeps real chat models: %s', (id) => {
+    expect(isLikelyChatModel(id)).toBe(true)
+  })
+
+  it.each([
+    'reranker:latest',
+    'dengcao/bge-reranker-v2-m3:latest',
+    'embed:latest',
+    'embedding:latest',
+    'bge-m3:latest',
+    'bge-large-en',
+    'autocomplete:latest',
+    'whisper-1',
+    'tts-1',
+    'text-embedding-3-large',
+  ])('hides specialist non-chat models: %s', (id) => {
+    expect(isLikelyChatModel(id)).toBe(false)
+  })
+})
+
+describe('listOpenAICompatibleModels', () => {
+  beforeEach(() => {
+    mockedFetch.mockReset()
+  })
+
+  it('strips embedding/reranker/autocomplete entries from the response', async () => {
+    mockedFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [
+          { id: 'reranker:latest' },
+          { id: 'embed:latest' },
+          { id: 'bge-m3:latest' },
+          { id: 'autocomplete:latest' },
+          { id: 'chat:latest' },
+          { id: 'flagship:latest' },
+          { id: 'gpt-oss:20b' },
+        ],
+      }),
+    })
+
+    const models = await listOpenAICompatibleModels('http://127.0.0.1:11434/v1')
+
+    expect(models.map((m) => m.id)).toEqual(['chat:latest', 'flagship:latest', 'gpt-oss:20b'])
+  })
+
+  it('throws AIProviderConfigurationError when the server returns non-2xx', async () => {
+    mockedFetch.mockResolvedValue({ ok: false, status: 503 })
+    await expect(listOpenAICompatibleModels('http://127.0.0.1:11434/v1')).rejects.toBeInstanceOf(
+      AIProviderConfigurationError,
+    )
   })
 })
