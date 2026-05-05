@@ -19,6 +19,7 @@ type ChatCopy = {
   error: {
     genericMessage: string
     localProviderMessage: string
+    openSettings: string
     retry: string
     title: string
   }
@@ -113,6 +114,7 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       genericMessage: 'Algo deu errado na conversa. Tente de novo em alguns segundos.',
       localProviderMessage:
         'Ollama local não respondeu. Abra o Ollama, confira se o modelo escolhido está baixado e teste a conexão em Configurações.',
+      openSettings: 'Trocar modelo nos Ajustes',
       retry: 'Tentar novamente',
       title: 'Erro ao gerar resposta.',
     },
@@ -210,6 +212,7 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       genericMessage: 'Something went wrong in the conversation. Try again in a few seconds.',
       localProviderMessage:
         'Local Ollama did not respond. Open Ollama, check whether the selected model is downloaded, and test the connection in Settings.',
+      openSettings: 'Change model in Settings',
       retry: 'Try again',
       title: 'Could not generate a response.',
     },
@@ -307,6 +310,7 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       genericMessage: 'Algo salió mal en la conversación. Inténtalo de nuevo en unos segundos.',
       localProviderMessage:
         'Ollama local no respondió. Abre Ollama, confirma que el modelo elegido esté descargado y prueba la conexión en Configuración.',
+      openSettings: 'Cambiar modelo en Ajustes',
       retry: 'Intentar de nuevo',
       title: 'No se pudo generar la respuesta.',
     },
@@ -405,6 +409,7 @@ const CHAT_COPY: Record<AppLanguage, ChatCopy> = {
       genericMessage: '对话中出了点问题。请稍后再试。',
       localProviderMessage:
         '本地 Ollama 没有响应。请打开 Ollama，确认所选模型已经下载，并在设置中测试连接。',
+      openSettings: '在设置中更换模型',
       retry: '重试',
       title: '无法生成回复。',
     },
