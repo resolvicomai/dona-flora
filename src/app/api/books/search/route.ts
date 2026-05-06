@@ -72,6 +72,17 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  if (results.length === 0 && googleError) {
+    return NextResponse.json(
+      {
+        code: 'provider_unavailable',
+        error:
+          'Google Books não respondeu agora e as bases alternativas não encontraram esse livro. Tente novamente em instantes ou cadastre manualmente.',
+      },
+      { status: 503 },
+    )
+  }
+
   const enrichedResults = await Promise.all(
     results.map(async (book) => {
       if (book.cover) {

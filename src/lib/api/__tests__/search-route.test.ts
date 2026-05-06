@@ -55,7 +55,12 @@ beforeEach(() => {
 describe('POST /api/books/search — resilient fallback', () => {
   it('returns Google results when Google Books succeeds', async () => {
     const googleResults: BookSearchResult[] = [
-      { title: 'Dom Casmurro', authors: ['Machado de Assis'], source: 'google-books', language: 'pt-BR' },
+      {
+        title: 'Dom Casmurro',
+        authors: ['Machado de Assis'],
+        source: 'google-books',
+        language: 'pt-BR',
+      },
     ]
     mockedSearchGoogleBooks.mockResolvedValueOnce(googleResults)
     mockedSearchOpenLibrary.mockResolvedValueOnce([])
@@ -101,7 +106,12 @@ describe('POST /api/books/search — resilient fallback', () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
     mockedSearchGoogleBooks.mockRejectedValueOnce(new Error('[GoogleBooks] API error: 503'))
     mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Dom Casmurro (OL)', authors: ['Machado'], source: 'google-books', language: 'pt-BR' },
+      {
+        title: 'Dom Casmurro (OL)',
+        authors: ['Machado'],
+        source: 'google-books',
+        language: 'pt-BR',
+      },
     ])
 
     const res = await POST(makeRequest('dom casmurro'))
@@ -113,6 +123,19 @@ describe('POST /api/books/search — resilient fallback', () => {
     expect(body[0].language).toBe('pt-BR')
     expect(mockedSearchOpenLibrary).toHaveBeenCalledTimes(1)
     expect(warnSpy).toHaveBeenCalled()
+  })
+
+  it('returns provider unavailable when Google throws and Open Library has no matches', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    mockedSearchGoogleBooks.mockRejectedValueOnce(new Error('[GoogleBooks] API error: 429'))
+    mockedSearchOpenLibrary.mockResolvedValueOnce([])
+
+    const res = await POST(makeRequest('9788550822426'))
+    const body = await res.json()
+
+    expect(res.status).toBe(503)
+    expect(body.code).toBe('provider_unavailable')
+    expect(body.error).toMatch(/Google Books/i)
   })
 
   it('returns 500 only when BOTH providers throw', async () => {
@@ -152,7 +175,9 @@ describe('POST /api/books/search — pagination', () => {
   it('threads page to searchOpenLibrary on fallback when provided', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
     mockedSearchGoogleBooks.mockResolvedValueOnce([])
-    mockedSearchOpenLibrary.mockResolvedValueOnce([{ title: 'Tolkien OL', authors: ['JRRT'], source: 'google-books' }])
+    mockedSearchOpenLibrary.mockResolvedValueOnce([
+      { title: 'Tolkien OL', authors: ['JRRT'], source: 'google-books' },
+    ])
 
     const res = await POST(makeRequestBody({ query: 'tolkien', page: 3 }))
 
@@ -162,7 +187,9 @@ describe('POST /api/books/search — pagination', () => {
   })
 
   it('defaults startIndex=0 and page=1 when omitted', async () => {
-    mockedSearchGoogleBooks.mockResolvedValueOnce([{ title: 'Tolkien', authors: ['JRRT'], source: 'google-books' }])
+    mockedSearchGoogleBooks.mockResolvedValueOnce([
+      { title: 'Tolkien', authors: ['JRRT'], source: 'google-books' },
+    ])
 
     const res = await POST(makeRequestBody({ query: 'tolkien' }))
 
@@ -200,7 +227,12 @@ describe('POST /api/books/search — pagination', () => {
   it('threads language to Open Library on fallback when a book-language filter is provided', async () => {
     mockedSearchGoogleBooks.mockResolvedValueOnce([])
     mockedSearchOpenLibrary.mockResolvedValueOnce([
-      { title: 'Cem anos de soledad', authors: ['García Márquez'], source: 'google-books', language: 'es' },
+      {
+        title: 'Cem anos de soledad',
+        authors: ['García Márquez'],
+        source: 'google-books',
+        language: 'es',
+      },
     ])
 
     const res = await POST(makeRequestBody({ query: 'garcia marquez', language: 'es' }))

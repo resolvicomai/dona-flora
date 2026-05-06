@@ -24,7 +24,7 @@ import { AddBookSavingStep } from './saving-step'
 import { AddBookSearchStep } from './search-step'
 import type { Step } from './constants'
 import { ADD_BOOK_COPY, BOOK_LANGUAGE_FILTER_COPY } from './copy'
-import { getSearchErrorMessage } from './helpers'
+import { getSearchErrorMessage, normalizeManualISBN } from './helpers'
 
 interface AddBookDialogProps {
   triggerLabel?: string
@@ -53,6 +53,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
   // Manual form fields
   const [manualTitle, setManualTitle] = useState('')
   const [manualAuthor, setManualAuthor] = useState('')
+  const [manualISBN, setManualISBN] = useState('')
   const [manualStatus, setManualStatus] = useState<string>('quero-ler')
 
   // Pagination state (Phase 3 D-23)
@@ -111,6 +112,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
     setPreviewStatus('quero-ler')
     setManualTitle('')
     setManualAuthor('')
+    setManualISBN('')
     setManualStatus('quero-ler')
     setNextStart(0)
     setNextPage(1)
@@ -161,6 +163,12 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
     timerRef.current = setTimeout(async () => {
       await runSearch(query, nextLanguage)
     }, 200)
+  }
+
+  function handleManualWithCurrentISBN() {
+    setManualISBN(query.trim())
+    setError(null)
+    setStep('manual')
   }
 
   async function fetchMore() {
@@ -286,9 +294,16 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
 
   function handleSaveManual() {
     if (!manualTitle.trim() || !manualAuthor.trim()) return
+    const isbnPatch = manualISBN.trim() ? normalizeManualISBN(manualISBN) : {}
+    if (manualISBN.trim() && Object.keys(isbnPatch).length === 0) {
+      setError(copy.invalidISBN)
+      return
+    }
+
     saveBook({
       title: manualTitle.trim(),
       author: manualAuthor.trim(),
+      ...isbnPatch,
       status: manualStatus,
     })
   }
@@ -343,6 +358,7 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
           fetchMore={fetchMore}
           filterCopy={filterCopy}
           handleBookLanguageChange={handleBookLanguageChange}
+          handleManualWithCurrentISBN={handleManualWithCurrentISBN}
           handleQueryChange={handleQueryChange}
           handleVisionImage={handleVisionImage}
           hasMore={hasMore}
@@ -388,10 +404,12 @@ export function AddBookDialog({ triggerLabel }: AddBookDialogProps) {
           isSaving={isSaving}
           locale={locale}
           manualAuthor={manualAuthor}
+          manualISBN={manualISBN}
           manualStatus={manualStatus}
           manualTitle={manualTitle}
           setError={setError}
           setManualAuthor={setManualAuthor}
+          setManualISBN={setManualISBN}
           setManualStatus={setManualStatus}
           setManualTitle={setManualTitle}
           setStep={setStep}

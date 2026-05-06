@@ -34,7 +34,12 @@ export type AddBookCopy = {
   back: string
   coverLabel: string
   coverSourceExternal: string
+  catalogManuallyWithISBN: string
   dialogTitle: string
+  invalidISBN: string
+  isbnLabel: string
+  isbnNotFound: string
+  isbnPlaceholder: string
   manualTitle: string
   metadataSource: {
     googleBooks: string
@@ -72,7 +77,12 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     back: 'Voltar',
     coverLabel: 'Capa',
     coverSourceExternal: 'externa',
+    catalogManuallyWithISBN: 'Cadastrar manualmente com este ISBN',
     dialogTitle: 'Adicionar livro',
+    invalidISBN: 'Esse ISBN não parece válido.',
+    isbnLabel: 'ISBN',
+    isbnNotFound: 'ISBN válido, mas não encontrei nas bases públicas.',
+    isbnPlaceholder: 'ISBN impresso no livro',
     manualTitle: 'Adicionar manualmente',
     metadataSource: {
       googleBooks: 'Google Books',
@@ -108,7 +118,12 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     back: 'Back',
     coverLabel: 'Cover',
     coverSourceExternal: 'external',
+    catalogManuallyWithISBN: 'Catalog manually with this ISBN',
     dialogTitle: 'Add book',
+    invalidISBN: 'This ISBN does not look valid.',
+    isbnLabel: 'ISBN',
+    isbnNotFound: 'Valid ISBN, but I could not find it in public sources.',
+    isbnPlaceholder: 'ISBN printed in the book',
     manualTitle: 'Add manually',
     metadataSource: {
       googleBooks: 'Google Books',
@@ -144,7 +159,12 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     back: 'Volver',
     coverLabel: 'Portada',
     coverSourceExternal: 'externa',
+    catalogManuallyWithISBN: 'Catalogar manualmente con este ISBN',
     dialogTitle: 'Agregar libro',
+    invalidISBN: 'Este ISBN no parece válido.',
+    isbnLabel: 'ISBN',
+    isbnNotFound: 'ISBN válido, pero no lo encontré en las bases públicas.',
+    isbnPlaceholder: 'ISBN impreso en el libro',
     manualTitle: 'Agregar manualmente',
     metadataSource: {
       googleBooks: 'Google Books',
@@ -180,7 +200,12 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     back: '返回',
     coverLabel: '封面',
     coverSourceExternal: '外部',
+    catalogManuallyWithISBN: '使用此 ISBN 手动编目',
     dialogTitle: '添加图书',
+    invalidISBN: '这个 ISBN 看起来无效。',
+    isbnLabel: 'ISBN',
+    isbnNotFound: 'ISBN 有效，但未在公共来源中找到。',
+    isbnPlaceholder: '书上印刷的 ISBN',
     manualTitle: '手动添加',
     metadataSource: {
       googleBooks: 'Google Books',

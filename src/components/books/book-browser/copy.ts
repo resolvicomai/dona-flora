@@ -120,8 +120,7 @@ export const BROWSE_COPY: Record<AppLanguage, BrowseCopy> = {
     summaryEyebrow: 'Overview',
     selectionEyebrow: 'Library actions',
     selectionInactiveBody: 'Turn on selection to bulk-edit several books at once.',
-    selectionActiveBody: (count) =>
-      count === 1 ? '1 book selected.' : `${count} books selected.`,
+    selectionActiveBody: (count) => (count === 1 ? '1 book selected.' : `${count} books selected.`),
     enterSelection: 'Select books',
     exitSelection: 'Exit selection',
     selectVisible: 'Select visible',

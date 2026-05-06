@@ -94,9 +94,7 @@ export function ChatMain({
   // `status` flipping to 'submitted'. It also flags a server-recorded
   // `'generating'` from a refresh mid-stream so the typing-dots bubble
   // appears without polling.
-  const [pendingTurn, setPendingTurn] = useState<boolean>(
-    initialGenerationStatus === 'generating',
-  )
+  const [pendingTurn, setPendingTurn] = useState<boolean>(initialGenerationStatus === 'generating')
   const [remoteLastError, setRemoteLastError] = useState(initialLastError ?? '')
   const seedApplied = useRef(false)
   const externalPreferenceRef = useRef<ExternalPreference | null>(null)

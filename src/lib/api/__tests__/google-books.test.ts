@@ -61,6 +61,39 @@ describe('searchGoogleBooks', () => {
     expect(results).toEqual([])
   })
 
+  it('tries an accentless title variant when the first title search returns empty', async () => {
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ totalItems: 0 }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => MOCK_VALID_RESPONSE,
+      } as Response)
+
+    const results = await searchGoogleBooks('Máquinas Éticas')
+
+    expect(results).toHaveLength(1)
+    expect(results[0].title).toBe('Fundacao')
+    expect(String(fetchSpy.mock.calls[0][0])).toContain('q=M%C3%A1quinas+%C3%89ticas')
+    expect(String(fetchSpy.mock.calls[1][0])).toContain('q=Maquinas+Eticas')
+  })
+
+  it('does not retry ISBN queries with title variants when ISBN returns empty', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ totalItems: 0 }),
+    } as Response)
+
+    const results = await searchGoogleBooks('978-85-508-2240-2')
+
+    expect(results).toEqual([])
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(String(fetchSpy.mock.calls[0][0])).toContain('q=isbn%3A9788550822402')
+  })
+
   it('converts http:// thumbnail URL to https://', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,

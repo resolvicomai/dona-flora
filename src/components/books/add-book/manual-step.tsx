@@ -22,10 +22,12 @@ type AddBookManualStepProps = {
   isSaving: boolean
   locale: AppLanguage
   manualAuthor: string
+  manualISBN: string
   manualStatus: string
   manualTitle: string
   setError: React.Dispatch<React.SetStateAction<string | null>>
   setManualAuthor: React.Dispatch<React.SetStateAction<string>>
+  setManualISBN: React.Dispatch<React.SetStateAction<string>>
   setManualStatus: React.Dispatch<React.SetStateAction<string>>
   setManualTitle: React.Dispatch<React.SetStateAction<string>>
   setStep: React.Dispatch<React.SetStateAction<Step>>
@@ -40,10 +42,12 @@ export function AddBookManualStep({
   isSaving,
   locale,
   manualAuthor,
+  manualISBN,
   manualStatus,
   manualTitle,
   setError,
   setManualAuthor,
+  setManualISBN,
   setManualStatus,
   setManualTitle,
   setStep,
@@ -76,6 +80,18 @@ export function AddBookManualStep({
           placeholder={copy.authorPlaceholder}
           value={manualAuthor}
           onChange={(e) => setManualAuthor(e.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="manual-isbn" className="eyebrow">
+          {copy.isbnLabel}
+        </Label>
+        <Input
+          id="manual-isbn"
+          placeholder={copy.isbnPlaceholder}
+          value={manualISBN}
+          onChange={(e) => setManualISBN(e.target.value)}
         />
       </div>
 

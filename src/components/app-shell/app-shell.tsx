@@ -17,9 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isChatRoute = pathname === '/chat' || pathname.startsWith('/chat/')
 
   return (
-    <div
-      className={cn('relative flex min-h-dvh flex-col', isChatRoute && 'h-dvh overflow-hidden')}
-    >
+    <div className={cn('relative flex min-h-dvh flex-col', isChatRoute && 'h-dvh overflow-hidden')}>
       {isAuthRoute ? null : <TopNav />}
       <main
         className={cn(

@@ -10,6 +10,10 @@ describe('ISBN normalization', () => {
       kind: 'isbn_13',
       value: '9780553293357',
     })
+    expect(normalizeISBN('978-85-508-2240-2')).toEqual({
+      kind: 'isbn_13',
+      value: '9788550822402',
+    })
   })
 
   it('splits legacy isbn into isbn_10 or isbn_13 without removing legacy value', () => {
@@ -22,5 +26,7 @@ describe('ISBN normalization', () => {
 
   it('returns null for invalid ISBN-like strings', () => {
     expect(normalizeISBN('not-an-isbn')).toBeNull()
+    expect(normalizeISBN('978-85-508-2240-3')).toBeNull()
+    expect(normalizeISBN('0-553-29335-5')).toBeNull()
   })
 })

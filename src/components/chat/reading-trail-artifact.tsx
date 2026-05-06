@@ -76,8 +76,7 @@ export function ReadingTrailArtifact({ isPending = false, slugs, suggestedTitle 
         const fieldMessages = payload?.details?.fieldErrors
           ? Object.values(payload.details.fieldErrors).flat().join(' · ')
           : null
-        const reason =
-          fieldMessages || payload?.error || `HTTP ${res.status}`
+        const reason = fieldMessages || payload?.error || `HTTP ${res.status}`
         setErrorDetail(reason)
         setState('error')
         return

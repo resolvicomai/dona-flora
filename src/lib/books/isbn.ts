@@ -4,6 +4,25 @@ export interface NormalizedISBN {
   isbn_13?: string
 }
 
+function hasValidISBN10Checksum(value: string) {
+  const sum = [...value].reduce((total, char, index) => {
+    const digit = char === 'X' ? 10 : Number(char)
+    return total + digit * (10 - index)
+  }, 0)
+
+  return sum % 11 === 0
+}
+
+function hasValidISBN13Checksum(value: string) {
+  const digits = [...value].map(Number)
+  const sum = digits
+    .slice(0, 12)
+    .reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 1 : 3), 0)
+  const check = (10 - (sum % 10)) % 10
+
+  return check === digits[12]
+}
+
 export function normalizeISBN(raw: string | undefined | null) {
   if (!raw) {
     return null
@@ -11,11 +30,11 @@ export function normalizeISBN(raw: string | undefined | null) {
 
   const value = raw.replace(/[-\s]/g, '').toUpperCase()
 
-  if (/^\d{13}$/.test(value)) {
+  if (/^\d{13}$/.test(value) && hasValidISBN13Checksum(value)) {
     return { kind: 'isbn_13' as const, value }
   }
 
-  if (/^\d{9}[\dX]$/.test(value)) {
+  if (/^\d{9}[\dX]$/.test(value) && hasValidISBN10Checksum(value)) {
     return { kind: 'isbn_10' as const, value }
   }
 

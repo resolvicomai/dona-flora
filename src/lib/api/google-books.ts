@@ -1,5 +1,6 @@
 import { matchesBookLanguageFilter, resolveGoogleBooksLanguageRestrict } from '@/lib/books/language'
 import { normalizeISBN } from '@/lib/books/isbn'
+import { stripDiacritics } from './dedupe'
 
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes'
 
@@ -49,18 +50,34 @@ export interface BookSearchResult {
   language?: string
 }
 
-function isIsbnQuery(q: string): boolean {
-  const digits = q.replace(/[-\s]/g, '')
-  return /^\d{10}$/.test(digits) || /^\d{13}$/.test(digits)
-}
-
 export async function searchGoogleBooks(
   query: string,
   maxResults = 5,
   startIndex = 0,
   language?: string,
 ): Promise<BookSearchResult[]> {
-  const q = isIsbnQuery(query) ? `isbn:${query.replace(/[-\s]/g, '')}` : query
+  const normalizedISBN = normalizeISBN(query)
+  const q = normalizedISBN ? `isbn:${normalizedISBN.value}` : query
+  const firstResults = await fetchGoogleBooks(q, maxResults, startIndex, language)
+
+  if (normalizedISBN || firstResults.length > 0) {
+    return firstResults
+  }
+
+  const accentlessQuery = stripDiacritics(query)
+  if (accentlessQuery === query) {
+    return firstResults
+  }
+
+  return fetchGoogleBooks(accentlessQuery, maxResults, startIndex, language)
+}
+
+async function fetchGoogleBooks(
+  q: string,
+  maxResults: number,
+  startIndex: number,
+  language?: string,
+): Promise<BookSearchResult[]> {
   const params = new URLSearchParams({
     q,
     maxResults: String(maxResults),

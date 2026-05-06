@@ -118,12 +118,12 @@ Ela não quer substituir o Obsidian, nem prender seus dados em um banco opaco. E
 
 A Dona Flora fala quatro línguas, escolhidas pelo usuário em `Ajustes -> Preferências`:
 
-| Locale  | Onde se aplica                                                          |
-| ------- | ----------------------------------------------------------------------- |
-| `pt-BR` | Idioma original. Padrão se nenhum outro for configurado.                |
-| `en`    | Tradução completa de UI, prompts da Dona Flora e mensagens de erro.     |
-| `es`    | Tradução completa de UI, prompts da Dona Flora e mensagens de erro.     |
-| `zh-CN` | Tradução completa de UI, prompts da Dona Flora e mensagens de erro.    |
+| Locale  | Onde se aplica                                                      |
+| ------- | ------------------------------------------------------------------- |
+| `pt-BR` | Idioma original. Padrão se nenhum outro for configurado.            |
+| `en`    | Tradução completa de UI, prompts da Dona Flora e mensagens de erro. |
+| `es`    | Tradução completa de UI, prompts da Dona Flora e mensagens de erro. |
+| `zh-CN` | Tradução completa de UI, prompts da Dona Flora e mensagens de erro. |
 
 A tradução cobre interface, formulários, mensagens de erro, copy do chat e a persona da bibliotecária. Acervo, notas e highlights ficam intocados no idioma em que você escreveu.
 

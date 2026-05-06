@@ -9,7 +9,7 @@ import type { BookSearchResult } from '@/lib/api/google-books'
 import type { BookLanguageFilter } from '@/lib/books/language'
 import { BOOK_LANGUAGE_FILTER_OPTIONS, type Step } from './constants'
 import type { AddBookCopy } from './copy'
-import { formatAuthors, metadataSourceLabel } from './helpers'
+import { formatAuthors, getValidISBNFromQuery, metadataSourceLabel } from './helpers'
 
 type AddBookSearchStepProps = {
   bookLanguage: BookLanguageFilter
@@ -18,6 +18,7 @@ type AddBookSearchStepProps = {
   fetchMore: () => Promise<void>
   filterCopy: { all: string; label: string }
   handleBookLanguageChange: (value: BookLanguageFilter) => void
+  handleManualWithCurrentISBN: () => void
   handleQueryChange: (value: string) => void
   handleVisionImage: (file: File | null | undefined) => void
   hasMore: boolean
@@ -42,6 +43,7 @@ export function AddBookSearchStep({
   fetchMore,
   filterCopy,
   handleBookLanguageChange,
+  handleManualWithCurrentISBN,
   handleQueryChange,
   handleVisionImage,
   hasMore,
@@ -59,6 +61,9 @@ export function AddBookSearchStep({
   visionImporting,
 }: AddBookSearchStepProps) {
   if (!visible) return null
+
+  const validISBN = getValidISBNFromQuery(query)
+  const hasNoResults = !searching && query.length >= 3 && results.length === 0 && !error
 
   return (
     <div className="flex flex-col gap-4">
@@ -192,8 +197,10 @@ export function AddBookSearchStep({
       )}
 
       {/* No results state */}
-      {!searching && query.length >= 3 && results.length === 0 && !error && (
-        <p className="text-center text-sm text-muted-foreground">{copy.noResults}</p>
+      {hasNoResults && (
+        <p className="text-center text-sm text-muted-foreground">
+          {validISBN ? copy.isbnNotFound : copy.noResults}
+        </p>
       )}
 
       {/* Manual add link */}
@@ -201,11 +208,15 @@ export function AddBookSearchStep({
         <button
           onClick={() => {
             setError(null)
+            if (validISBN) {
+              handleManualWithCurrentISBN()
+              return
+            }
             setStep('manual')
           }}
           className="text-center text-sm text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
         >
-          {copy.notFoundManual}
+          {validISBN ? copy.catalogManuallyWithISBN : copy.notFoundManual}
         </button>
       )}
     </div>

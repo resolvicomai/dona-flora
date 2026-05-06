@@ -1,4 +1,5 @@
 import type { BookSearchResult } from '@/lib/api/google-books'
+import { normalizeISBN } from '@/lib/books/isbn'
 import type { AddBookCopy } from './copy'
 
 export function formatAuthors(authors: string[], copy: AddBookCopy): string {
@@ -19,4 +20,19 @@ export async function getSearchErrorMessage(response: Response, copy: AddBookCop
   } | null
 
   return payload?.error ?? copy.searchError
+}
+
+export function normalizeManualISBN(value: string) {
+  const normalized = normalizeISBN(value)
+  if (!normalized) return {}
+
+  if (normalized.kind === 'isbn_13') {
+    return { isbn_13: normalized.value }
+  }
+
+  return { isbn_10: normalized.value }
+}
+
+export function getValidISBNFromQuery(query: string) {
+  return normalizeISBN(query.trim())
 }
