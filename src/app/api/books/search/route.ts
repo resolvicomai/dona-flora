@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { requireVerifiedRequestSession } from '@/lib/auth/server'
 import { searchGoogleBooks } from '@/lib/api/google-books'
 import { searchOpenLibrary } from '@/lib/api/open-library'
+import { searchAltaBooks } from '@/lib/api/alta-books'
 import type { BookSearchResult } from '@/lib/api/google-books'
 import { findAmazonCoverByISBN } from '@/lib/api/amazon-cover'
 
@@ -69,6 +70,14 @@ export async function POST(request: NextRequest) {
         { error: 'Erro ao buscar livros. Tente novamente em instantes.' },
         { status: 500 },
       )
+    }
+  }
+
+  if (results.length === 0) {
+    try {
+      results = await searchAltaBooks(result.data.query, limit, requestedLanguage)
+    } catch (err) {
+      console.warn('[API] Alta Books fallback failed:', err instanceof Error ? err.message : err)
     }
   }
 

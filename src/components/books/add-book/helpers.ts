@@ -9,6 +9,7 @@ export function formatAuthors(authors: string[], copy: AddBookCopy): string {
 }
 
 export function metadataSourceLabel(source: BookSearchResult['source'], copy: AddBookCopy) {
+  if (source === 'alta-books') return copy.metadataSource.altaBooks
   if (source === 'google-books') return copy.metadataSource.googleBooks
   if (source === 'open-library') return copy.metadataSource.openLibrary
   return copy.metadataSource.visionImport

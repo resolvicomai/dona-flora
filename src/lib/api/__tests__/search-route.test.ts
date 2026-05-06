@@ -24,13 +24,16 @@ jest.mock('@/lib/auth/server', () => ({
 import { POST } from '@/app/api/books/search/route'
 import { searchGoogleBooks } from '@/lib/api/google-books'
 import { searchOpenLibrary } from '@/lib/api/open-library'
+import { searchAltaBooks } from '@/lib/api/alta-books'
 import type { BookSearchResult } from '@/lib/api/google-books'
 
 jest.mock('@/lib/api/google-books')
 jest.mock('@/lib/api/open-library')
+jest.mock('@/lib/api/alta-books')
 
 const mockedSearchGoogleBooks = searchGoogleBooks as jest.MockedFunction<typeof searchGoogleBooks>
 const mockedSearchOpenLibrary = searchOpenLibrary as jest.MockedFunction<typeof searchOpenLibrary>
+const mockedSearchAltaBooks = searchAltaBooks as jest.MockedFunction<typeof searchAltaBooks>
 
 function makeRequest(query: unknown): NextRequest {
   return new NextRequest('http://localhost/api/books/search', {
@@ -50,6 +53,8 @@ beforeEach(() => {
   jest.restoreAllMocks()
   mockedSearchGoogleBooks.mockReset()
   mockedSearchOpenLibrary.mockReset()
+  mockedSearchAltaBooks.mockReset()
+  mockedSearchAltaBooks.mockResolvedValue([])
 })
 
 describe('POST /api/books/search — resilient fallback', () => {
@@ -129,6 +134,7 @@ describe('POST /api/books/search — resilient fallback', () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {})
     mockedSearchGoogleBooks.mockRejectedValueOnce(new Error('[GoogleBooks] API error: 429'))
     mockedSearchOpenLibrary.mockResolvedValueOnce([])
+    mockedSearchAltaBooks.mockResolvedValueOnce([])
 
     const res = await POST(makeRequest('9788550822426'))
     const body = await res.json()
@@ -136,6 +142,35 @@ describe('POST /api/books/search — resilient fallback', () => {
     expect(res.status).toBe(503)
     expect(body.code).toBe('provider_unavailable')
     expect(body.error).toMatch(/Google Books/i)
+  })
+
+  it('uses Alta Books when Google is unavailable and Open Library has no matches', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    mockedSearchGoogleBooks.mockRejectedValueOnce(new Error('[GoogleBooks] API error: 429'))
+    mockedSearchOpenLibrary.mockResolvedValueOnce([])
+    mockedSearchAltaBooks.mockResolvedValueOnce([
+      {
+        title: 'Máquinas Éticas',
+        authors: ['Reid Blackman'],
+        isbn13: '9788550822402',
+        publisher: 'Alta Books',
+        source: 'alta-books',
+        language: 'pt-BR',
+      },
+    ])
+
+    const res = await POST(makeRequest('máquinas éticas reid blackman'))
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body).toHaveLength(1)
+    expect(body[0].title).toBe('Máquinas Éticas')
+    expect(body[0].source).toBe('alta-books')
+    expect(mockedSearchAltaBooks).toHaveBeenCalledWith(
+      'máquinas éticas reid blackman',
+      expect.any(Number),
+      undefined,
+    )
   })
 
   it('returns 500 only when BOTH providers throw', async () => {

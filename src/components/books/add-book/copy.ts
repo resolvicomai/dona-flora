@@ -42,6 +42,7 @@ export type AddBookCopy = {
   isbnPlaceholder: string
   manualTitle: string
   metadataSource: {
+    altaBooks: string
     googleBooks: string
     openLibrary: string
     visionImport: string
@@ -85,6 +86,7 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     isbnPlaceholder: 'ISBN impresso no livro',
     manualTitle: 'Adicionar manualmente',
     metadataSource: {
+      altaBooks: 'Alta Books',
       googleBooks: 'Google Books',
       openLibrary: 'Open Library',
       visionImport: 'Foto da capa',
@@ -126,6 +128,7 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     isbnPlaceholder: 'ISBN printed in the book',
     manualTitle: 'Add manually',
     metadataSource: {
+      altaBooks: 'Alta Books',
       googleBooks: 'Google Books',
       openLibrary: 'Open Library',
       visionImport: 'Cover photo',
@@ -167,6 +170,7 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     isbnPlaceholder: 'ISBN impreso en el libro',
     manualTitle: 'Agregar manualmente',
     metadataSource: {
+      altaBooks: 'Alta Books',
       googleBooks: 'Google Books',
       openLibrary: 'Open Library',
       visionImport: 'Foto de portada',
@@ -208,6 +212,7 @@ export const ADD_BOOK_COPY: Record<AppLanguage, AddBookCopy> = {
     isbnPlaceholder: '书上印刷的 ISBN',
     manualTitle: '手动添加',
     metadataSource: {
+      altaBooks: 'Alta Books',
       googleBooks: 'Google Books',
       openLibrary: 'Open Library',
       visionImport: '封面照片',

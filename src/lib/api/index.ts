@@ -1,3 +1,4 @@
+export * from './alta-books'
 export * from './amazon-cover'
 export * from './dedupe'
 export * from './google-books'

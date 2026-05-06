@@ -43,9 +43,9 @@ export interface BookSearchResult {
   synopsis?: string
   synopsisSource?: string
   cover?: string
-  coverSource?: 'google-books' | 'open-library' | 'amazon'
+  coverSource?: 'google-books' | 'open-library' | 'amazon' | 'alta-books'
   genre?: string
-  source: 'google-books' | 'open-library' | 'vision-import'
+  source: 'google-books' | 'open-library' | 'alta-books' | 'vision-import'
   year?: number
   language?: string
 }
