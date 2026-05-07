@@ -15,20 +15,20 @@ const MOCK_STORE_RESPONSE = [
   },
 ]
 
+const emptyStoreResponse = {
+  ok: true,
+  json: async () => [],
+} as Response
+
 beforeEach(() => jest.restoreAllMocks())
 
 describe('searchAltaBooks', () => {
   it('parses Alta Books store results into BookSearchResult[]', async () => {
     jest
       .spyOn(global, 'fetch')
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => [],
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => [],
-      } as Response)
+      .mockResolvedValue(emptyStoreResponse)
+      .mockResolvedValueOnce(emptyStoreResponse)
+      .mockResolvedValueOnce(emptyStoreResponse)
       .mockResolvedValueOnce({
         ok: true,
         json: async () => MOCK_STORE_RESPONSE,
@@ -58,10 +58,8 @@ describe('searchAltaBooks', () => {
   it('searches hyphenated ISBN when the user types digits only', async () => {
     const fetchSpy = jest
       .spyOn(global, 'fetch')
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => [],
-      } as Response)
+      .mockResolvedValue(emptyStoreResponse)
+      .mockResolvedValueOnce(emptyStoreResponse)
       .mockResolvedValueOnce({
         ok: true,
         json: async () => MOCK_STORE_RESPONSE,
@@ -77,14 +75,9 @@ describe('searchAltaBooks', () => {
   it('tries the likely title core when the user includes author names', async () => {
     const fetchSpy = jest
       .spyOn(global, 'fetch')
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => [],
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => [],
-      } as Response)
+      .mockResolvedValue(emptyStoreResponse)
+      .mockResolvedValueOnce(emptyStoreResponse)
+      .mockResolvedValueOnce(emptyStoreResponse)
       .mockResolvedValueOnce({
         ok: true,
         json: async () => MOCK_STORE_RESPONSE,
