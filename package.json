@@ -19,13 +19,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.72",
-    "@ai-sdk/openai": "^3.0.54",
-    "@ai-sdk/openai-compatible": "^2.0.42",
-    "@ai-sdk/react": "^3.0.170",
+    "@ai-sdk/anthropic": "^3.0.116",
+    "@ai-sdk/openai": "^3.0.109",
+    "@ai-sdk/openai-compatible": "^2.0.74",
+    "@ai-sdk/react": "^3.0.280",
     "@base-ui/react": "^1.4.0",
     "@openrouter/ai-sdk-provider": "^2.8.0",
-    "ai": "^6.0.168",
+    "ai": "^6.0.277",
     "better-auth": "^1.6.13",
     "better-sqlite3": "^12.9.0",
     "chokidar": "^5.0.0",
